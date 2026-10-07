@@ -81,6 +81,8 @@
   a.win { text-decoration: none; display: block; }
   a.win:hover { border-color: var(--red); }
   .thumb { aspect-ratio: 16/9; background: #000; border: 2px solid var(--chrome); display: grid; place-items: center; text-align: center; color: var(--chrome); font-size: .9rem; padding: 8px; margin-bottom: 12px; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card h3.vt { font-size: 1.25rem; line-height: 1.25; }
   .card h3 { margin: 0 0 4px; font-size: 1.7rem; }
   .card p { margin: 0; color: var(--chrome); }
   .sticker { display: inline-block; background: var(--white); color: var(--black); font-weight: 700; font-size: .85rem; padding: 1px 10px; border: 2px solid var(--red); border-radius: 12px; transform: rotate(-3deg); margin-bottom: 8px; }
@@ -149,29 +151,29 @@
       <h2 class="k">Videos</h2>
       <p class="lead">My latest uploads. Click one to watch it on YouTube.</p>
       <div class="grid">
-        <!-- TODO: for each video, replace # with the video link, and change the title and text -->
+        <!-- TODO: to link a card to its exact video, replace the channel link in that card with the video link -->
         <a class="win card" href="https://www.youtube.com/@MentosAndDan" target="_blank" rel="noopener">
           <div class="bar"><span>video_01.avi</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
           <div class="body">
-            <div class="thumb">Add a video thumbnail here</div>
-            <h3 class="k">Video title one</h3>
-            <p>One sentence about what happens in this video.</p>
+            <div class="thumb"><img src="images/video1.jpg" alt="Crazy Fortnite montage thumbnail: an old black and white portrait of a woman next to a Fortnite character holding a shotgun"></div>
+            <h3 class="k vt">Crazy fortnite montáž s tomášom tomom timpruldom turtolom mikovičom</h3>
+            <p>Fortnite montage with friends.</p>
           </div>
         </a>
         <a class="win card" href="https://www.youtube.com/@MentosAndDan" target="_blank" rel="noopener">
           <div class="bar"><span>video_02.avi</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
           <div class="body">
-            <div class="thumb">Add a video thumbnail here</div>
-            <h3 class="k">Video title two</h3>
-            <p>One sentence about what happens in this video.</p>
+            <div class="thumb"><img src="images/video2.jpg" alt="Fortnite OG thumbnail: a Fortnite soldier aiming a sniper rifle next to a man in a suit holding his head, with the word Koniec"></div>
+            <h3 class="k vt">Posledné chvíle starého fortnite... (FORTNITE OG w/Tomáš, Teo, Kubko, Juici, Maxim, Damian Sk/Cz)</h3>
+            <p>The last moments of old Fortnite, played with friends.</p>
           </div>
         </a>
         <a class="win card" href="https://www.youtube.com/@MentosAndDan" target="_blank" rel="noopener">
           <div class="bar"><span>video_03.avi</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
           <div class="body">
-            <div class="thumb">Add a video thumbnail here</div>
-            <h3 class="k">Video title three</h3>
-            <p>One sentence about what happens in this video.</p>
+            <div class="thumb"><img src="images/video3.jpg" alt="Funny crazy moments thumbnail with laughing emojis, a GTA cover and the Roblox logo"></div>
+            <h3 class="k vt">FUNNY CRAZY MOMENTS /w Tomáš, Maxim Cz/Sk</h3>
+            <p>Funny moments with friends.</p>
           </div>
         </a>
       </div>
@@ -186,7 +188,7 @@
       <div class="win">
         <div class="bar"><span>scripting_showcase.exe</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
         <div class="body split">
-          <div class="game-art"><img class="art" src="images/spider.png" alt="Black and white drawing of a spider on its web"></div>
+          <div class="game-art"><img class="art" src="images/avatar.jpg" alt="Roblox character with spiky green hair and black spiked goggles" style="max-height:none;width:100%"></div>
           <div>
             <span class="sticker">Scripting showcase</span>
             <h3 class="k" style="font-size:2.4rem;margin:0 0 6px">Mentosove scripting miesto</h3>
@@ -197,10 +199,13 @@
       </div>
       <div class="win" style="margin-top:22px">
         <div class="bar"><span>kiko_dungeon.exe</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
-        <div class="body">
-          <span class="sticker">In progress</span>
-          <h3 class="k" style="font-size:2rem;margin:0 0 6px">Kiko Dungeon</h3>
-          <p style="margin:0">A dungeon crawler where you fight Kiko goblins, then face the giant Kiko boss. Coming soon.</p>
+        <div class="body split">
+          <div>
+            <span class="sticker">In progress</span>
+            <h3 class="k" style="font-size:2rem;margin:0 0 6px">Kiko Dungeon</h3>
+            <p style="margin:0">A dungeon crawler where you fight Kiko goblins, then face the giant Kiko boss. Coming soon.</p>
+          </div>
+          <div class="game-art"><img class="art" src="images/spider.png" alt="Black and white drawing of a spider on its web" style="max-height:220px"></div>
         </div>
       </div>
     </div>
