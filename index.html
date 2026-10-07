@@ -20,6 +20,19 @@
   .wrap { max-width: 980px; margin: 0 auto; padding: 0 18px; }
   .k { font-family: "Kaijuz", "Arial Black", sans-serif; font-weight: 400; letter-spacing: .02em; }
 
+  /* side rails (wide screens only) */
+  .rail { position: fixed; top: 0; bottom: 0; width: calc((100vw - 1010px) / 2); pointer-events: none; display: none; overflow: hidden; z-index: 0; }
+  .rail.l { left: 0; } .rail.r { right: 0; }
+  .rail .vine { position: absolute; top: 0; bottom: 0; width: 100px; background: url("images/thorns.png") center top / 100px auto repeat-y; mix-blend-mode: screen; opacity: .9; }
+  .rail.l .vine { left: 6px; } .rail.r .vine { right: 6px; transform: scaleX(-1); }
+  .rail img { position: absolute; mix-blend-mode: screen; }
+  .rail.l img { right: 6px; } .rail.r img { left: 6px; }
+  .spark { position: absolute; width: 22px; height: 22px; background: var(--white); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); animation: tw 3.2s ease-in-out infinite; }
+  .spark.red { background: var(--red); width: 30px; height: 30px; animation-delay: -1.4s; }
+  @keyframes tw { 0%, 100% { opacity: .25; transform: scale(.7); } 50% { opacity: 1; transform: scale(1.1); } }
+  @media (min-width: 1300px) { .rail { display: block; } }
+  @media (prefers-reduced-motion: reduce) { .spark { animation: none; } }
+
   /* ticker */
   .ticker { background: var(--red); color: var(--black); overflow: hidden; white-space: nowrap; border-bottom: 3px solid var(--white); font-weight: 700; }
   .ticker span { display: inline-block; padding: 4px 0; padding-left: 100%; animation: slide 28s linear infinite; }
@@ -73,6 +86,9 @@
   .back { text-align: center; margin: 0; }
   .back a { color: var(--chrome); }
 
+  a.egg { text-decoration: none; cursor: default; }
+  a.egg:hover, a.egg:focus-visible { color: var(--red); cursor: pointer; }
+
   /* sections */
   section { padding: 38px 0; }
   h2 { font-size: clamp(2.4rem, 7vw, 3.8rem); margin: 0 0 6px; line-height: 1; text-shadow: 3px 3px 0 var(--red); }
@@ -110,6 +126,27 @@
 </style>
 </head>
 <body id="top">
+<div class="rail l" aria-hidden="true">
+  <div class="vine"></div>
+  <img src="images/gastly.gif" alt="" style="top:16%;width:110px">
+  <img src="images/star.gif" alt="" style="top:52%;width:140px">
+  <img src="images/gastly.gif" alt="" style="top:78%;width:80px;transform:scaleX(-1)">
+  <span class="spark" style="top:8%;left:22%"></span>
+  <span class="spark red" style="top:38%;left:40%"></span>
+  <span class="spark" style="top:66%;left:18%"></span>
+  <span class="spark red" style="top:90%;left:44%"></span>
+</div>
+<div class="rail r" aria-hidden="true">
+  <div class="vine"></div>
+  <img src="images/star.gif" alt="" style="top:10%;width:140px;transform:scaleX(-1)">
+  <img src="images/gastly.gif" alt="" style="top:40%;width:100px;transform:scaleX(-1)">
+  <img src="images/gastly.gif" alt="" style="top:70%;width:120px">
+  <span class="spark red" style="top:24%;right:40%"></span>
+  <span class="spark" style="top:56%;right:20%"></span>
+  <span class="spark red" style="top:84%;right:42%"></span>
+  <span class="spark" style="top:4%;right:16%"></span>
+</div>
+
 
 <div class="ticker"><span>* Welcome to my page * New video every week * Join the Discord * Play my Roblox games * Thanks for stopping by *</span></div>
 
@@ -202,7 +239,7 @@
         <div class="body split">
           <div>
             <span class="sticker">In progress</span>
-            <h3 class="k" style="font-size:2rem;margin:0 0 6px">Kiko Dungeon</h3>
+            <h3 class="k" style="font-size:2rem;margin:0 0 6px"><a class="egg" href="images/kiko.jpg">Kiko</a> Dungeon</h3>
             <p style="margin:0">A dungeon crawler where you fight Kiko goblins, then face the giant Kiko boss. Coming soon.</p>
           </div>
           <div class="game-art"><img class="art" src="images/spider.png" alt="Black and white drawing of a spider on its web" style="max-height:220px"></div>
