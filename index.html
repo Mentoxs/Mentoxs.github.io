@@ -23,7 +23,7 @@
   /* side rails (wide screens only) */
   .rail { position: fixed; top: 0; bottom: 0; width: calc((100vw - 1010px) / 2); pointer-events: none; display: none; overflow: hidden; z-index: 0; }
   .rail.l { left: 0; } .rail.r { right: 0; }
-  .rail .vine { position: absolute; top: 0; bottom: 0; width: 100px; background: url("images/thorns.png") center top / 100px auto repeat-y; opacity: .9; }
+  .rail .vine { position: absolute; top: 0; bottom: 0; width: 100px; background: url("images/thorns-clear.png") center top / 100px auto repeat-y; opacity: .9; }
   .rail.l .vine { left: 6px; } .rail.r .vine { right: 6px; transform: scaleX(-1); }
   .rail img { position: absolute; }
   .rail.l img { right: 6px; } .rail.r img { left: 6px; }
@@ -34,9 +34,7 @@
   @media (prefers-reduced-motion: reduce) { .spark { animation: none; } }
 
   /* ticker */
-  .ticker { background: var(--purple); color: var(--black); overflow: hidden; white-space: nowrap; border-bottom: 3px solid var(--white); font-weight: 700; }
-  .ticker span { display: inline-block; padding: 4px 0; padding-left: 100%; animation: slide 28s linear infinite; }
-  @keyframes slide { to { transform: translateX(-100%); } }
+  .ticker { position: relative; z-index: 6; background: var(--purple); color: var(--black); text-align: center; padding: 4px 12px; border-bottom: 3px solid var(--white); font-family: "Kaijuz", "Arial Black", sans-serif; font-size: 1.35rem; letter-spacing: .03em; }
 
   /* taskbar nav */
   nav { background: linear-gradient(#e9e9e9, #a9a9a9); border-bottom: 3px solid var(--black); position: sticky; top: 0; z-index: 5; }
@@ -121,7 +119,6 @@
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .ticker span { animation: none; padding-left: 12px; }
   }
 </style>
 </head>
@@ -148,7 +145,7 @@
 </div>
 
 
-<div class="ticker"><span>* Welcome to my page * New video every week * Join the Discord * Play my Roblox games * Thanks for stopping by *</span></div>
+<div class="ticker">Mentosovi zajebalo</div>
 
 <nav>
   <div class="wrap">
@@ -184,7 +181,7 @@
 <main>
   <section id="videos">
     <div class="wrap rel">
-      <img class="deco" src="images/centipede.png" alt="">
+      <img class="deco" src="images/centipede-clear.png" alt="">
       <h2 class="k">Videos</h2>
       <p class="lead">My latest uploads. Click one to watch it on YouTube.</p>
       <div class="grid">
