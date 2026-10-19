@@ -600,6 +600,78 @@
   .fx-hollow .lant { left: 18%; top: 50%; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(rgba(255,190,90,.55), transparent 65%); animation: lant .25s steps(2) infinite alternate; }
   @keyframes lant { to { transform: scale(1.08); opacity: .8; } }
 
+  /* ===== poke ball ===== */
+  .pball { position: absolute; z-index: 4; width: 7%; min-width: 26px; image-rendering: pixelated; left: 16%; top: 72%; animation: throwB .75s ease-out forwards; }
+  @keyframes throwB { 50% { top: 4%; } to { left: 74%; top: 30%; transform: rotate(900deg); } }
+  .pball.drop { left: 74%; top: 30%; animation: dropB .4s cubic-bezier(.5,0,.6,1.6) forwards; }
+  @keyframes dropB { to { top: 46%; } }
+  .pball.wob { left: 74%; top: 46%; animation: wob .55s ease-in-out; }
+  @keyframes wob { 25% { transform: rotate(-28deg); } 75% { transform: rotate(28deg); } }
+  .pball.rest { left: 74%; top: 46%; animation: none; }
+  .pball.done { left: 74%; top: 46%; filter: brightness(.6); }
+  .spr.foe.absorb { animation: absorb .45s ease-in forwards !important; }
+  @keyframes absorb { to { transform: scale(0) translateY(40%); filter: brightness(3) sepia(1) saturate(6) hue-rotate(-40deg); opacity: 0; } }
+  .spr.foe.free { animation: sprIn .4s cubic-bezier(.3,1.6,.5,1) !important; }
+
+  /* ===== secrets + caught badge (footer) ===== */
+  .secrets { font: 1.25rem "VT323", monospace; color: var(--toxic); background: #000; border: 2px solid var(--toxic); padding: 2px 12px; cursor: pointer; margin: 6px 4px; }
+  .secrets:hover { background: var(--toxic); color: #000; }
+  .caughtb { display: inline-flex; align-items: center; gap: 4px; font: 1.25rem "VT323", monospace; color: #fff; background: #b31212; border: 2px solid #fff; box-shadow: 0 0 0 2px #000; border-radius: 14px; padding: 0 12px 0 4px; vertical-align: middle; margin: 6px 4px; text-shadow: 1px 1px 0 #000; }
+  .caughtb[hidden] { display: none; }
+  .caughtb img { width: 34px; height: 34px; image-rendering: pixelated; }
+  .sfound { position: fixed; left: 50%; top: 64px; z-index: 420; translate: -50% 0; background: #000; color: var(--toxic); border: 3px solid var(--toxic); box-shadow: 0 0 24px rgba(141,255,58,.6); padding: 6px 18px; font: 1.6rem "VT323", monospace; pointer-events: none; animation: sfound 2.6s ease-out forwards; white-space: nowrap; }
+  @keyframes sfound { 0% { transform: translateY(-80px); } 12%, 82% { transform: none; opacity: 1; } 100% { opacity: 0; } }
+  .slist { margin: 6px 0 0; padding: 0; list-style: none; font: 1.15rem/1.3 "VT323", monospace; }
+  .slist li.on { color: #1a7f2a; } .slist li.off { color: #888; }
+
+  /* ===== live roblox count + new stuff ===== */
+  .live { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 1.3rem; color: var(--toxic); }
+  .live[hidden] { display: none; }
+  .live i { width: 11px; height: 11px; border-radius: 50%; background: var(--toxic); box-shadow: 0 0 8px var(--toxic); animation: blink 1.2s steps(2) infinite; }
+  .zs-z { position: relative; }
+  .zs-z .new { top: -8px; right: -8px; }
+  .zs-badge .nw { background: var(--toxic); color: #000; padding: 0 6px; margin-left: 6px; animation: blink 1s steps(2) infinite; }
+
+  /* ===== discord widget ===== */
+  .dw { margin-top: 18px; border: 2px solid var(--chrome); background: #0a0a0a; padding: 10px 12px; }
+  .dw[hidden] { display: none; }
+  .dw-h { display: flex; justify-content: space-between; gap: 8px; font-size: 1.3rem; color: var(--toxic); margin-bottom: 6px; }
+  .dw ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; max-height: 120px; overflow: auto; }
+  .dw li { display: flex; align-items: center; gap: 6px; font-size: .95rem; }
+  .dw li img { width: 22px; height: 22px; border-radius: 50%; }
+  .dw li b { width: 8px; height: 8px; border-radius: 50%; background: #3ba55d; }
+  .dw li b.idle { background: #faa61a; } .dw li b.dnd { background: #ed4245; }
+
+  /* ===== ufo honda ===== */
+  .ufo { position: fixed; left: 2vw; bottom: 2vh; width: min(380px, 78vw); aspect-ratio: 2.3 / 1; z-index: 70; pointer-events: none; }
+  .ufo .road { position: absolute; inset: 22% 0 0 0; border-radius: 50%; background: radial-gradient(closest-side, #2f6b2a 0 44%, #d8d8d8 45% 47%, #3a3a3a 48% 88%, #d8d8d8 89% 91%, transparent 92%); animation: fadeIn .6s; }
+  .ufo .road::after { content: ""; position: absolute; inset: 17% 13%; border-radius: 50%; border: 2px dashed rgba(255,255,255,.75); }
+  .ufo .isl { position: absolute; left: 50%; top: 61%; translate: -50% -50%; font-size: clamp(1.4rem, 5vw, 2rem); z-index: 1; }
+  .ufo .sign { position: absolute; left: 50%; top: 52%; translate: -50% -50%; font: 1rem/1 "VT323", monospace; background: #0050b4; color: #fff; padding: 1px 5px; border: 1px solid #fff; z-index: 1; white-space: nowrap; }
+  .ufo .saucer { position: absolute; left: 50%; top: -95%; width: 34%; translate: -50% 0; z-index: 4; animation: saucerIn 1.4s cubic-bezier(.2,1.2,.4,1) both, saucerBob 1.6s ease-in-out 1.4s infinite; }
+  .ufo .saucer.away { animation: saucerOut 1.2s ease-in forwards; }
+  @keyframes saucerIn { from { transform: translate(-60vw, -40vh) rotate(-25deg) scale(.4); } }
+  @keyframes saucerBob { 50% { translate: -50% -8px; } }
+  @keyframes saucerOut { to { transform: translate(40vw, -80vh) scale(.3); opacity: 0; } }
+  .ufo .dome { width: 46%; aspect-ratio: 1.6; margin: 0 auto -12%; border-radius: 50% 50% 10% 10%; background: radial-gradient(circle at 40% 35%, #e9fff6, #8dffd8 40%, #2bb88f); border: 2px solid #0b3b2c; }
+  .ufo .disc { height: 0; padding-bottom: 26%; border-radius: 50%; background: linear-gradient(#d7d7e8, #8a8aa8 55%, #4b4b66); border: 2px solid #222; position: relative; }
+  .ufo .disc::after { content: ""; position: absolute; left: 10%; right: 10%; top: 40%; height: 18%; background: repeating-linear-gradient(90deg, #ffe14d 0 8%, transparent 8% 16%); animation: blink .4s steps(2) infinite; }
+  .ufo .beam { position: absolute; left: 50%; top: 2%; width: 44%; height: 80%; translate: -50% 0; z-index: 3; clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); background: linear-gradient(rgba(141,255,58,.75), rgba(141,255,58,.08)); opacity: 0; transition: opacity .4s; animation: flick .15s steps(2) infinite; }
+  .ufo .beam.on { opacity: 1; }
+  .ufo .car { position: absolute; left: 0; top: 0; width: 34%; z-index: 2; image-rendering: pixelated; pointer-events: auto; cursor: pointer; transform-origin: 50% 90%; filter: drop-shadow(0 4px 2px rgba(0,0,0,.5)); }
+  .ufo .smoke { position: absolute; z-index: 1; width: 14px; height: 14px; border-radius: 50%; background: rgba(230,230,230,.8); animation: smoke .9s ease-out forwards; }
+  @keyframes smoke { to { transform: scale(3.2) translateY(-14px); opacity: 0; } }
+  .ufo-txt { position: fixed; left: 50%; top: 22%; z-index: 75; translate: -50% 0; pointer-events: none; font-size: clamp(2rem, 8vw, 4.6rem); line-height: 1; color: var(--toxic); white-space: nowrap; text-shadow: 4px 4px 0 #000, 0 0 24px var(--toxic); animation: ufoTxt 2.6s ease-out forwards; }
+  @keyframes ufoTxt { 0% { transform: scale(3); opacity: 0; } 15%, 75% { transform: none; opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
+
+  /* ===== 2000s cursor (mouse only) ===== */
+  @media (hover: hover) and (pointer: fine) {
+    html.cur, html.cur * { cursor: var(--c-arrow), auto; }
+    html.cur a, html.cur button, html.cur [role="button"], html.cur label, html.cur .ufo .car, html.cur .gmsg, html.cur .rail img.ghost { cursor: var(--c-hand), pointer !important; }
+    html.cur input[type="text"], html.cur textarea { cursor: text !important; }
+    html.cur .pop .bar { cursor: move !important; }
+  }
+
   @media (max-width: 720px) {
     .hero .wrap, .split, .discord { grid-template-columns: 1fr; }
     .discord img { width: 120px; }
@@ -717,8 +789,7 @@
       <h2 class="k">Videos</h2>
       <p class="lead">My latest uploads. Click one to watch it on YouTube.</p>
       <div class="grid">
-        <!-- TODO: to link a card to its exact video, replace the channel link in that card with the video link -->
-        <a class="win card" href="https://www.youtube.com/@MentosAndDan" target="_blank" rel="noopener">
+        <a class="win card" href="https://www.youtube.com/watch?v=uA7td6LQGx0" target="_blank" rel="noopener">
           <div class="bar"><span>video_01.avi</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
           <div class="body">
             <div class="thumb"><img src="images/video1.jpg" alt="Crazy Fortnite montage thumbnail: an old black and white portrait of a woman next to a Fortnite character holding a shotgun"></div>
@@ -726,7 +797,7 @@
             <p>Fortnite montage with friends.</p>
           </div>
         </a>
-        <a class="win card" href="https://www.youtube.com/@MentosAndDan" target="_blank" rel="noopener">
+        <a class="win card" href="https://www.youtube.com/watch?v=2LcTEeFdgIg" target="_blank" rel="noopener">
           <div class="bar"><span>video_02.avi</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
           <div class="body">
             <div class="thumb"><img src="images/video2.jpg" alt="Fortnite OG thumbnail: a Fortnite soldier aiming a sniper rifle next to a man in a suit holding his head, with the word Koniec"></div>
@@ -734,7 +805,7 @@
             <p>The last moments of old Fortnite, played with friends.</p>
           </div>
         </a>
-        <a class="win card" href="https://www.youtube.com/@MentosAndDan" target="_blank" rel="noopener">
+        <a class="win card" href="https://www.youtube.com/watch?v=x_wl7tebvXw" target="_blank" rel="noopener">
           <div class="bar"><span>video_03.avi</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
           <div class="body">
             <div class="thumb"><img src="images/video3.jpg" alt="Funny crazy moments thumbnail with laughing emojis, a GTA cover and the Roblox logo"></div>
@@ -762,6 +833,7 @@
             <span class="sticker">Scripting showcase</span>
             <h3 class="k" style="font-size:2.4rem;margin:0 0 6px">Mentosove scripting miesto</h3>
             <p style="margin:0 0 18px">A Roblox game where I show off my scripting work: 23 zones and counting, from katanas and portals to vampires and a horror escape. Jump in and try it yourself.</p>
+            <p class="live px" id="live" hidden><i></i><span></span></p>
             <div class="links">
               <a class="btn white" href="https://www.roblox.com/games/130047471706916/mentosove-scripting-miesto" target="_blank" rel="noopener">Play on Roblox</a>
               <button class="btn" type="button" id="zonebtn2">Tour the zones</button>
@@ -797,6 +869,7 @@
             <h2 class="k" style="margin-bottom:0">Join the Discord</h2>
             <p>Chat with other players, get game updates first and tell me what to build next.</p>
             <a class="btn" href="https://discord.gg/JKNd5j34D" target="_blank" rel="noopener">Join the server</a>
+            <div class="dw px" id="dwidget" hidden><div class="dw-h"><span>who&#39;s online rn</span><span class="dw-n"></span></div><ul></ul></div>
           </div>
         </div>
       </div>
@@ -821,6 +894,7 @@
   <div class="wrap">
     <div class="k">Mentos</div>
     <div class="counter-wrap px">ur visit no.<span class="counter" id="counter"><b>0</b><b>0</b><b>0</b><b>0</b><b>0</b><b>0</b><b>1</b></span></div>
+    <div><button class="secrets" id="secrets" type="button">secrets found: <b>0/6</b></button><span class="caughtb" id="caught" hidden><img alt=""> GASTLY caught</span></div>
     <div class="blinkies" aria-hidden="true">
       <span class="bk b1">RAWR XD</span>
       <span class="bk b2">MADE IN NOTEPAD</span>
@@ -911,7 +985,8 @@
     error: '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#e02a2a" stroke="#fff" stroke-width="2.5"/><path d="M13 13l14 14M27 13 13 27" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>',
     info: '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#7c3aed" stroke="#fff" stroke-width="2.5"/><rect x="18" y="17" width="4" height="13" fill="#fff"/><circle cx="20" cy="11.5" r="2.6" fill="#fff"/></svg>',
     ghost: '<img src="images/gastly.png" alt="">',
-    ray: '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png" alt="" style="image-rendering:pixelated">'
+    ray: '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png" alt="" style="image-rendering:pixelated">',
+    honda: '<img src="images/honda.png" alt="" style="image-rendering:pixelated;object-fit:contain">'
   };
   var layer = el("div", "pops"); document.body.appendChild(layer);
   var z = 100;
@@ -1210,6 +1285,7 @@
   var KIKO_MOVES = ["GINGER RUSH", "GLASSES GLARE", "SMIRK OF DOOM", "DUNGEON SLAP", "KIKO KICK", "SPAGHETTI ARMS"];
   var DIRS = [{ k: "arrowleft", a: "&#11013;" }, { k: "arrowup", a: "&#11014;" }, { k: "arrowright", a: "&#10145;" }];
   function kikoFight() {
+    secret("kiko");
     return playGame(async function (g, c) {
       c.innerHTML = '<div class="win gwin"><div class="bar"><span>kiko_dungeon.exe // WILD ENCOUNTER</span><button type="button" class="x" aria-label="Leave">&times;</button></div>' +
         '<div class="kd-field"><span class="torch l"></span><span class="torch r"></span>' +
@@ -1294,6 +1370,7 @@
 
   /* ---------- pokemon battle (rawr) ---------- */
   var SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/";
+  var BALL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
   function setSpr(img, id, back) {
     img.onerror = function () { img.onerror = null; img.src = SPR + (back ? "back/" : "") + id + ".png"; };
     img.src = SPR + "versions/generation-v/black-white/animated/" + (back ? "back/" : "") + id + ".gif";
@@ -1384,7 +1461,7 @@
     var t = $(".t", c), menu = $(".pkb-menu", c), hpn = $(".hpn", c);
     var P = { d: me, name: me.n, hp: me.hp, max: me.hp, boost: 0, sleep: 0, pp: me.mv.map(function (m) { return m.pp; }), spr: $(".spr.me", c), bar: $(".ibox.me .tr i", c) };
     var F = { d: FOE, name: "Wild GASTLY", hp: FOE.hp, max: FOE.hp, boost: 0, sleep: 0, spr: $(".spr.foe", c), bar: $(".ibox.foe .tr i", c) };
-    var potions = 2;
+    var potions = 2, balls = 3;
     setSpr(P.spr, me.id, true); P.spr.alt = me.n;
     setSpr(F.spr, 92, false); // gen 5 pixel gastly, same style as the team
     function say(s, ms) { return g.say(t, s, ms); }
@@ -1416,7 +1493,10 @@
           return { k: "move", m: me.mv[r], i: r };
         }
         if (a === "bag") {
-          if (!potions) { await say("the bag is empty... no more POTIONS.", 900); continue; }
+          var it = await g.pick(menu, [{ v: "potion", off: !potions, html: "POTION<small>x" + potions + " &bull; heals 60</small>" },
+            { v: "ball", off: !balls, html: "POK&eacute; BALL<small>x" + balls + " &bull; catch GASTLY</small>" }, { v: "back", html: "BACK", cls: "back", keys: ["backspace", "3"] }]);
+          if (it === "back") continue;
+          if (it === "ball") return { k: "ball" };
           if (P.hp >= P.max) { await say(me.n + "'s HP is already full!", 900); continue; }
           return { k: "potion" };
         }
@@ -1497,9 +1577,49 @@
       return false;
     }
 
+    async function throwBall() {
+      var field = $(".pkb-field", c), ball = el("img", "pball");
+      ball.alt = ""; ball.src = BALL; field.appendChild(ball);
+      t.textContent = "u threw a POKé BALL!"; blip("pop");
+      await g.sleep(750);
+      F.spr.classList.add("absorb"); flash(c); blip("on");
+      await g.sleep(450);
+      ball.className = "pball drop";
+      await g.sleep(500);
+      // gen 3-5 style odds: weaker (and sleeping) gastly is easier to catch
+      var p = Math.min(1, (3 * F.max - 2 * F.hp) * 190 * (F.sleep ? 2.5 : 1) / (3 * F.max * 255));
+      var ok = Math.random() < p, shakes = ok ? 3 : (Math.random() * 3) | 0;
+      t.textContent = "...";
+      for (var s = 0; s < shakes; s++) {
+        ball.className = "pball wob"; blip("tick");
+        await g.sleep(600);
+        ball.className = "pball rest";
+        await g.sleep(350);
+      }
+      if (ok) {
+        ball.className = "pball done"; blip("stamp"); shakeIt(c);
+        await say("Gotcha! GASTLY was caught!", 1100);
+        store("localStorage", "mentosCaught", "1"); secret("gastly"); drawSecrets();
+        hearts(innerWidth / 2, innerHeight / 3);
+        await say("GASTLY's data was added to the POKéDEX!", 1100);
+        await say("check the footer 4 ur shiny new badge ;)", 400);
+        return true;
+      }
+      ball.remove(); F.spr.classList.remove("absorb"); g.anim(F.spr, "free", 400); blip("error");
+      await say(["Oh no! The POKéMON broke free!", "Aww! It appeared to be caught!", "Aargh! Almost had it!"][shakes], 900);
+      return false;
+    }
+
     for (;;) {
       var ch = await choose();
       if (ch.k === "run") { blip("tick"); await say("Got away safely!", 900); return "leave"; }
+      if (ch.k === "ball") {
+        balls--;
+        if (await throwBall()) break;
+        await act(F, P, foeMove());
+        if (await ending()) break;
+        continue;
+      }
       if (ch.k === "potion") {
         potions--;
         P.hp = Math.min(P.max, P.hp + 60); draw(P); blip("on");
@@ -1522,6 +1642,7 @@
   function unlockRay() {
     var had = rayOK();
     store("localStorage", "mentosRay", "1");
+    secret("mentos");
     if (game) { if (game.onSecret) game.onSecret(); return; }
     if (busy) return;
     if (!had) hearts(innerWidth / 2, innerHeight / 2);
@@ -1553,11 +1674,13 @@
     ["Y2K Gengar", "A Y2K-style stage showcase starring Gengar.", ["Y2K Gengar stage"], "y2k", "#00f0ff"],
     ["Battle Arena", "Pokemon-style battles with your avatars. Hold E to challenge a player, or fight the Arena Trainer and his team of your friends.", ["Hold E to challenge", "FIGHT / TEAM / FORFEIT", "Intro cutscene"], "vs", "#1fbf6a"],
     ["Beyblade Arena", "Launch your beyblade into the stadium. Hold E on a player to challenge them, or battle the training dummy.", ["Server-side physics", "PvP", "Training dummy"], "bey", "#00e5ff"],
-    ["Vampire Stone", "Touch the stone to become a vampire. Drink blood bottles, bite villagers, turn into a bat and unleash Crimson Nightfall.", ["Shadow Dash", "Blood Bolt", "Blood Nova", "Bat form", "I = ultimate"], "vampire", "#ff2a2a"],
-    ["Shadow Altar", "Your real shadow breaks away from your feet and rises as a shadow copy of you. Melt into shadows and shadow-step between them.", ["Q shadow form", "F Shadow Step", "R return"], "shadow", "#b04dff"],
+    ["Vampire Stone", "Touch the stone to become a vampire. Drink blood bottles, bite villagers, turn into a bat and unleash Crimson Nightfall.", ["Shadow Dash", "Blood Bolt", "Blood Nova", "Bat form", "I = ultimate"], "vampire", "#ff2a2a", "2026-10-20"],
+    ["Shadow Altar", "Your real shadow breaks away from your feet and rises as a shadow copy of you. Melt into shadows and shadow-step between them.", ["Q shadow form", "F Shadow Step", "R return"], "shadow", "#b04dff", "2026-10-20"],
     ["The Hollow", "Dive through the portal into a horror escape: lantern, stamina, souls to carry, coffins to hide in, and Strapko hunting you.", ["Lantern flare", "Coffin hiding", "Co-op", "Fastest escapes"], "hollow", "#ff5ad9"]
   ];
   var MAX_ZONES = 40, FIRST_PLACE = 10;
+  // a zone with a date (6th field) shows as NEW for 45 days after it was added
+  function isNewZone(z) { return !!z[5] && Date.now() - Date.parse(z[5]) < 45 * 864e5; }
   var TITLES = ["THE CHOSEN ONE", "Kiko's Opp", "Mentos Enjoyer", "RAWR LORD", "Strapko Fan #1", "GOD", "Certified Goober"];
 
   function zoneFx(fx, type) {
@@ -1640,7 +1763,7 @@
           var btn = el("button", "zs-z", String(n));
           btn.type = "button";
           if (n > ZONES.length) { btn.disabled = true; btn.title = "coming soon"; }
-          else { btn.title = ZONES[n - 1][0]; btn.setAttribute("data-z", n - 1); }
+          else { btn.title = ZONES[n - 1][0]; btn.setAttribute("data-z", n - 1); if (isNewZone(ZONES[n - 1])) btn.innerHTML = n + '<span class="new" aria-label="new">NEW!</span>'; }
           if (n - 1 === cur) btn.setAttribute("aria-current", "true");
           list.appendChild(btn);
         }
@@ -1668,6 +1791,7 @@
         restart($(".zs-lb.t", c), "t"); restart($(".zs-lb.b", c), "b");
         num.textContent = String(i + 1).padStart(2, "0") + " / " + ZONES.length;
         badge.textContent = "ZONE " + (i + 1) + (i < FIRST_PLACE ? " • FIRST PLACE" : " • SECOND PLACE");
+        if (isNewZone(z)) badge.innerHTML += '<span class="nw">NEW</span>';
         restart(badge, "zs-badge");
         name.textContent = z[0]; restart(name, "zs-name");
         tags.innerHTML = z[2].map(function (t, k) { return '<span style="--i:' + k + '"></span>'; }).join("");
@@ -1751,7 +1875,8 @@
     if (!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName || "") && /^[a-z]$/.test(key)) {
       typed = (typed + key).slice(-6);
       if (typed === "mentos") { typed = ""; unlockRay(); return; }
-      if (typed.slice(-4) === "rawr" && !busy) { typed = ""; ghostCut(); return; }
+      if (typed.slice(-4) === "rawr" && !busy) { typed = ""; secret("rawr"); ghostCut(); return; }
+      if (typed.slice(-5) === "honda" && !busy) { typed = ""; ufoHonda(); return; }
     }
     if (game) { if (key === "escape") game.end(); else game.key(e); return; }
     if (e.key === "Escape") {
@@ -1766,7 +1891,7 @@
     if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName || "")) return;
     var k = (e.key || "").toLowerCase();
     keys.push(k); if (keys.length > 10) keys.shift();
-    if (keys.join(",") === KONAMI) { keys = []; bossCut(); return; }
+    if (keys.join(",") === KONAMI) { keys = []; secret("konami"); bossCut(); return; }
   });
 
   /* ---------- sparkle cursor trail ---------- */
@@ -1840,6 +1965,160 @@
     revealH2.forEach(function (h) { io.observe(h); });
   }
 
+  /* ---------- secrets found counter ---------- */
+  var SECRETS = [["rawr", "typed rawr"], ["mentos", "summoned RAYQUAZA"], ["konami", "entered the konami code"],
+    ["kiko", "fought the wild KIKO"], ["gastly", "caught GASTLY"], ["honda", "spotted the UFO honda"]];
+  function foundList() { try { return JSON.parse(store("localStorage", "mentosSecrets") || "[]"); } catch (e) { return []; } }
+  function drawSecrets() {
+    $("#secrets b").textContent = foundList().length + "/" + SECRETS.length;
+    var cb = $("#caught");
+    cb.hidden = store("localStorage", "mentosCaught") !== "1";
+    if (!cb.hidden && !$("img", cb).getAttribute("src")) setSpr($("img", cb), 92, false);
+  }
+  function secret(k) {
+    var l = foundList(); if (l.indexOf(k) > -1) return;
+    l.push(k); store("localStorage", "mentosSecrets", JSON.stringify(l)); drawSecrets();
+    var t = el("div", "sfound", "&#9733; SECRET FOUND &#9733; " + l.length + "/" + SECRETS.length);
+    document.body.appendChild(t); setTimeout(t.remove.bind(t), 2700); blip("on");
+  }
+  $("#secrets").addEventListener("click", function () {
+    var l = foundList();
+    popup({ type: "info", title: "secrets.txt", center: true, focus: true,
+      html: "u found <b>" + l.length + "/" + SECRETS.length + "</b> secrets" + (l.length === SECRETS.length ? " &mdash; ur a legend xD" : "") +
+        '<ul class="slist">' + SECRETS.map(function (s) { var on = l.indexOf(s[0]) > -1; return '<li class="' + (on ? "on" : "off") + '">' + (on ? "&#10004; " + s[1] : "&#10067; ???") + "</li>"; }).join("") + "</ul>" });
+  });
+  drawSecrets();
+
+  /* ---------- UFO honda (drifts round a roundabout) ---------- */
+  function ufoHonda() {
+    if (document.getElementById("ufo")) return;
+    secret("honda");
+    popup({ type: "honda", title: "ufo.exe", html: "<b>A UFO APPEARS!!</b><br>something is landing on the roundabout...", buttons: [{ label: "o_O" }, { label: "rawr" }] });
+    if (RM) return;
+    var txt = el("div", "ufo-txt k", "A UFO APPEARS"); document.body.appendChild(txt); setTimeout(txt.remove.bind(txt), 2700);
+    var u = el("div", "ufo"); u.id = "ufo"; u.setAttribute("aria-hidden", "true");
+    u.innerHTML = '<div class="road"></div><span class="sign">MENTOS RONDEL</span><span class="isl">&#127795;</span><div class="beam"></div>' +
+      '<div class="saucer"><div class="dome"></div><div class="disc"></div></div><img class="car" src="images/honda.png" alt="">';
+    document.body.appendChild(u);
+    var car = $(".car", u), beam = $(".beam", u), saucer = $(".saucer", u);
+    car.style.opacity = "0";
+    car.addEventListener("click", function (e) { blip("pop"); hearts(e.clientX, e.clientY); });
+    function geo() {
+      var W = u.clientWidth, H = u.clientHeight;
+      return { W: W, H: H, cx: W / 2, cy: H * .61, rx: W / 2 * .68, ry: H * .78 / 2 * .68, cw: W * .34 };
+    }
+    function place(x, y, s, dir, tilt) {
+      var G = geo(), w = G.cw * s, h = w * 77 / 150;
+      car.style.width = w + "px";
+      car.style.left = (x - w / 2) + "px"; car.style.top = (y - h * .9) + "px";
+      car.style.transform = "scaleX(" + dir + ") rotate(" + tilt + "deg)";
+    }
+    function anim(ms, fn) {
+      return new Promise(function (res) {
+        var t0 = performance.now();
+        (function f(now) { var p = Math.min(1, (now - t0) / ms); fn(p); if (p < 1) requestAnimationFrame(f); else res(); })(t0);
+      });
+    }
+    (async function () {
+      await sleep(1500);
+      beam.classList.add("on"); blip("on");
+      var G = geo(), th = Math.PI / 2, lastSmoke = 0;
+      car.style.opacity = "1";
+      // lowered by the beam onto the front of the roundabout
+      await anim(1300, function (p) { place(G.cx, G.H * .05 + (G.cy + G.ry - G.H * .05) * p, .25 + .75 * p, 1, (1 - p) * 20 * Math.sin(p * 12)); });
+      beam.classList.remove("on");
+      await sleep(300);
+      // drift laps
+      await anim(8000, function (p) {
+        G = geo();
+        var a = th + p * Math.PI * 2 * 2.5 * (0.6 + 0.4 * p);
+        var x = G.cx + G.rx * Math.cos(a), y = G.cy + G.ry * Math.sin(a);
+        var dir = -Math.sin(a) >= 0 ? 1 : -1, depth = (Math.sin(a) + 1) / 2;
+        car.style.zIndex = Math.sin(a) < -.2 ? "0" : "2";
+        place(x, y, .72 + .28 * depth, dir, dir * (8 + 4 * Math.sin(a * 3)));
+        var now = performance.now();
+        if (now - lastSmoke > 70) {
+          lastSmoke = now;
+          var s = el("span", "smoke"); s.style.left = (x - dir * G.cw * .38) + "px"; s.style.top = (y - 10) + "px";
+          u.appendChild(s); setTimeout(s.remove.bind(s), 900);
+        }
+      });
+      // beamed back up
+      var x0 = parseFloat(car.style.left) + car.offsetWidth / 2, y0 = parseFloat(car.style.top) + car.offsetHeight * .9;
+      beam.classList.add("on"); blip("on");
+      await anim(1100, function (p) { place(x0 + (G.cx - x0) * p, y0 + (G.H * .05 - y0) * p, 1 - .8 * p, 1, p * 25); car.style.opacity = String(1 - p * .9); });
+      car.style.opacity = "0"; beam.classList.remove("on");
+      saucer.classList.add("away");
+      await sleep(1200);
+      u.style.transition = "opacity .5s"; u.style.opacity = "0";
+      await sleep(500); u.remove();
+    })();
+  }
+  function ufoLater() {
+    if (store("sessionStorage", "mentosUfo")) return;
+    setTimeout(function tryU() {
+      if (busy || document.hidden || html.classList.contains("lock")) { setTimeout(tryU, 8000); return; }
+      store("sessionStorage", "mentosUfo", "1"); ufoHonda();
+    }, rand(35000, 80000));
+  }
+
+  /* ---------- live roblox player count ---------- */
+  // goes through roproxy because roblox.com blocks browser requests; stays hidden while the game is content-restricted
+  var UNIVERSE = 10768473123;
+  function liveCount() {
+    if (!window.fetch) return;
+    fetch("https://games.roproxy.com/v1/games?universeIds=" + UNIVERSE).then(function (r) { return r.json(); }).then(function (d) {
+      var gm = d && d.data && d.data[0], box = $("#live");
+      if (!gm || gm.isContentRestricted || !gm.rootPlaceId) { box.hidden = true; return; }
+      $("span", box).textContent = gm.playing + " playing now • " + gm.visits.toLocaleString() + " visits";
+      box.hidden = false;
+    }).catch(function () {});
+  }
+  liveCount(); setInterval(liveCount, 60000);
+
+  /* ---------- discord widget ---------- */
+  // TODO: put the server ID here once Server Settings > Widget > Enable Server Widget is on
+  var DISCORD_SERVER_ID = "";
+  function discordWidget() {
+    if (!DISCORD_SERVER_ID || !window.fetch) return;
+    fetch("https://discord.com/api/guilds/" + DISCORD_SERVER_ID + "/widget.json").then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.members) return;
+      var box = $("#dwidget"), ul = $("ul", box);
+      $(".dw-n", box).textContent = d.presence_count + " online";
+      ul.innerHTML = "";
+      d.members.slice(0, 40).forEach(function (m) {
+        var li = el("li", null, '<img alt=""><b></b><span></span>');
+        $("img", li).src = m.avatar_url; $("b", li).className = m.status; $("span", li).textContent = m.username;
+        ul.appendChild(li);
+      });
+      if (d.instant_invite) $$('a[href^="https://discord.gg/"]').forEach(function (a) { a.href = d.instant_invite; });
+      box.hidden = false;
+    }).catch(function () {});
+  }
+  discordWidget();
+
+  /* ---------- new zones in the ticker ---------- */
+  var NEWZ = ZONES.map(function (z, i) { return isNewZone(z) ? i : -1; }).filter(function (i) { return i > -1; });
+  if (NEWZ.length) {
+    $$(".ticker .grp").forEach(function (g) {
+      NEWZ.slice().reverse().forEach(function (i) {
+        g.insertBefore(el("span", null, "&#9733;"), g.firstChild);
+        g.insertBefore(el("span", null, "NEW ZONE " + (i + 1) + ": " + ZONES[i][0]), g.firstChild);
+      });
+    });
+    var hint = $("#zonebtn .hint"); if (hint) hint.innerHTML = "<b>&#9654;</b> tour the zones (" + NEWZ.length + " NEW)";
+  }
+
+  /* ---------- 2000s cursor ---------- */
+  if (FINE) {
+    var CUR = function (a, b, star) {
+      return 'url("data:image/svg+xml,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='" + a + "'/><stop offset='1' stop-color='" + b + "'/></linearGradient></defs><path d='M2 2 L2 24 L8 18.5 L12 28 L16.5 26 L12.5 17 L20 17 Z' fill='url(#g)' stroke='#000' stroke-width='2' stroke-linejoin='round'/><path d='M25 2 l1.3 3.4 3.4 1.3 -3.4 1.3 -1.3 3.4 -1.3 -3.4 -3.4 -1.3 3.4 -1.3z' fill='" + star + "' stroke='#000' stroke-width='.7'/></svg>") + '") 2 2';
+    };
+    html.style.setProperty("--c-arrow", CUR("#ffb3f2", "#7c3aed", "#8dff3a"));
+    html.style.setProperty("--c-hand", CUR("#e6ffc8", "#3fae00", "#ff5ad9"));
+    html.classList.add("cur");
+  }
+
   /* ---------- intro cutscene ---------- */
   var BOOT = [
     ["<span class='logo'>MENTOS BIOS v6.6.6</span>   (C) 2006 Mentos Megatrends Inc.", null],
@@ -1898,6 +2177,7 @@
     heroType();
     setTimeout(toast, 5000);
     startRandomPopups();
+    ufoLater();
     if (location.hash === "#trust") trustCut();
   }
 
