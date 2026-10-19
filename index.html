@@ -445,7 +445,7 @@
   .plat.foe { right: 6%; top: 40%; width: 40%; height: 14%; }
   .plat.me { left: 2%; bottom: 2%; width: 46%; height: 17%; }
   .spr { position: absolute; image-rendering: pixelated; }
-  .spr.foe { right: 15%; top: 10%; height: 40%; animation: bob 2.4s ease-in-out infinite; }
+  .spr.foe { right: 15%; top: 8%; height: 44%; animation: bob 2.4s ease-in-out infinite; }
   .spr.me { left: 8%; bottom: 5%; height: 52%; visibility: hidden; }
   .spr.me.in { visibility: visible; animation: sprIn .5s cubic-bezier(.3,1.6,.5,1); }
   @keyframes sprIn { from { transform: scale(0); filter: brightness(6); } }
@@ -1350,6 +1350,7 @@
     var grid = $(".pick-grid", c), sub = $(".pick-sub", c);
     var list = MONS.concat([RAY]);
     list.forEach(function (m) { setSpr(new Image(), m.id, true); }); // warm the back sprites for the battle
+    setSpr(new Image(), 92, false);
     function card(m) {
       var locked = m.legend && !rayOK();
       return { v: m, cls: "pcard" + (m.legend ? " legend" : "") + (locked ? " locked" : ""),
@@ -1376,7 +1377,7 @@
   async function battle(g, c, me) {
     c.innerHTML = '<div class="win gwin"><div class="bar"><span>wild_battle.exe</span><button type="button" class="x" aria-label="Run away">&times;</button></div>' +
       '<div class="pkb-field"><div class="plat foe"></div><div class="plat me"></div>' +
-      '<img class="spr foe" src="images/gastly.png" alt="Wild Gastly"><img class="spr me" alt="">' +
+      '<img class="spr foe" alt="Wild Gastly"><img class="spr me" alt="">' +
       '<div class="ibox foe"><div class="row"><b>GASTLY</b><span>Lv66</span></div><div class="hpb"><small>HP</small><span class="tr"><i></i></span></div></div>' +
       '<div class="ibox me"><div class="row"><b>' + me.n + '</b><span>Lv50</span></div><div class="hpb"><small>HP</small><span class="tr"><i></i></span></div><div class="hpn"></div></div></div>' +
       '<div class="pkb-ui"><div class="gmsg px"><span class="t" aria-live="polite"></span></div><div class="pkb-menu px"></div></div></div>';
@@ -1385,6 +1386,7 @@
     var F = { d: FOE, name: "Wild GASTLY", hp: FOE.hp, max: FOE.hp, boost: 0, sleep: 0, spr: $(".spr.foe", c), bar: $(".ibox.foe .tr i", c) };
     var potions = 2;
     setSpr(P.spr, me.id, true); P.spr.alt = me.n;
+    setSpr(F.spr, 92, false); // gen 5 pixel gastly, same style as the team
     function say(s, ms) { return g.say(t, s, ms); }
     function draw(u) { setBar(u.bar, u.hp, u.max); if (u === P) hpn.textContent = P.hp + " / " + P.max; }
     draw(P); draw(F);
