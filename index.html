@@ -1103,15 +1103,30 @@
     { type: "warn", title: "kiko_alert.exe", html: "a wild <b>KIKO</b> is lurking in the Kiko Dungeon window. click his name if u dare.", buttons: [{ label: "fight him", fn: function () { kikoFight(); } }, { label: "nah" }] },
     { type: "info", title: "Mentos Messenger", html: "u should totally subscribe on YouTube. just saying :3", buttons: [{ label: "Subscribe", href: YT }, { label: "later" }] }
   ];
+  // one random popup (or the UFO honda) every 10s; each closes itself after 9s unless you're hovering or using it
+  var POP_EVERY = 10000, POP_LIFE = 9000;
   function startRandomPopups() {
-    var deck = RANDOM.slice().sort(function () { return Math.random() - .5; });
-    [14000, 50000, 100000].forEach(function (ms, i) {
-      setTimeout(function show() {
-        if (store("localStorage", "mentosNoPops") === "1") return;
-        if (document.hidden || busy || html.classList.contains("lock")) { setTimeout(show, 6000); return; }
-        popup(Object.assign({ foot: true }, deck[i]));
-      }, ms);
-    });
+    var deck = [], last = null;
+    function draw() {
+      if (!deck.length) {
+        deck = RANDOM.concat([{ ufo: true }]).sort(function () { return Math.random() - .5; });
+        if (deck[0] === last && deck.length > 1) deck.push(deck.shift());
+      }
+      return deck.shift();
+    }
+    setInterval(function () {
+      if (store("localStorage", "mentosNoPops") === "1") return;
+      if (document.hidden || busy || html.classList.contains("lock")) return;
+      var item = draw();
+      if (item.ufo && document.getElementById("ufo")) item = draw();
+      last = item;
+      if (item.ufo) { ufoHonda(); return; }
+      var p = popup(Object.assign({ foot: true }, item));
+      setTimeout(function () {
+        if (!p.isConnected || p.matches(":hover") || p.contains(document.activeElement)) return;
+        closePop(p);
+      }, POP_LIFE);
+    }, POP_EVERY);
   }
   function toast() {
     var t = el("button", "toast", '<img src="images/gastly.webp" alt=""><span><small>Mentos Messenger</small><b>Mentos</b> has just signed in.</span>');
@@ -2094,14 +2109,6 @@
       await sleep(500); u.remove();
     })();
   }
-  function ufoLater() {
-    if (store("sessionStorage", "mentosUfo")) return;
-    setTimeout(function tryU() {
-      if (busy || document.hidden || html.classList.contains("lock")) { setTimeout(tryU, 8000); return; }
-      store("sessionStorage", "mentosUfo", "1"); ufoHonda();
-    }, rand(35000, 80000));
-  }
-
   /* ---------- live roblox player count ---------- */
   // goes through roproxy because roblox.com blocks browser requests; stays hidden while the game is content-restricted
   var UNIVERSE = 10768473123;
@@ -2270,7 +2277,6 @@
     heroType();
     setTimeout(toast, 5000);
     startRandomPopups();
-    ufoLater();
     if (location.hash === "#trust") trustCut();
   }
 
