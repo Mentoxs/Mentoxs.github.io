@@ -30,6 +30,18 @@
   .picker button { background: #222; border: 3px solid #444; padding: 6px; cursor: pointer; color: #fff; font: .95rem "VT323", monospace; }
   .picker button:hover { border-color: var(--purple); }
   .picker img { width: 40px; height: 40px; image-rendering: pixelated; display: block; margin: 0 auto 2px; }
+  .visit { position: absolute; left: 50%; top: 50px; translate: -50% 0; background: rgba(0,0,0,.75); border: 2px solid var(--toxic); padding: 4px 14px; font-size: 1.25rem; color: #fff; pointer-events: auto; white-space: nowrap; }
+  .visit[hidden] { display: none; }
+  .visit button { font: 1.15rem "VT323", monospace; background: var(--toxic); color: #000; border: 0; padding: 1px 10px; margin-left: 8px; cursor: pointer; }
+  .gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; padding: 16px; max-height: 64vh; overflow: auto; }
+  .gal button { text-align: left; background: #111; border: 3px solid #444; color: #fff; padding: 0; cursor: pointer; font: 1.15rem/1.15 "VT323", monospace; }
+  .gal button:hover, .gal button:focus-visible { border-color: var(--toxic); outline: none; }
+  .gal img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #222; }
+  .gal span { display: block; padding: 4px 8px; } .gal small { color: var(--chrome); }
+  .form { display: grid; gap: 8px; padding: 16px; font: 1.25rem "VT323", monospace; }
+  .form input { font: 1.2rem "VT323", monospace; background: #000; color: #fff; border: 2px inset #888; padding: 4px 8px; }
+  .form img { width: 100%; max-width: 360px; aspect-ratio: 16 / 9; object-fit: cover; border: 2px solid var(--chrome); }
+  .status { color: var(--pink); min-height: 1.2em; margin: 0; }
   @media (max-width: 640px) { .start-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -47,6 +59,7 @@
   <div class="cross"></div>
   <div class="bname" id="bname"></div>
   <div class="hotbar" id="hotbar"></div>
+  <div class="visit" id="visit" hidden></div>
   <div id="toasts"></div>
 </div>
 
@@ -60,6 +73,8 @@
         <div class="skins" id="skins"></div>
         <div class="row">
           <button class="btn" type="button" id="play">&#9654; Play</button>
+          <button class="btn yellow" type="button" id="sharebtn">Share my build</button>
+          <button class="btn" type="button" id="galbtn">Gallery</button>
           <button class="btn white" type="button" id="newworld">New world</button>
           <span class="px" id="saveinfo" style="color:var(--chrome);font-size:1.15rem"></span>
         </div>
@@ -75,6 +90,27 @@
         </ul>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="overlay" id="gallery" hidden>
+  <div class="win">
+    <div class="bar"><span>gallery.exe // builds from other visitors</span><button class="btn white" type="button" id="galclose" style="padding:0 12px;font-size:.9rem">close</button></div>
+    <p class="status px" id="galstatus" style="padding:10px 16px 0"></p>
+    <div class="gal" id="gal"></div>
+  </div>
+</div>
+
+<div class="overlay" id="share" hidden>
+  <div class="win">
+    <div class="bar"><span>share.exe // post ur build 2 the gallery</span><button class="btn white" type="button" id="shareclose" style="padding:0 12px;font-size:.9rem">close</button></div>
+    <form class="form" id="shareform" autocomplete="off">
+      <img id="sharethumb" alt="Snapshot of ur build">
+      <label>build name <input name="btitle" maxlength="40" required></label>
+      <label>ur name <input name="author" maxlength="30" required></label>
+      <div><button class="btn yellow" type="submit">post it</button></div>
+      <p class="status" id="sharestatus" role="status"></p>
+    </form>
   </div>
 </div>
 

@@ -1,5 +1,6 @@
 // Block World: a small voxel building game. Original textures and skins, drawn in code.
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { sb } from "./sb.js";
 
 /* ---------------- helpers ---------------- */
 const $ = (s) => document.querySelector(s);
@@ -134,11 +135,12 @@ let spawn = generate(save.seed);
 for (const k in save.edits) world[+k] = save.edits[k];
 
 let saveT = 0;
+let visiting = null; // a build from the gallery: edits there are not saved over ur own world
 function setBlock(x, y, z, id) {
   if (!inside(x, y, z)) return;
   const i = idx(x, y, z);
-  world[i] = id; save.edits[i] = id;
-  clearTimeout(saveT); saveT = setTimeout(() => store(SAVE_KEY, JSON.stringify(save)), 800);
+  world[i] = id;
+  if (!visiting) { save.edits[i] = id; clearTimeout(saveT); saveT = setTimeout(() => store(SAVE_KEY, JSON.stringify(save)), 800); }
   const cx = Math.floor(x / CS), cz = Math.floor(z / CS);
   remesh(cx, cz);
   if (x % CS === 0) remesh(cx - 1, cz); if (x % CS === CS - 1) remesh(cx + 1, cz);
@@ -427,7 +429,7 @@ document.addEventListener("pointerlockchange", () => {
   locked = document.pointerLockElement === canvas;
   if (!locked && !menuOpen) { $("#start").hidden = false; $("#play").textContent = "▶ Resume"; }
 });
-function lock() { $("#start").hidden = true; $("#picker").hidden = true; menuOpen = false; canvas.requestPointerLock(); }
+function lock() { ["#start", "#picker", "#gallery", "#share"].forEach((s) => { $(s).hidden = true; }); menuOpen = false; canvas.requestPointerLock(); }
 $("#play").addEventListener("click", lock);
 canvas.addEventListener("click", () => { if (!locked && $("#start").hidden && $("#picker").hidden) lock(); });
 $("#newworld").addEventListener("click", () => {
@@ -437,6 +439,98 @@ $("#newworld").addEventListener("click", () => {
   toast("new world!");
 });
 $("#saveinfo").textContent = Object.keys(save.edits).length ? "ur world is saved in this browser" : "";
+
+/* ---------------- shared gallery (supabase table "builds") ---------------- */
+const MAX_EDITS = 40000;
+function loadWorld(seed, edits) {
+  spawn = generate(seed);
+  for (const k in edits) world[+k] = edits[k];
+  remeshAll(); player.p.set(spawn.x, spawn.y, spawn.z); player.v.set(0, 0, 0);
+}
+function snapshot() {
+  renderer.render(scene, camera); // read the canvas right after drawing, before the browser clears it
+  const c = document.createElement("canvas"); c.width = 320; c.height = 180;
+  const g = c.getContext("2d"), s = canvas;
+  const r = Math.max(320 / s.width, 180 / s.height), w = s.width * r, h = s.height * r;
+  g.drawImage(s, (320 - w) / 2, (180 - h) / 2, w, h);
+  return c.toDataURL("image/jpeg", .72);
+}
+function showVisit() {
+  const v = $("#visit");
+  if (!visiting) { v.hidden = true; return; }
+  v.hidden = false; v.textContent = "";
+  v.append("visiting: " + visiting.title + " by " + visiting.name);
+  const link = document.createElement("button"); link.type = "button"; link.textContent = "copy link";
+  link.addEventListener("click", () => { navigator.clipboard && navigator.clipboard.writeText(location.origin + location.pathname + "?build=" + visiting.id); toast("link copied"); });
+  const back = document.createElement("button"); back.type = "button"; back.textContent = "back 2 my world";
+  back.addEventListener("click", () => { visiting = null; loadWorld(save.seed, save.edits); showVisit(); history.replaceState(null, "", location.pathname); toast("welcome home"); });
+  v.append(link, back);
+}
+async function visit(id) {
+  $("#galstatus").textContent = "loading build...";
+  try {
+    const rows = await sb("builds?id=eq." + encodeURIComponent(id) + "&select=id,name,title,seed,edits");
+    if (!rows.length) { toast("that build doesn't exist anymore"); return false; }
+    const b = rows[0], edits = {};
+    (b.edits || []).forEach(([i, id2]) => { if (i >= 0 && i < world.length && id2 >= 0 && id2 < BLOCKS.length) edits[i] = id2; });
+    visiting = b; loadWorld(b.seed, edits); showVisit();
+    history.replaceState(null, "", location.pathname + "?build=" + b.id);
+    toast(b.title + " by " + b.name);
+    return true;
+  } catch (e) { $("#galstatus").textContent = "gallery.exe is not responding... try again later"; toast("couldn't load that build"); return false; }
+}
+async function openGallery() {
+  menuOpen = true; document.exitPointerLock();
+  $("#start").hidden = true; $("#gallery").hidden = false;
+  const gal = $("#gal"); gal.innerHTML = ""; $("#galstatus").textContent = "loading...";
+  try {
+    const rows = await sb("builds?select=id,name,title,created_at,thumb&order=created_at.desc&limit=40");
+    $("#galstatus").textContent = rows.length ? "click a build 2 walk around in it (ur own world stays saved)" : "no builds yet... be the first 2 share one!";
+    rows.forEach((b) => {
+      const btn = document.createElement("button"); btn.type = "button";
+      const img = document.createElement("img"); img.alt = ""; if (b.thumb && b.thumb.startsWith("data:image/jpeg")) img.src = b.thumb;
+      const s = document.createElement("span"); s.textContent = b.title; const by = document.createElement("small"); by.textContent = " by " + b.name; s.append(by);
+      btn.append(img, s);
+      btn.addEventListener("click", async () => { if (await visit(b.id)) lock(); });
+      gal.appendChild(btn);
+    });
+  } catch (e) { $("#galstatus").textContent = "the gallery isn't set up yet, come back soon"; }
+}
+function openShare() {
+  if (visiting) { toast("go back 2 ur own world first"); return; }
+  if (!Object.keys(save.edits).length) { toast("build something first!"); return; }
+  menuOpen = true; document.exitPointerLock();
+  $("#start").hidden = true; $("#share").hidden = false;
+  $("#sharethumb").src = snapshot();
+  const f = $("#shareform"); f.author.value = f.author.value || store("mentosName") || ""; $("#sharestatus").textContent = "";
+}
+$("#galbtn").addEventListener("click", openGallery);
+$("#sharebtn").addEventListener("click", openShare);
+$("#galclose").addEventListener("click", () => { $("#gallery").hidden = true; menuOpen = false; $("#start").hidden = false; });
+$("#shareclose").addEventListener("click", () => { $("#share").hidden = true; menuOpen = false; $("#start").hidden = false; });
+$("#shareform").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = e.target, st = $("#sharestatus");
+  const title = f.btitle.value.trim().slice(0, 40), name = f.author.value.trim().slice(0, 30);
+  if (!title || !name) { st.textContent = "give it a name + ur name"; return; }
+  const last = +store("mentosShared") || 0;
+  if (Date.now() - last < 120000) { st.textContent = "chill... u can share again in a couple minutes"; return; }
+  const pairs = Object.entries(save.edits).map(([i, id]) => [+i, id]);
+  if (pairs.length > MAX_EDITS) { st.textContent = "this build is 2 big 2 share, sorry"; return; }
+  st.textContent = "uploading...";
+  try {
+    await sb("builds", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ name, title, seed: save.seed, edits: pairs, thumb: $("#sharethumb").src }) });
+    store("mentosShared", String(Date.now())); store("mentosName", store("mentosName") || name);
+    st.textContent = "posted!! it's in the gallery now"; toast("build shared!");
+  } catch (err) { st.textContent = "error 404: build got lost in the internet. try again?"; }
+});
+addEventListener("keydown", (e) => {
+  if (e.code !== "Escape") return;
+  ["#gallery", "#share"].forEach((s) => { if (!$(s).hidden) { $(s).hidden = true; menuOpen = false; $("#start").hidden = false; } });
+});
+// share links: blocks.html?build=12
+const wantBuild = (location.search.match(/[?&]build=(\d+)/) || [])[1];
+if (wantBuild) visit(wantBuild);
 
 /* ---------------- hotbar + block picker ---------------- */
 const icons = BLOCKS.map((b) => (b ? tileIcon(b.t[1] === 1 ? 1 : b.t[1]) : null));

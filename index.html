@@ -755,6 +755,23 @@
   .gb-msg { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
   .gb-empty { padding: 14px; text-align: center; color: var(--chrome); font: 1.2rem "VT323", monospace; }
 
+  /* ===== visitor wall ===== */
+  .vw-tools { display: grid; gap: 6px; margin-bottom: 10px; }
+  .vw-tools[hidden] { display: none; }
+  .vw-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .vw-row button { width: 40px; height: 40px; padding: 5px; background: #111; border: 2px solid #444; color: var(--white); cursor: pointer; }
+  .vw-row button[aria-pressed="true"] { border-color: var(--toxic); box-shadow: 0 0 10px rgba(141,255,58,.5); }
+  .vw-row button svg { width: 100%; height: 100%; display: block; }
+  .vw-row .sw { border-radius: 50%; }
+  .vw-board { position: relative; width: 100%; aspect-ratio: 2 / 1; border: 3px solid var(--chrome); cursor: crosshair;
+    background: linear-gradient(rgba(157,77,255,.08) 1px, transparent 1px) 0 0 / 2.5% 5%, linear-gradient(90deg, rgba(157,77,255,.08) 1px, transparent 1px) 0 0 / 2.5% 5%, radial-gradient(#1b0b33, #050208); }
+  .vw-board.done { cursor: default; }
+  .vw-s { position: absolute; width: 2.5%; height: 5%; padding: 1px; image-rendering: pixelated; filter: drop-shadow(0 0 3px currentColor); }
+  .vw-s svg { width: 100%; height: 100%; display: block; }
+  .vw-s.mine { animation: popIn .4s cubic-bezier(.2,1.6,.4,1); }
+  .vw-s.ghost { opacity: .45; pointer-events: none; }
+  .vw-tip { position: absolute; z-index: 2; translate: -50% -130%; background: #000; color: #fff; border: 1px solid var(--toxic); font: 1.05rem "VT323", monospace; padding: 0 6px; white-space: nowrap; pointer-events: none; }
+
   /* ===== 2000s cursor (mouse only) ===== */
   @media (hover: hover) and (pointer: fine) {
     html.cur, html.cur * { cursor: var(--c-arrow), auto; }
@@ -986,6 +1003,23 @@
             <p class="gb-status" role="status"></p>
           </form>
           <ol class="gb-list" id="gblist" aria-live="polite"></ol>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="wall">
+    <div class="wrap">
+      <div class="win" style="max-width:860px;margin:0 auto">
+        <div class="bar"><span>visitor_wall.exe</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="body">
+          <h2 class="k" style="text-align:center">Visitor wall</h2>
+          <p class="gb-sub px">every1 who signed the guestbook can leave 1 sticker here 4 ever</p>
+          <div class="vw-tools px" id="vwtools">
+            <div class="vw-row" id="vwstickers" role="group" aria-label="Sticker"></div>
+            <div class="vw-row" id="vwcolors" role="group" aria-label="Colour"></div>
+          </div>
+          <div class="vw-board" id="vwboard" role="img" aria-label="Wall of visitor stickers"></div>
+          <p class="gb-status px" id="vwstatus" role="status"></p>
         </div>
       </div>
     </div>
@@ -2531,7 +2565,7 @@
     if (wait > 0) { gbStatus.textContent = "chill... u can sign again in " + wait + "s"; return; }
     var btn = $("button", gbForm); btn.disabled = true; gbStatus.textContent = "sending...";
     gbApi("guestbook", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ name: name, message: msg }) }).then(function () {
-      store("localStorage", "mentosSigned", String(Date.now())); store("localStorage", "mentosName", name);
+      store("localStorage", "mentosSigned", String(Date.now())); store("localStorage", "mentosName", name); vwHelp();
       var empty = $(".gb-empty", gbList); if (empty) empty.remove();
       gbList.insertBefore(gbItem({ name: name, message: msg, created_at: new Date().toISOString() }, true), gbList.firstChild);
       gbForm.message.value = ""; $(".gb-count", gbForm).textContent = "0/300";
@@ -2541,6 +2575,89 @@
       .then(function () { btn.disabled = false; });
   });
   gbLoad();
+
+  /* ---------- visitor wall (supabase table "wall") ---------- */
+  // 8x8 pixel stickers, X = filled
+  var STICKERS = {
+    heart: [".XX..XX.", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", ".XXXXXX.", "..XXXX..", "...XX...", "........"],
+    star: ["...XX...", "...XX...", "XXXXXXXX", ".XXXXXX.", "..XXXX..", ".XX..XX.", "XX....XX", "........"],
+    skull: [".XXXXXX.", "XXXXXXXX", "X..XX..X", "X..XX..X", "XXXXXXXX", ".XX..XX.", ".X.XX.X.", "........"],
+    gastly: ["..XXXX..", ".XXXXXX.", "XX.XX.XX", "XXXXXXXX", "XX....XX", "XXXXXXXX", "X.XX.XX.", "........"],
+    flower: ["...X....", "..XXX...", ".XX.XX..", "..XXX...", "...X....", "...X..X.", "...XXX..", "...X...."],
+    bolt: ["....XX..", "...XX...", "..XX....", ".XXXXX..", "...XX...", "..XX....", ".XX.....", "X......."],
+    smile: ["..XXXX..", ".XXXXXX.", "XX.XX.XX", "XXXXXXXX", "X.XXXX.X", "XX....XX", ".XXXXXX.", "..XXXX.."],
+    crown: ["........", "X..XX..X", "XX.XX.XX", "XXXXXXXX", "XXXXXXXX", "X.X.X.X.", "XXXXXXXX", "........"]
+  };
+  var VW_COLORS = ["#ff5ad9", "#9d4dff", "#8dff3a", "#ffd500", "#59d0ff", "#ff3b3b", "#ffffff"];
+  var VW_W = 40, VW_H = 20;
+  function stickerSvg(name) {
+    var rects = "";
+    (STICKERS[name] || STICKERS.heart).forEach(function (row, y) { for (var x = 0; x < 8; x++) if (row[x] === "X") rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>'; });
+    return '<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" fill="currentColor">' + rects + "</svg>";
+  }
+  var vwBoard = $("#vwboard"), vwStatus = $("#vwstatus"), vwPick = { s: "heart", c: VW_COLORS[0] }, vwTaken = {};
+  function vwDrawTools() {
+    var srow = $("#vwstickers"), crow = $("#vwcolors"); srow.innerHTML = ""; crow.innerHTML = "";
+    Object.keys(STICKERS).forEach(function (k) {
+      var b = el("button", null, stickerSvg(k)); b.type = "button"; b.title = k; b.style.color = vwPick.c;
+      b.setAttribute("aria-label", k); b.setAttribute("aria-pressed", String(k === vwPick.s));
+      b.addEventListener("click", function () { vwPick.s = k; vwDrawTools(); });
+      srow.appendChild(b);
+    });
+    VW_COLORS.forEach(function (c) {
+      var b = el("button", "sw"); b.type = "button"; b.style.background = c; b.setAttribute("aria-label", "colour " + c); b.setAttribute("aria-pressed", String(c === vwPick.c));
+      b.addEventListener("click", function () { vwPick.c = c; vwDrawTools(); });
+      crow.appendChild(b);
+    });
+  }
+  function vwPlace(s, mine) {
+    var d = el("div", "vw-s" + (mine ? " mine" : ""), stickerSvg(s.sticker));
+    d.style.left = (s.x * 100 / VW_W) + "%"; d.style.top = (s.y * 100 / VW_H) + "%"; d.style.color = s.color;
+    d.setAttribute("data-name", s.name);
+    vwBoard.appendChild(d); vwTaken[s.x + "," + s.y] = true;
+  }
+  function vwCanStick() { return !!store("localStorage", "mentosName") && store("localStorage", "mentosStuck") !== "1"; }
+  function vwHelp() {
+    if (store("localStorage", "mentosStuck") === "1") { vwStatus.textContent = "u left ur mark <3 thx 4 visiting"; vwBoard.classList.add("done"); $("#vwtools").hidden = true; }
+    else if (!store("localStorage", "mentosName")) { vwStatus.textContent = "sign the guestbook first, then come back 2 leave a sticker"; vwBoard.classList.add("done"); }
+    else { vwStatus.textContent = "pick a sticker + colour, then click a free spot (u only get 1!)"; vwBoard.classList.remove("done"); $("#vwtools").hidden = false; }
+  }
+  function vwCell(e) {
+    var r = vwBoard.getBoundingClientRect();
+    return { x: Math.min(VW_W - 1, Math.max(0, Math.floor((e.clientX - r.left) / r.width * VW_W))), y: Math.min(VW_H - 1, Math.max(0, Math.floor((e.clientY - r.top) / r.height * VW_H))) };
+  }
+  var vwGhost = null, vwTip = null;
+  vwBoard.addEventListener("pointermove", function (e) {
+    var hit = e.target.closest && e.target.closest(".vw-s:not(.ghost)");
+    if (hit) { if (!vwTip) { vwTip = el("div", "vw-tip"); vwBoard.appendChild(vwTip); } vwTip.textContent = hit.getAttribute("data-name"); vwTip.style.left = hit.style.left; vwTip.style.top = hit.style.top; vwTip.style.marginLeft = "1.25%"; }
+    else if (vwTip) { vwTip.remove(); vwTip = null; }
+    if (!vwCanStick()) return;
+    var c = vwCell(e);
+    if (!vwGhost) { vwGhost = el("div", "vw-s ghost"); vwBoard.appendChild(vwGhost); }
+    vwGhost.innerHTML = stickerSvg(vwPick.s); vwGhost.style.color = vwPick.c;
+    vwGhost.style.left = (c.x * 100 / VW_W) + "%"; vwGhost.style.top = (c.y * 100 / VW_H) + "%";
+  });
+  vwBoard.addEventListener("pointerleave", function () { if (vwGhost) { vwGhost.remove(); vwGhost = null; } if (vwTip) { vwTip.remove(); vwTip = null; } });
+  vwBoard.addEventListener("click", function (e) {
+    if (!vwCanStick()) { vwHelp(); blip("error"); return; }
+    var c = vwCell(e);
+    if (vwTaken[c.x + "," + c.y]) { vwStatus.textContent = "that spot is taken, pick another"; return; }
+    var s = { name: store("localStorage", "mentosName"), sticker: vwPick.s, color: vwPick.c, x: c.x, y: c.y };
+    vwStatus.textContent = "sticking...";
+    gbApi("wall", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(s) }).then(function () {
+      store("localStorage", "mentosStuck", "1");
+      if (vwGhost) { vwGhost.remove(); vwGhost = null; }
+      vwPlace(s, true); blip("on"); var r = vwBoard.getBoundingClientRect(); hearts(e.clientX || r.left, e.clientY || r.top);
+      vwHelp();
+    }).catch(function () { vwStatus.textContent = "error 404: sticker fell off. try again?"; });
+  });
+  function vwLoad() {
+    vwDrawTools(); vwHelp();
+    gbApi("wall?select=name,sticker,color,x,y&order=created_at.asc&limit=800").then(function (rows) {
+      rows.forEach(function (s) { if (STICKERS[s.sticker] && /^#[0-9a-f]{6}$/i.test(s.color)) vwPlace(s); });
+    }).catch(function () { vwStatus.textContent = "the wall is still under construction... come back soon"; vwBoard.classList.add("done"); $("#vwtools").hidden = true; });
+  }
+  vwLoad();
 
   /* ---------- new zones in the ticker ---------- */
   var NEWZ = ZONES.map(function (z, i) { return isNewZone(z) ? i : -1; }).filter(function (i) { return i > -1; });
