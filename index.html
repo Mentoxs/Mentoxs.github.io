@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="extras.css">
 <style>
   @font-face { font-family: "Kaijuz"; src: url("fonts/Kaijuz.ttf") format("truetype"); font-display: swap; }
   :root {
@@ -1024,6 +1025,18 @@
       </div>
     </div>
   </section>
+  <section id="hangout">
+    <div class="wrap hang">
+      <div class="win">
+        <div class="bar"><span>mentochi.exe</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="body" id="pet"></div>
+      </div>
+      <div class="win">
+        <div class="bar"><span>ur_profile.exe</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="body" id="profile"></div>
+      </div>
+    </div>
+  </section>
   <section id="trust">
     <div class="wrap">
       <div class="win" style="max-width:520px;margin:0 auto">
@@ -1052,6 +1065,7 @@
       <span class="bk b5">SCENE 4 LIFE</span>
     </div>
     <button class="ghostbtn" type="button" id="ghostbtn" aria-label="Summon Gastly" title="dont click"><img src="images/gastly.webp" alt=""></button>
+    <nav class="ring px" id="webring" aria-label="Webring"></nav>
     <div>&copy; 2026 Mentos. Not affiliated with Roblox Corporation.</div>
   </div>
 </footer>
@@ -1125,7 +1139,8 @@
     plabel.textContent = on ? "Pause music" : "Play music";
   }
   function playMusic() { var p = audio.play(); if (p && p.catch) p.catch(function () { showPlay(false); }); }
-  pbtn.addEventListener("click", function () { if (audio.paused) { sound = true; playMusic(); } else audio.pause(); });
+  // the winamp player (js/extras.js) takes over this button once it has loaded
+  pbtn.addEventListener("click", function () { sound = true; if (window.MENTOS_WINAMP) { window.MENTOS_WINAMP.toggle(); return; } if (audio.paused) playMusic(); else audio.pause(); });
   audio.addEventListener("play", function () { showPlay(true); });
   audio.addEventListener("pause", function () { showPlay(false); });
 
@@ -1856,6 +1871,10 @@
     ["The Hollow", "Dive through the portal into a horror escape: lantern, stamina, souls to carry, coffins to hide in, and Strapko hunting you.", ["Lantern flare", "Coffin hiding", "Co-op", "Fastest escapes"], "hollow", "#ff5ad9"]
   ];
   var MAX_ZONES = 40, FIRST_PLACE = 10;
+  // zones being built in Studio: they show as blurred "coming soon" teasers in the tour.
+  // add { n: 24, img: "images/zones/zone24.jpg" } when a new zone gets its first screenshot; the next zone number always gets a static teaser
+  var ZONES_SOON = [];
+  function soonZone(n) { return ZONES_SOON.find(function (s) { return s.n === n; }) || (n === ZONES.length + 1 ? { n: n } : null); }
   // a zone with a date (6th field) shows as NEW for 45 days after it was added
   function isNewZone(z) { return !!z[5] && Date.now() - Date.parse(z[5]) < 45 * 864e5; }
   var TITLES = ["THE CHOSEN ONE", "Kiko's Opp", "Mentos Enjoyer", "RAWR LORD", "Strapko Fan #1", "GOD", "Certified Goober"];
@@ -2032,14 +2051,18 @@
         for (var n = a; n <= b; n++) {
           var btn = el("button", "zs-z", String(n));
           btn.type = "button";
-          if (n > ZONES.length) { btn.disabled = true; btn.title = "coming soon"; }
+          if (n > ZONES.length) {
+            if (soonZone(n)) { btn.setAttribute("data-soon", n); btn.title = "coming soon..."; btn.innerHTML = "?" + '<span class="new" aria-label="coming soon">SOON</span>'; if (n === soonShown) btn.setAttribute("aria-current", "true"); }
+            else { btn.disabled = true; btn.title = "coming soon"; }
+          }
           else { btn.title = ZONES[n - 1][0]; btn.setAttribute("data-z", n - 1); if (isNewZone(ZONES[n - 1])) btn.innerHTML = n + '<span class="new" aria-label="new">NEW!</span>'; }
-          if (n - 1 === cur) btn.setAttribute("aria-current", "true");
+          if (n - 1 === cur && !soonShown) btn.setAttribute("aria-current", "true");
           list.appendChild(btn);
         }
       }
       function restart(node, cls) { node.classList.remove(cls); void node.offsetWidth; node.classList.add(cls); }
       async function show(i, dir) {
+        soonShown = 0;
         i = (i + ZONES.length) % ZONES.length;
         var my = ++seq, z = ZONES[i];
         cur = i;
@@ -2080,7 +2103,33 @@
           await sleep(14);
         }
       }
-      function step(d) { show(cur + d, d); if (auto) startAuto(); }
+      function step(d) { if (soonShown) { soonShown = 0; show(d > 0 ? 0 : ZONES.length - 1, d); } else show(cur + d, d); if (auto) startAuto(); }
+      // teaser for a zone that is still being built: blurred shot (or tv static) and no spoilers
+      var soonShown = 0;
+      function showSoon(n) {
+        var s = soonZone(n); if (!s) return;
+        seq++; soonShown = n; cur = ZONES.length - 1;
+        fxCleanup(fx); win.style.setProperty("--zc", "#8a8a8a");
+        stage.appendChild(el("div", "zs-burst w")); blip("tick");
+        shot.innerHTML = ""; shot.className = "zs-shot";
+        var pan = el("div", "zs-pan");
+        if (s.img) { var im = el("img"); im.alt = "Blurred sneak peek of zone " + n; im.src = s.img; im.style.filter = "blur(14px) brightness(.55) saturate(.6)"; pan.appendChild(im); }
+        shot.appendChild(pan);
+        fx.innerHTML = ""; fx.className = "zs-fx fx-soon";
+        var tv = el("canvas"); tv.width = 160; tv.height = 90; tv.style.cssText = "position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;opacity:" + (s.img ? ".25" : ".9");
+        fx.appendChild(tv);
+        var stamp = el("span", "k", "COMING SOON"); stamp.style.cssText = "left:50%;top:38%;translate:-50% -50%;rotate:-8deg;font-size:clamp(1.8rem,6vw,3.4rem);color:#fff;border:5px solid #fff;padding:4px 16px;text-shadow:3px 3px 0 #000;white-space:nowrap";
+        fx.appendChild(stamp);
+        var g = tv.getContext("2d"), alive = true;
+        (function noise() { if (!alive) return; var d = g.createImageData(160, 90); for (var i = 0; i < d.data.length; i += 4) { var v = Math.random() * 255 | 0; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } g.putImageData(d, 0, 0); setTimeout(noise, 70); })();
+        (fx._clean = fx._clean || []).push(function () { alive = false; });
+        num.textContent = n + " / ??";
+        badge.textContent = "ZONE " + n + " • COMING SOON"; restart(badge, "zs-badge");
+        name.textContent = "???"; restart(name, "zs-name");
+        desc.textContent = "mentos is cooking something new in Roblox Studio... check back soon";
+        tags.innerHTML = '<span style="--i:0">???</span><span style="--i:1">top secret</span>';
+        drawList(2);
+      }
       function startAuto() { clearInterval(auto); auto = setInterval(function () { show(cur + 1, 1); }, 7000); autoBtn.setAttribute("aria-pressed", "true"); autoBtn.innerHTML = "&#10074;&#10074; stop tour"; }
       function stopAuto() { clearInterval(auto); auto = null; autoBtn.setAttribute("aria-pressed", "false"); autoBtn.innerHTML = "&#9654; auto tour"; }
 
@@ -2090,6 +2139,7 @@
         else if (t.classList.contains("next")) step(1);
         else if (t.classList.contains("zs-tab")) { var p = +t.getAttribute("data-p"); if (p !== place) show(p === 1 ? 0 : FIRST_PLACE, 1); }
         else if (t.hasAttribute("data-z")) { var n = +t.getAttribute("data-z"); show(n, n >= cur ? 1 : -1); }
+        else if (t.hasAttribute("data-soon")) showSoon(+t.getAttribute("data-soon"));
         else if (t === autoBtn) { if (auto) stopAuto(); else { startAuto(); step(1); } }
       });
       // swipe on phones
@@ -2604,14 +2654,31 @@
       b.addEventListener("click", function () { vwPick.s = k; vwDrawTools(); });
       srow.appendChild(b);
     });
+    // photo booth: a snapped webcam sticker, or the camera button to make one
+    if (vwPick.photo) {
+      var pb = el("button", null, stickerHtml({ sticker: "photo", photo: vwPick.photo })); pb.type = "button"; pb.title = "ur photo sticker";
+      pb.setAttribute("aria-label", "ur photo sticker"); pb.setAttribute("aria-pressed", String(vwPick.s === "photo"));
+      pb.addEventListener("click", function () { vwPick.s = "photo"; vwDrawTools(); });
+      srow.appendChild(pb);
+    }
+    var cam = el("button", null, '<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" fill="currentColor"><rect x="2" y="1" width="3" height="1"/><rect x="0" y="2" width="8" height="5"/><rect x="3" y="3" width="2" height="2" fill="#000"/></svg>');
+    cam.type = "button"; cam.title = "photo booth: turn ur webcam pic into a sticker"; cam.setAttribute("aria-label", "Photo booth");
+    cam.addEventListener("click", function () { if (window.MENTOS_BOOTH) window.MENTOS_BOOTH.open(); });
+    srow.appendChild(cam);
     VW_COLORS.forEach(function (c) {
       var b = el("button", "sw"); b.type = "button"; b.style.background = c; b.setAttribute("aria-label", "colour " + c); b.setAttribute("aria-pressed", String(c === vwPick.c));
       b.addEventListener("click", function () { vwPick.c = c; vwDrawTools(); });
       crow.appendChild(b);
     });
   }
+  var PHOTO_RE = /^data:image\/png;base64,[A-Za-z0-9+\/=]+$/;
+  // a sticker is either an 8x8 pixel design or a tiny webcam photo from the photo booth
+  function stickerHtml(s) {
+    if (s.sticker === "photo") { var i = el("img"); i.alt = ""; i.src = PHOTO_RE.test(s.photo || "") ? s.photo : ""; i.style.cssText = "width:100%;height:100%;image-rendering:pixelated;display:block"; return i.outerHTML; }
+    return stickerSvg(s.sticker);
+  }
   function vwPlace(s, mine) {
-    var d = el("div", "vw-s" + (mine ? " mine" : ""), stickerSvg(s.sticker));
+    var d = el("div", "vw-s" + (mine ? " mine" : "") + (s.sticker === "photo" ? " photo" : ""), stickerHtml(s));
     d.style.left = (s.x * 100 / VW_W) + "%"; d.style.top = (s.y * 100 / VW_H) + "%"; d.style.color = s.color;
     d.setAttribute("data-name", s.name);
     vwBoard.appendChild(d); vwTaken[s.x + "," + s.y] = true;
@@ -2634,7 +2701,7 @@
     if (!vwCanStick()) return;
     var c = vwCell(e);
     if (!vwGhost) { vwGhost = el("div", "vw-s ghost"); vwBoard.appendChild(vwGhost); }
-    vwGhost.innerHTML = stickerSvg(vwPick.s); vwGhost.style.color = vwPick.c;
+    vwGhost.innerHTML = stickerHtml({ sticker: vwPick.s, photo: vwPick.photo }); vwGhost.style.color = vwPick.c;
     vwGhost.style.left = (c.x * 100 / VW_W) + "%"; vwGhost.style.top = (c.y * 100 / VW_H) + "%";
   });
   vwBoard.addEventListener("pointerleave", function () { if (vwGhost) { vwGhost.remove(); vwGhost = null; } if (vwTip) { vwTip.remove(); vwTip = null; } });
@@ -2643,9 +2710,10 @@
     var c = vwCell(e);
     if (vwTaken[c.x + "," + c.y]) { vwStatus.textContent = "that spot is taken, pick another"; return; }
     var s = { name: store("localStorage", "mentosName"), sticker: vwPick.s, color: vwPick.c, x: c.x, y: c.y };
+    if (vwPick.s === "photo") s.photo = vwPick.photo;
     vwStatus.textContent = "sticking...";
     gbApi("wall", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(s) }).then(function () {
-      store("localStorage", "mentosStuck", "1");
+      store("localStorage", "mentosStuck", "1"); store("localStorage", "mentosSticker", JSON.stringify({ sticker: s.sticker, color: s.color, photo: s.photo }));
       if (vwGhost) { vwGhost.remove(); vwGhost = null; }
       vwPlace(s, true); blip("on"); var r = vwBoard.getBoundingClientRect(); hearts(e.clientX || r.left, e.clientY || r.top);
       vwHelp();
@@ -2653,8 +2721,8 @@
   });
   function vwLoad() {
     vwDrawTools(); vwHelp();
-    gbApi("wall?select=name,sticker,color,x,y&order=created_at.asc&limit=800").then(function (rows) {
-      rows.forEach(function (s) { if (STICKERS[s.sticker] && /^#[0-9a-f]{6}$/i.test(s.color)) vwPlace(s); });
+    gbApi("wall?select=name,sticker,color,x,y,photo&order=created_at.asc&limit=800").then(function (rows) {
+      rows.forEach(function (s) { if ((STICKERS[s.sticker] || (s.sticker === "photo" && PHOTO_RE.test(s.photo || ""))) && /^#[0-9a-f]{6}$/i.test(s.color)) vwPlace(s); });
     }).catch(function () { vwStatus.textContent = "the wall is still under construction... come back soon"; vwBoard.classList.add("done"); $("#vwtools").hidden = true; });
   }
   vwLoad();
@@ -2746,8 +2814,13 @@
     if (PLAY[play]) setTimeout(PLAY[play], 600);
   }
 
+  // small api for js/extras.js (pet, profile, winamp, webring, seasons, photo booth)
+  window.MENTOS = { $: $, $$: $$, el: el, store: store, blip: blip, popup: popup, hearts: hearts, api: gbApi, secret: secret, foundList: foundList, SECRETS: SECRETS,
+    stickerHtml: stickerHtml, audio: audio, showPlay: showPlay, setPhotoSticker: function (url) { vwPick.s = "photo"; vwPick.photo = url; vwDrawTools(); vwHelp(); $("#wall").scrollIntoView({ behavior: "smooth", block: "center" }); } };
+
   runIntro();
 })();
 </script>
+<script src="js/extras.js" defer></script>
 </body>
 </html>

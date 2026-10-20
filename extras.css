@@ -1,0 +1,96 @@
+/* styles for js/extras.js: mentochi pet, profile card, winamp, webring, seasons, photo booth */
+
+/* ---------- hangout row ---------- */
+.hang { display: grid; grid-template-columns: 1fr 1.2fr; gap: 22px; align-items: start; }
+@media (max-width: 760px) { .hang { grid-template-columns: 1fr; } }
+
+/* ---------- mentochi (shared tamagotchi) ---------- */
+.tama { width: min(300px, 100%); margin: 0 auto; padding: 26px 26px 22px; border-radius: 50% 50% 46% 46% / 56% 56% 44% 44%;
+  background: radial-gradient(circle at 30% 25%, #ffd1f6, #ff5ad9 45%, #9d1f87); border: 4px solid #3a0a33; box-shadow: inset -10px -14px 0 rgba(0,0,0,.18), inset 8px 8px 0 rgba(255,255,255,.25), 6px 6px 0 var(--deep); text-align: center; }
+.tama .brand { font: 1.15rem "VT323", monospace; color: #3a0a33; letter-spacing: .2em; margin-bottom: 6px; }
+.tama .lcd { position: relative; background: #a9b88f; border: 6px solid #3a0a33; border-radius: 12px; box-shadow: inset 0 0 12px rgba(0,0,0,.35); padding: 6px; }
+.tama canvas { display: block; width: 100%; aspect-ratio: 4 / 3; image-rendering: pixelated; }
+.tama .mood { font: 1.1rem "VT323", monospace; color: #263020; margin-top: 2px; min-height: 1.2em; }
+.tama .btns { display: flex; justify-content: center; gap: 14px; margin-top: 14px; }
+.tama .btns button { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #3a0a33; background: radial-gradient(circle at 35% 30%, #fff, #ffd500 55%, #c99a00); font: 1.05rem "VT323", monospace; color: #3a0a33; cursor: pointer; box-shadow: 0 4px 0 #3a0a33; }
+.tama .btns button:active { transform: translateY(3px); box-shadow: 0 1px 0 #3a0a33; }
+.tama .btns button:disabled { filter: grayscale(1) brightness(.8); cursor: not-allowed; }
+.petinfo { font: 1.15rem/1.3 "VT323", monospace; color: var(--chrome); margin-top: 14px; }
+.petinfo .meter { display: flex; align-items: center; gap: 8px; }
+.petinfo .meter span { width: 74px; color: var(--toxic); }
+.petinfo .meter i { flex: 1; height: 12px; border: 2px solid #555; background: #111; position: relative; }
+.petinfo .meter i b { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(90deg, var(--pink) 0 8px, transparent 8px 10px); }
+.petinfo ul { list-style: none; margin: 8px 0 0; padding: 0; }
+.petinfo li::before { content: "> "; color: var(--purple); }
+
+/* ---------- profile card ---------- */
+.card-y2k { background: linear-gradient(135deg, #1b0b33, #0c0c0c 60%); border: 3px dashed var(--pink); padding: 14px; }
+.card-y2k .top { display: grid; grid-template-columns: 110px 1fr; gap: 14px; align-items: center; }
+.card-y2k .skin { width: 110px; height: 110px; image-rendering: pixelated; background: radial-gradient(#3a1468, #0d0420); border: 3px solid var(--chrome); object-fit: contain; }
+.card-y2k .nm { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1; margin: 0; text-shadow: 3px 3px 0 var(--purple); overflow-wrap: anywhere; }
+.card-y2k .since { font: 1.1rem "VT323", monospace; color: var(--chrome); }
+.card-y2k .status { display: flex; gap: 6px; align-items: center; font: 1.15rem "VT323", monospace; margin-top: 6px; color: var(--toxic); }
+.card-y2k .status input { flex: 1; min-width: 0; font: 1.15rem "VT323", monospace; background: #000; color: #fff; border: 1px solid #444; padding: 1px 6px; }
+.card-y2k h3 { font: 1.25rem "VT323", monospace; color: var(--pink); margin: 12px 0 4px; letter-spacing: .08em; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font: 1.1rem/1.1 "VT323", monospace; text-align: center; }
+.stats div { background: #000; border: 1px solid #333; padding: 4px; }
+.stats b { display: block; font-size: 1.6rem; color: var(--toxic); font-weight: 400; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.badge { width: 44px; height: 44px; display: grid; place-items: center; border: 2px solid #444; background: #111; font: .8rem/1 "VT323", monospace; color: #555; text-align: center; padding: 2px; }
+.badge.on { border-color: var(--toxic); color: #fff; background: radial-gradient(#26094a, #000); box-shadow: 0 0 8px rgba(141,255,58,.4); }
+.badge svg { width: 22px; height: 22px; display: block; margin: 0 auto 1px; }
+.mysticker { width: 44px; height: 44px; display: inline-block; vertical-align: middle; margin-right: 8px; }
+.mysticker svg, .mysticker img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+
+/* ---------- winamp ---------- */
+.wamp { --wa-bg: linear-gradient(#5a5a6e, #2b2b38); --wa-edge: #9a9ab0; --wa-lcd: #000; --wa-txt: #00e000; --wa-hi: #ffd500; --wa-btn: linear-gradient(#cfcfd8, #8a8a9a);
+  position: fixed; right: 16px; bottom: 16px; z-index: 79; width: 300px; background: var(--wa-bg); border: 2px solid var(--wa-edge); box-shadow: 0 0 0 1px #000, 6px 6px 0 rgba(0,0,0,.5); font: 1rem "VT323", monospace; color: var(--wa-txt); user-select: none; }
+.wamp[hidden] { display: none; }
+.wamp[data-skin="mentos"] { --wa-bg: linear-gradient(#7c3aed, #26094a); --wa-edge: #d9c2ff; --wa-lcd: #0d0420; --wa-txt: #ff5ad9; --wa-hi: #8dff3a; --wa-btn: linear-gradient(#e9d8ff, #9d4dff); }
+.wamp[data-skin="toxic"] { --wa-bg: linear-gradient(#1a1a1a, #000); --wa-edge: #8dff3a; --wa-lcd: #021a00; --wa-txt: #8dff3a; --wa-hi: #ff5ad9; --wa-btn: linear-gradient(#bfff8a, #3fae00); }
+.wa-title { display: flex; align-items: center; gap: 6px; padding: 2px 4px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.15) 0 2px, transparent 2px 4px); color: #fff; cursor: move; touch-action: none; letter-spacing: .25em; font-size: .95rem; }
+.wa-title span { flex: 1; text-align: center; }
+.wa-title button { width: 16px; height: 14px; padding: 0; font: 700 10px/1 Verdana, sans-serif; background: var(--wa-btn); border: 1px solid #000; cursor: pointer; color: #000; }
+.wa-disp { display: grid; grid-template-columns: 92px 1fr; gap: 4px; margin: 4px; padding: 4px; background: var(--wa-lcd); border: 2px inset #444; }
+.wa-time { font-size: 2.1rem; line-height: 1; letter-spacing: .04em; text-shadow: 0 0 6px var(--wa-txt); }
+.wa-vis { width: 100%; height: 30px; image-rendering: pixelated; grid-column: 1; }
+.wa-right { overflow: hidden; }
+.wa-marq { white-space: nowrap; overflow: hidden; color: var(--wa-txt); }
+.wa-marq span { display: inline-block; padding-left: 100%; animation: wamarq 9s linear infinite; }
+@keyframes wamarq { to { transform: translateX(-100%); } }
+.wa-info { display: flex; gap: 8px; font-size: .9rem; color: var(--wa-hi); }
+.wa-seek { margin: 0 4px; width: calc(100% - 8px); accent-color: var(--wa-hi); }
+.wa-ctrl { display: flex; align-items: center; gap: 3px; padding: 2px 4px 4px; }
+.wa-ctrl button { height: 22px; min-width: 26px; padding: 0 4px; font: 700 12px/1 Verdana, sans-serif; background: var(--wa-btn); border: 1px solid #000; border-radius: 2px; cursor: pointer; color: #111; }
+.wa-ctrl button:active { filter: brightness(.8); }
+.wa-ctrl input[type=range] { width: 64px; accent-color: var(--wa-hi); }
+.wa-ctrl select { font: .9rem "VT323", monospace; background: #000; color: var(--wa-txt); border: 1px solid #444; margin-left: auto; }
+.wa-pl { margin: 0 4px 4px; background: var(--wa-lcd); border: 2px inset #444; max-height: 104px; overflow: auto; }
+.wa-pl button { display: block; width: 100%; text-align: left; font: 1rem "VT323", monospace; background: none; border: 0; color: var(--wa-txt); padding: 1px 6px; cursor: pointer; }
+.wa-pl button[aria-current="true"] { background: rgba(255,255,255,.12); color: #fff; }
+.wa-pl button:hover { color: var(--wa-hi); }
+.wamp.mini .wa-disp, .wamp.mini .wa-seek, .wamp.mini .wa-pl { display: none; }
+
+/* ---------- webring ---------- */
+.ring { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 10px; margin: 14px auto; padding: 6px 12px; max-width: 720px; border: 2px ridge var(--chrome); background: linear-gradient(90deg, #000, #26094a, #000); font-size: 1.2rem; }
+.ring button { font: 1.15rem "VT323", monospace; background: #111; color: var(--toxic); border: 2px outset #888; padding: 0 10px; cursor: pointer; }
+.ring button:hover { background: var(--toxic); color: #000; }
+.ring .rt { color: #fff; } .ring .rt b { color: var(--pink); font-weight: 400; }
+.ring .members { flex-basis: 100%; text-align: center; color: var(--chrome); font-size: 1.05rem; }
+.ring .members a { color: var(--toxic); } .ring .members .soon { color: #777; }
+
+/* ---------- seasons ---------- */
+.snow { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+.s-hat, .s-pump { position: fixed; z-index: 86; pointer-events: none; image-rendering: pixelated; }
+.s-hat svg, .s-pump svg { width: 100%; height: 100%; display: block; }
+html.season-oct body { box-shadow: inset 0 0 120px rgba(255,120,0,.18); }
+
+/* ---------- photo booth ---------- */
+.booth { position: fixed; inset: 0; z-index: 700; display: grid; place-items: center; background: rgba(0,0,0,.8); padding: 14px; }
+.booth[hidden] { display: none; }
+.booth .win { width: min(440px, 100%); }
+.booth .bd { padding: 14px; text-align: center; font: 1.15rem "VT323", monospace; color: var(--chrome); }
+.booth canvas { width: 200px; height: 200px; image-rendering: pixelated; border: 4px solid var(--pink); background: #000; display: block; margin: 10px auto; }
+.booth .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.booth .note { color: var(--pink); }
+.vw-s.photo { filter: none; }

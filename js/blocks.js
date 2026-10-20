@@ -473,7 +473,7 @@ async function visit(id) {
     if (!rows.length) { toast("that build doesn't exist anymore"); return false; }
     const b = rows[0], edits = {};
     (b.edits || []).forEach(([i, id2]) => { if (i >= 0 && i < world.length && id2 >= 0 && id2 < BLOCKS.length) edits[i] = id2; });
-    visiting = b; loadWorld(b.seed, edits); showVisit();
+    parkour = null; visiting = b; loadWorld(b.seed, edits); showVisit();
     history.replaceState(null, "", location.pathname + "?build=" + b.id);
     toast(b.title + " by " + b.name);
     return true;
@@ -531,6 +531,79 @@ addEventListener("keydown", (e) => {
 // share links: blocks.html?build=12
 const wantBuild = (location.search.match(/[?&]build=(\d+)/) || [])[1];
 if (wantBuild) visit(wantBuild);
+
+/* ---------------- parkour course ---------------- */
+// floating y2k blocks over the sea: checkpoints are toxic, the finish is glitter. same course for every1, so times compare
+let parkour = null;
+const CHECK = 12, FINISH = 11;
+function generateParkour() {
+  world = new Uint8Array(W * H * D);
+  const r = rng(777), put = (x, y, z, id) => { if (inside(x, y, z)) world[idx(x, y, z)] = id; };
+  for (let z = 0; z < D; z++) for (let x = 0; x < W; x++) { put(x, 0, z, BEDROCK); put(x, 1, z, SAND); for (let y = 2; y <= 5; y++) put(x, y, z, WATER); }
+  const plat = (x, y, z, s, id) => { for (let dx = 0; dx < s; dx++) for (let dz = 0; dz < s; dz++) put(x + dx, y, z + dz, id); };
+  const cps = [];
+  let x = 6, y = 9, z = 8, dir = 1;
+  plat(x - 2, y, z - 2, 5, 1); cps.push({ x: x + .5, y: y + 1.01, z: z + .5 });
+  const KINDS = [14, 15, 16, 9, 10, 8];
+  let edge = x + 2, prevSize = 5;
+  for (let i = 1; i <= 46; i++) {
+    let gap = [2, 2, 3, 1, 2, 3][i % 6], dy = r() < .45 ? 1 : r() < .55 ? 0 : -1;
+    if (gap === 3 && dy > 0) dy = 0;          // no long jump uphill, it's not humanly possible
+    if (y + dy < 8 || y + dy > H - 8) dy = 0;
+    const cp = i % 9 === 0, size = cp ? 3 : i % 5 === 0 ? 2 : 1;
+    let nx = dir > 0 ? edge + gap + 1 : edge - gap - size;
+    if (nx < 3 || nx + size > W - 3) { // turn around: 2-block hop sideways in the same column, then go back the other way
+      dir = -dir; z += prevSize + 2; nx = Math.max(3, Math.min(W - 3 - size, x)); dy = Math.min(dy, 0);
+    }
+    y += dy;
+    plat(nx, y, z, size, cp ? CHECK : KINDS[i % KINDS.length]);
+    if (cp) cps.push({ x: nx + 1.5, y: y + 1.01, z: z + 1.5 });
+    edge = dir > 0 ? nx + size - 1 : nx;
+    x = nx; prevSize = size;
+  }
+  const fx = dir > 0 ? edge + 3 : edge - 6;
+  plat(fx, y, z - 1, 4, FINISH);
+  [[0, 0], [3, 0], [0, 3], [3, 3]].forEach(([a, b]) => { for (let k = 1; k <= 3; k++) put(fx + a, y + k, z - 1 + b, 16); });
+  return { cps, cp: 0, start: 0, done: false, finish: { y } };
+}
+function parkourHud() {
+  const v = $("#visit");
+  if (!parkour) { showVisit(); return; }
+  v.hidden = false; v.textContent = "";
+  const t = parkour.start ? ((parkour.done || performance.now()) - parkour.start) / 1000 : 0, best = +store("mentosParkourBest") || 0;
+  v.append("parkour • " + t.toFixed(1) + "s • checkpoint " + (parkour.cp + 1) + "/" + parkour.cps.length + (best ? " • best " + (best / 1000).toFixed(1) + "s" : ""));
+  const back = document.createElement("button"); back.type = "button"; back.textContent = "leave";
+  back.addEventListener("click", leaveParkour); v.append(back);
+}
+function startParkour() {
+  visiting = null;
+  parkour = generateParkour(); remeshAll();
+  const c = parkour.cps[0]; player.p.set(c.x, c.y, c.z); player.v.set(0, 0, 0); player.fly = false; player.yaw = -Math.PI / 2;
+  history.replaceState(null, "", location.pathname + (/[?&]debug\b/.test(location.search) ? "?debug&parkour" : "?parkour"));
+  toast("parkour! reach the glitter"); parkourHud();
+}
+function leaveParkour() { parkour = null; loadWorld(save.seed, save.edits); history.replaceState(null, "", location.pathname); showVisit(); toast("back home"); }
+let lastHud = 0;
+function parkourTick(now) {
+  const P = parkour, c = P.cps[P.cp];
+  if (player.fly) { player.fly = false; toast("no flying in parkour >:("); }
+  if (!P.start && Math.hypot(player.p.x - P.cps[0].x, player.p.z - P.cps[0].z) > 2.6) P.start = now;
+  if (player.p.y < 6) { player.p.set(c.x, c.y, c.z); player.v.set(0, 0, 0); toast("splash! back 2 checkpoint " + (P.cp + 1)); }
+  const under = get(Math.floor(player.p.x), Math.floor(player.p.y - .05), Math.floor(player.p.z));
+  if (player.ground && under === CHECK) {
+    const i = P.cps.findIndex((q) => Math.abs(q.x - player.p.x) < 2 && Math.abs(q.z - player.p.z) < 2 && Math.abs(q.y - player.p.y) < 1.2);
+    if (i > P.cp) { P.cp = i; toast("checkpoint " + (i + 1) + "!"); }
+  }
+  if (player.ground && under === FINISH && P.start && !P.done) {
+    P.done = now;
+    const ms = Math.round(P.done - P.start), best = +store("mentosParkourBest") || 0;
+    if (!best || ms < best) { store("mentosParkourBest", String(ms)); toast("NEW BEST: " + (ms / 1000).toFixed(1) + "s!!"); }
+    else toast("finished in " + (ms / 1000).toFixed(1) + "s");
+  }
+  if (now - lastHud > 100) { lastHud = now; parkourHud(); }
+}
+$("#parkbtn").addEventListener("click", () => { startParkour(); lock(); });
+if (/[?&]parkour\b/.test(location.search)) startParkour();
 
 /* ---------------- hotbar + block picker ---------------- */
 const icons = BLOCKS.map((b) => (b ? tileIcon(b.t[1] === 1 ? 1 : b.t[1]) : null));
@@ -618,6 +691,7 @@ function frame(now) {
   }
   player.ground = false;
   moveAxis("x", player.v.x * dt); moveAxis("z", player.v.z * dt); moveAxis("y", player.v.y * dt);
+  if (parkour) parkourTick(now);
   if (player.p.y < -10) { player.p.set(spawn.x, spawn.y + 2, spawn.z); player.v.set(0, 0, 0); toast("u fell out of the world lol"); }
 
   // camera
@@ -644,7 +718,7 @@ function frame(now) {
   const hit = locked ? raycast(eye, look, 6) : null;
   outline.visible = !!hit;
   if (hit) outline.position.set(hit.x + .5, hit.y + .5, hit.z + .5);
-  if (hit && mouseDown >= 0 && now >= nextAct) {
+  if (hit && mouseDown >= 0 && now >= nextAct && !parkour) {
     nextAct = now + 220;
     if (mouseDown === 0 && get(hit.x, hit.y, hit.z) !== BEDROCK) setBlock(hit.x, hit.y, hit.z, AIR);
     if (mouseDown === 2) {
@@ -663,4 +737,4 @@ function frame(now) {
 requestAnimationFrame(frame);
 
 // test hook (only with ?debug in the url): lets automated tests drive the player without mouse lock
-if (/[?&]debug\b/.test(location.search)) window.__bw = { player, keys, get: get, setLocked: (v) => { locked = v; }, press: (b) => { mouseDown = b; nextAct = 0; }, release: () => { mouseDown = -1; } };
+if (/[?&]debug\b/.test(location.search)) window.__bw = { player, keys, get: get, setLocked: (v) => { locked = v; }, press: (b) => { mouseDown = b; nextAct = 0; }, release: () => { mouseDown = -1; }, park: () => parkour };
