@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scripting Place Preview | Mentos</title>
+<meta name="description" content="A little browser version of Mentos's Roblox scripting showcase. Walk around and try the zones.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fun.css">
+<style>
+  /* black + yellow like the in-game teleport UI */
+  .ybtn { font: 1.35rem/1 "VT323", monospace; background: #0f0f0f; color: var(--yellow); border: 3px solid var(--yellow); border-radius: 10px; padding: 6px 14px; cursor: pointer; pointer-events: auto; }
+  .ybtn:hover, .ybtn:focus-visible { background: var(--yellow); color: #111; outline: none; }
+  .tpbtn { position: absolute; left: 12px; top: 50%; translate: 0 -50%; }
+  .stats { position: absolute; right: 12px; top: 52px; text-align: right; font-size: 1.35rem; color: #fff; text-shadow: 2px 2px 0 #000; }
+  .stats .coins { color: var(--yellow); }
+  .hint { position: absolute; left: 50%; bottom: 14px; translate: -50% 0; background: rgba(0,0,0,.72); border: 2px solid var(--yellow); border-radius: 10px; padding: 6px 14px; font-size: 1.25rem; color: #fff; text-align: center; max-width: 92vw; }
+  .hint b { color: var(--yellow); font-weight: 400; }
+  .blood { position: absolute; left: 50%; bottom: 72px; translate: -50% 0; width: 240px; height: 16px; border: 2px solid #000; background: #2a0000; display: none; }
+  .blood.on { display: block; }
+  .blood i { display: block; height: 100%; background: linear-gradient(#ff3b3b, #8a0000); transition: width .2s; }
+  .tp { position: fixed; inset: 0; z-index: 25; display: grid; place-items: center; background: rgba(0,0,0,.45); }
+  .tp[hidden] { display: none; }
+  .tp .panel { width: min(560px, 94vw); background: #0f0f0f; border: 4px solid var(--yellow); border-radius: 16px; box-shadow: 0 0 40px rgba(255,213,0,.3); padding: 14px; }
+  .tp h2 { margin: 0 0 10px; color: var(--yellow); font-size: 2rem; text-align: center; }
+  .tp .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .tp .list button { font: 1.25rem/1.1 "VT323", monospace; background: #202020; color: #fff; border: 2px solid #444; border-radius: 10px; padding: 8px; cursor: pointer; text-align: left; }
+  .tp .list button:hover, .tp .list button:focus-visible { border-color: var(--yellow); background: #363636; outline: none; }
+  .tp .list b { display: inline-block; background: var(--yellow); color: #111; border-radius: 6px; padding: 0 6px; margin-right: 6px; font-weight: 400; }
+  .tp .close { display: block; margin: 12px auto 0; }
+  .flashy { position: fixed; inset: 0; z-index: 8; pointer-events: none; animation: zflash .45s ease-out forwards; }
+  @keyframes zflash { from { opacity: .55; } to { opacity: 0; } }
+  .title-pop { position: absolute; left: 50%; top: 30%; translate: -50% 0; font-size: clamp(1.8rem, 5vw, 3rem); text-shadow: 3px 3px 0 #000; white-space: nowrap; }
+</style>
+</head>
+<body class="game-page">
+<nav class="topbar" style="position:fixed;left:0;right:0;z-index:20">
+  <div class="wrap">
+    <a href="fun.html">&larr; Fun</a>
+    <a href="index.html#games">Home</a>
+    <a href="https://www.roblox.com/games/130047471706916/mentosove-scripting-miesto" target="_blank" rel="noopener">Play the real game</a>
+    <span class="title k">scripting_place_preview.exe</span>
+  </div>
+</nav>
+<canvas class="view" id="view" aria-label="3D preview of the scripting place"></canvas>
+<div class="hud">
+  <div class="cross" aria-hidden="true"></div>
+  <button class="ybtn tpbtn" type="button" id="tpbtn">Teleport [T]</button>
+  <div class="stats" aria-live="polite"><div class="coins" id="coins">0 coins</div><div id="praise"></div><div id="ttl"></div></div>
+  <div class="blood" id="blood" aria-hidden="true"><i></i></div>
+  <div class="hint" id="hint"></div>
+  <div id="toasts"></div>
+</div>
+
+<div class="tp" id="tp" hidden>
+  <div class="panel" role="dialog" aria-label="Teleport">
+    <h2 class="k">Teleport</h2>
+    <div class="list" id="tplist"></div>
+    <button class="ybtn close" type="button" id="tpclose">close</button>
+  </div>
+</div>
+
+<div class="overlay" id="start">
+  <div class="win">
+    <div class="bar"><span>mentosove scripting miesto // browser preview</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+    <div style="padding:16px">
+      <h1 class="k" style="margin:0 0 6px;font-size:clamp(2rem,6vw,3.2rem)">Scripting place preview</h1>
+      <p style="margin:0 0 6px;color:var(--chrome)">A mini browser version of my Roblox game. 8 zones rebuilt with their scripts: katana, portals, title gacha, praise Strapko, laser gun, grappling hook, launch ground and the vampire stone. The real game has way more.</p>
+      <p class="notouch">needs a keyboard and mouse, sorry phone gang</p>
+      <ul class="keys">
+        <li><b>WASD</b> walk &bull; <b>Space</b> jump</li>
+        <li><b>Shift</b> run &bull; <b>Mouse</b> look</li>
+        <li><b>Wheel</b> zoom camera</li>
+        <li><b>T</b> teleport menu</li>
+        <li><b>Click / E / Q / F / R / U</b> zone powers</li>
+        <li><b>Esc</b> pause</li>
+      </ul>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn yellow" type="button" id="play">&#9654; Play</button>
+        <a class="btn white" href="https://www.roblox.com/games/130047471706916/mentosove-scripting-miesto" target="_blank" rel="noopener">Play the real game on Roblox</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/preview.js"></script>
+</body>
+</html>

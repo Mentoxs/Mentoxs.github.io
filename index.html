@@ -841,6 +841,7 @@
     <a href="#games">Games</a>
     <a href="#discord">Discord</a>
     <a href="#guestbook">Guestbook</a>
+    <a href="fun.html">Fun<span class="new" aria-hidden="true">NEW!</span></a>
     <a href="#trust">Why trust this website</a>
     <div class="player" id="player">
       <button type="button" id="playbtn" aria-pressed="false">
@@ -930,6 +931,7 @@
             <div class="links">
               <a class="btn white" href="https://www.roblox.com/games/130047471706916/mentosove-scripting-miesto" target="_blank" rel="noopener">Play on Roblox</a>
               <button class="btn" type="button" id="zonebtn2">Tour the zones</button>
+              <a class="btn" href="preview.html">Try game preview</a>
             </div>
           </div>
         </div>
@@ -2618,6 +2620,10 @@
     setTimeout(toast, 5000);
     startRandomPopups();
     if (location.hash === "#trust") trustCut();
+    // deep links from fun.html, e.g. index.html?play=kiko
+    var play = (location.search.match(/[?&]play=(\w+)/) || [])[1];
+    var PLAY = { kiko: kikoFight, gastly: ghostCut, ufo: function () { ufoHonda(true); }, zones: function () { zoneTour(0); } };
+    if (PLAY[play]) setTimeout(PLAY[play], 600);
   }
 
   runIntro();

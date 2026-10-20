@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fun | Mentos</title>
+<meta name="description" content="Games and fun stuff on Mentos's site: a block building game, a playable preview of the Roblox scripting place, and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fun.css">
+<style>
+  .cards { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); margin-bottom: 50px; }
+  .card { text-decoration: none; display: flex; flex-direction: column; transition: transform .15s, box-shadow .15s, border-color .15s; }
+  .card:hover, .card:focus-visible { border-color: var(--purple); transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--purple); }
+  .card .art { aspect-ratio: 16 / 9; display: grid; place-items: center; overflow: hidden; border-bottom: 3px solid var(--chrome); position: relative; }
+  .card .art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card .txt { padding: 12px 16px 16px; }
+  .card h2 { margin: 0 0 4px; font-size: 1.7rem; line-height: 1.1; }
+  .card p { margin: 0; color: var(--chrome); }
+  .tag { display: inline-block; font: 1.1rem "VT323", monospace; background: var(--toxic); color: #000; padding: 0 8px; margin-bottom: 6px; }
+  .tag.y { background: var(--yellow); }
+  /* little pixel block scene for the block game card (no image needed) */
+  .blocks-art { background: linear-gradient(#5aa9ff, #bfe3ff); }
+  .blocks-art i { position: absolute; width: 14%; aspect-ratio: 1; image-rendering: pixelated; box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
+  .g { background: linear-gradient(#5dc23a 0 30%, #8a5a2b 30%); } .d { background: #8a5a2b; } .s { background: #8b8b8b; } .p { background: repeating-linear-gradient(45deg, #ff5ad9 0 6px, #9d4dff 6px 12px); } .t { background: #8dff3a; box-shadow: 0 0 18px #8dff3a !important; }
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<nav class="topbar">
+  <div class="wrap">
+    <a href="index.html">&larr; Back to the site</a>
+    <span class="title k">fun.exe</span>
+  </div>
+</nav>
+<main class="wrap">
+  <h1 class="k">Fun stuff</h1>
+  <p class="lead">Games u can play right here in the browser. No downloads, no account. Best with a keyboard and mouse.</p>
+  <div class="cards">
+    <a class="win card" href="blocks.html">
+      <div class="bar"><span>block_world.exe</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
+      <div class="art blocks-art" aria-hidden="true">
+        <i class="g" style="left:8%;bottom:28%"></i><i class="g" style="left:22%;bottom:28%"></i><i class="g" style="left:36%;bottom:42%"></i><i class="d" style="left:36%;bottom:28%"></i>
+        <i class="g" style="left:50%;bottom:28%"></i><i class="p" style="left:64%;bottom:42%"></i><i class="g" style="left:64%;bottom:28%"></i><i class="t" style="left:78%;bottom:56%"></i><i class="s" style="left:78%;bottom:42%"></i><i class="g" style="left:78%;bottom:28%"></i>
+        <i class="d" style="left:8%;bottom:14%"></i><i class="d" style="left:22%;bottom:14%"></i><i class="d" style="left:36%;bottom:14%"></i><i class="d" style="left:50%;bottom:14%"></i><i class="d" style="left:64%;bottom:14%"></i><i class="d" style="left:78%;bottom:14%"></i>
+      </div>
+      <div class="txt"><span class="tag">NEW</span><h2 class="k">Block World</h2><p>Build and break blocks in a 3D world. Pick a Y2K skin, place glitter blocks, fly around at night.</p></div>
+    </a>
+    <a class="win card" href="preview.html">
+      <div class="bar"><span>scripting_place_preview.exe</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
+      <div class="art"><img src="images/zones/zone7.jpg" alt=""></div>
+      <div class="txt"><span class="tag y">PLAYABLE</span><h2 class="k">Scripting place preview</h2><p>A mini browser version of my Roblox game. Walk around as ur avatar and try the zones: katana, portals, laser gun, vampire and more.</p></div>
+    </a>
+    <a class="win card" href="index.html?play=gastly">
+      <div class="bar"><span>wild_battle.exe</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
+      <div class="art" style="background:radial-gradient(#3a1468,#0d0420)"><img src="images/gastly.webp" alt="" style="width:40%;height:auto;object-fit:contain"></div>
+      <div class="txt"><h2 class="k">Gastly battle</h2><p>Pokemon-style fight with dark types. Catch him with a Poke Ball (psst, type mentos for a legendary).</p></div>
+    </a>
+    <a class="win card" href="index.html?play=kiko">
+      <div class="bar"><span>kiko_dungeon.exe</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
+      <div class="art" style="background:#120c18"><img src="images/kiko.jpg" alt="" style="width:30%;height:auto;object-fit:contain;border:3px solid #000;box-shadow:0 0 0 3px #8dff3a"></div>
+      <div class="txt"><h2 class="k">Wild Kiko</h2><p>Timing fight: swing when the marker hits the zone, dodge with the arrow keys.</p></div>
+    </a>
+    <a class="win card" href="index.html?play=zones">
+      <div class="bar"><span>teleport.exe</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
+      <div class="art"><img src="images/zones/zone23.jpg" alt=""></div>
+      <div class="txt"><h2 class="k">Zone tour</h2><p>Cinematic tour of all the zones in the game. Watch out in The Hollow...</p></div>
+    </a>
+    <a class="win card" href="index.html?play=ufo">
+      <div class="bar"><span>ufo.exe</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
+      <div class="art" style="background:radial-gradient(#1d3b10,#000)"><img src="images/honda.png" alt="" style="width:55%;height:auto;object-fit:contain;image-rendering:pixelated"></div>
+      <div class="txt"><h2 class="k">UFO Honda</h2><p>Summon the UFO and watch the Civic drift round ur cursor.</p></div>
+    </a>
+  </div>
+</main>
+</body>
+</html>
