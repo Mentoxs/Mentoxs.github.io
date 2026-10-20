@@ -1217,6 +1217,8 @@
   function toast() {
     var t = el("button", "toast", '<img src="images/gastly.webp" alt=""><span><small>Mentos Messenger</small><b>Mentos</b> has just signed in.</span>');
     t.type = "button";
+    // whoever signed the guestbook in this browser gets their own sign-in toast
+    var who = store("localStorage", "mentosName"); if (who) $("b", t).textContent = who;
     t.addEventListener("click", function () { t.remove(); });
     document.body.appendChild(t);
     blip("pop");
@@ -2529,7 +2531,7 @@
     if (wait > 0) { gbStatus.textContent = "chill... u can sign again in " + wait + "s"; return; }
     var btn = $("button", gbForm); btn.disabled = true; gbStatus.textContent = "sending...";
     gbApi("guestbook", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ name: name, message: msg }) }).then(function () {
-      store("localStorage", "mentosSigned", String(Date.now()));
+      store("localStorage", "mentosSigned", String(Date.now())); store("localStorage", "mentosName", name);
       var empty = $(".gb-empty", gbList); if (empty) empty.remove();
       gbList.insertBefore(gbItem({ name: name, message: msg, created_at: new Date().toISOString() }, true), gbList.firstChild);
       gbForm.message.value = ""; $(".gb-count", gbForm).textContent = "0/300";
