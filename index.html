@@ -482,7 +482,7 @@
   .zs-shot { position: absolute; inset: 0; }
   /* pan box has the screenshots' 1218x683 shape and covers the stage, so % positions inside it match spots in the shot */
   .zs-pan { position: absolute; left: 0; top: 50%; width: 100%; aspect-ratio: 1218 / 683; margin-top: -28.04%; transform-origin: var(--ox, 50%) var(--oy, 50%); animation: kb 9s cubic-bezier(.2,.6,.3,1) forwards; }
-  .zs-pan img { width: 100%; height: 100%; display: block; }
+  .zs-pan > img { width: 100%; height: 100%; display: block; } /* only the screenshot, not things pinned on top of it */
   .zs-anch { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
   .zs-shot { z-index: 1; }
   @keyframes kb { from { transform: scale(1.22) translate(var(--tx, 0), var(--ty, 0)); filter: brightness(2.2) saturate(.3); } 12% { filter: none; } to { transform: scale(1.04); } }
@@ -634,14 +634,15 @@
   .strapko.hit { animation: shove .35s ease-out; }
   @keyframes shove { 30% { transform: scale(.85) translateY(-6%); filter: brightness(3); } }
   .resist { position: absolute; z-index: 6; translate: -50% -100%; color: #fff; font-size: clamp(1.2rem, 3vw, 2rem); white-space: nowrap; text-shadow: 3px 3px 0 #000, 0 0 12px var(--pink); pointer-events: none; animation: dmgUp .9s ease-out forwards; }
-  .scare { position: fixed; inset: 0; z-index: 600; background: #000; display: grid; place-items: center; pointer-events: none; animation: scareIn 1.3s steps(1) forwards; }
-  .scare img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; filter: contrast(1.6) saturate(1.4) sepia(.4) hue-rotate(-30deg); animation: scareZoom 1.3s cubic-bezier(.2,1.6,.4,1) forwards; }
-  .scare::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px), radial-gradient(transparent 40%, rgba(120,0,0,.7)); animation: flick .08s steps(2) infinite; }
-  @keyframes scareZoom { 0% { transform: scale(2.2) rotate(-6deg); } 12% { transform: scale(1) rotate(3deg); } 20% { transform: scale(1.04) rotate(-2deg); } 100% { transform: scale(1.08) rotate(1deg); } }
+  .scare { position: fixed; inset: 0; z-index: 600; background: #000; pointer-events: none; overflow: hidden; animation: scareIn 1.3s steps(1) forwards; }
+  /* scare.jpg is already framed the way it should look (cropped in Paint), so it just fills the screen */
+  .scare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; filter: contrast(1.1); animation: scareZoom 1.3s cubic-bezier(.2,1.4,.4,1) forwards; }
+  .scare::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 2px, transparent 2px 4px), radial-gradient(transparent 55%, rgba(120,0,0,.55)); animation: flick .08s steps(2) infinite; }
+  @keyframes scareZoom { 0% { transform: scale(1.35); } 10% { transform: scale(1); } 100% { transform: scale(1.03); } }
   @keyframes scareIn { 0%, 5%, 10% { opacity: 1; } 7% { opacity: .2; } 90% { opacity: 1; } 100% { opacity: 0; } }
 
   /* mentos falls from the sky */
-  .mfall { position: fixed; z-index: 140; width: min(190px, 40vw); image-rendering: pixelated; pointer-events: auto; cursor: pointer; transform-origin: 50% 100%; }
+  .mfall { position: fixed; z-index: 140; will-change: transform; width: min(190px, 40vw); image-rendering: pixelated; pointer-events: auto; cursor: pointer; transform-origin: 50% 100%; }
   .mfall img { display: block; width: 100%; }
   .mfall .xe { position: absolute; width: 14%; translate: -50% -50%; font: 900 clamp(1.1rem, 3.4vw, 1.8rem)/1 Verdana, sans-serif; color: #b00000; text-shadow: 0 0 2px #000, 1px 1px 0 #000; opacity: 0; text-align: center; }
   .mfall.dead .xe { opacity: 1; animation: popIn .3s cubic-bezier(.2,1.6,.4,1); }
@@ -652,7 +653,9 @@
   .flood { position: fixed; left: 0; right: 0; bottom: 0; height: 0; z-index: 138; pointer-events: none; background: linear-gradient(#d40000, #6b0000); transition: height 1.6s cubic-bezier(.2,.7,.3,1); }
   .flood::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 16px; background: radial-gradient(circle at 10px 16px, #d40000 10px, transparent 11px) 0 0 / 20px 16px repeat-x; animation: waves 1.2s linear infinite; }
   @keyframes waves { to { background-position: 20px 0; } }
-  .crack { position: fixed; inset: 0; z-index: 650; pointer-events: auto; cursor: pointer; animation: fadeIn .1s; }
+  .crack { position: fixed; inset: 0; z-index: 650; pointer-events: auto; cursor: not-allowed; animation: fadeIn .1s; }
+  .crack.fixable { cursor: pointer; }
+  .mblock { position: fixed; inset: 0; z-index: 645; cursor: not-allowed; }
   .crack svg { width: 100%; height: 100%; display: block; }
   .crack p { position: absolute; left: 50%; bottom: 12%; translate: -50% 0; margin: 0; background: #000; color: #ff3b3b; border: 2px solid #ff3b3b; padding: 4px 14px; font: 1.5rem "VT323", monospace; white-space: nowrap; }
 
@@ -2234,7 +2237,14 @@
   /* ---------- click anything that says mentos: he falls from the sky ---------- */
   var EYES = [[45.5, 28.4], [64.4, 29.4]]; // where his eyes are on mentos-fall.png, in %
   var kills = [], body = null, flood = null, cleanupT = 0;
+  var mLock = false; // true from his revive until the cracked screen can be fixed
+  var FIX_AFTER = 10; // seconds before the cracked screen can be clicked away
+  function drain() {
+    if (!flood) return;
+    flood.style.height = "0"; var f = flood; flood = null; setTimeout(f.remove.bind(f), 1700);
+  }
   function mentosFall(atX) {
+    if (mLock) return;
     secret("splat");
     var now = Date.now();
     kills = kills.filter(function (t) { return now - t < 20000; }); kills.push(now);
@@ -2244,19 +2254,29 @@
     b.setAttribute("aria-hidden", "true");
     document.body.appendChild(b); body = b;
     var w = b.offsetWidth, h = w * 176 / 150, x = Math.max(8, Math.min(innerWidth - w - 8, atX - w / 2));
-    var floorY = innerHeight - w * .42 - h, t0 = performance.now(), spin = rand(-1, 1) * 540; // top edge when his feet hit the floor
-    b.style.left = x + "px";
-    (function fallStep(t) {
-      if (body !== b) return;
-      var p = Math.min(1, (t - t0) / 900), y = -h + (floorY + h) * p * p;
-      b.style.top = y + "px"; b.style.transform = "rotate(" + spin * p + "deg)";
-      if (p < 1) { requestAnimationFrame(fallStep); return; }
-      land(b, x + w / 2, innerHeight - 6);
-    })(t0);
-    b.addEventListener("click", function () { if (b.classList.contains("dead")) { b._pokes = (b._pokes || 0) + 1; blip("thud"); if (b._pokes >= 3) revive(b); } });
+    var floorY = innerHeight - w * .42 - h; // top edge when his feet hit the floor
+    b.style.left = x + "px"; b.style.top = floorY + "px";
+    // one compositor animation (transform only) = no stutter; eases in like gravity
+    var spin = rand(-1, 1) < 0 ? -200 : 200;
+    var fall = b.animate([
+      { transform: "translateY(" + -(floorY + h + 40) + "px) rotate(" + spin + "deg)" },
+      { transform: "translateY(0) rotate(0deg)" }
+    ], { duration: 1100, easing: "cubic-bezier(.55,0,1,.45)", fill: "forwards" });
+    fall.onfinish = function () { if (body === b) land(b, x + w / 2, innerHeight - 6); };
+    b.addEventListener("click", function () {
+      if (mLock || !b.classList.contains("dead")) return;
+      b._pokes = (b._pokes || 0) + 1; blip("thud");
+      if (b._pokes >= 3) revive(b);
+    });
   }
   function land(b, cx, cy) {
-    b.style.transform = "rotate(88deg) scale(1.15, .8)"; // splat, lying on the floor
+    // squash on impact, then topple over onto his side
+    var splat = b.animate([
+      { transform: "translateY(0) rotate(0deg) scale(1)" },
+      { transform: "translateY(0) rotate(0deg) scale(1.18,.78)", offset: .3 },
+      { transform: "translateY(0) rotate(88deg) scale(1.12,.85)" }
+    ], { duration: 520, easing: "cubic-bezier(.3,1.3,.5,1)", fill: "forwards" });
+    splat.onfinish = function () { b.style.transform = "rotate(88deg) scale(1.12,.85)"; b.getAnimations().forEach(function (a) { a.cancel(); }); };
     b.classList.add("dead");
     blip("thud"); shakeIt(document.body); hearts(cx, cy - 40);
     for (var i = 0; i < 26; i++) {
@@ -2269,27 +2289,31 @@
     flood.style.height = "18vh";
     if (kills.length >= 5) { setTimeout(function () { revive(b); }, 900); return; }
     cleanupT = setTimeout(function () {
-      if (flood) { flood.style.height = "0"; var f = flood; flood = null; setTimeout(f.remove.bind(f), 1700); }
+      drain();
       if (body === b) { b.style.transition = "opacity .6s"; b.style.opacity = "0"; setTimeout(function () { b.remove(); if (body === b) body = null; }, 650); }
     }, 7000);
   }
-  // killed him too many times: he gets up and punches ur screen
+  // killed him too many times: he gets up and punches ur screen. nothing on the page reacts until it can be fixed
   function revive(b) {
     if (b._rev) return; b._rev = true;
+    mLock = true;
     clearTimeout(cleanupT); kills = [];
+    var block = el("div", "mblock"); document.body.appendChild(block); // swallows clicks during the scene
+    b.getAnimations().forEach(function (a) { a.cancel(); });
     b.classList.remove("dead"); b.classList.add("alive");
-    b.style.transition = "transform .6s cubic-bezier(.3,1.6,.5,1)"; b.style.transform = "rotate(0deg)";
+    b.style.transform = "rotate(88deg) scale(1.12,.85)";
+    var up = b.animate([{ transform: "rotate(88deg) scale(1.12,.85)" }, { transform: "rotate(0deg) scale(1)" }], { duration: 650, easing: "cubic-bezier(.3,1.5,.5,1)", fill: "forwards" });
     blip("error");
-    setTimeout(function () {
+    up.onfinish = function () {
       var r = b.getBoundingClientRect();
-      b.style.transition = "transform .35s ease-in";
-      b.style.transform = "translate(" + (innerWidth / 2 - r.left - r.width / 2) + "px," + (innerHeight / 2 - r.bottom) + "px) scale(5)";
-    }, 900);
-    setTimeout(function () {
-      crackScreen(innerWidth / 2, innerHeight / 2);
-      b.remove(); if (body === b) body = null;
-      if (flood) { flood.style.height = "0"; var f = flood; flood = null; setTimeout(f.remove.bind(f), 1700); }
-    }, 1260);
+      var lunge = b.animate([{ transform: "rotate(0deg) scale(1)" }, { transform: "translate(" + (innerWidth / 2 - r.left - r.width / 2) + "px," + (innerHeight / 2 - r.bottom) + "px) scale(5)" }],
+        { duration: 380, delay: 250, easing: "cubic-bezier(.6,0,1,.6)", fill: "forwards" });
+      lunge.onfinish = function () {
+        crackScreen(innerWidth / 2, innerHeight / 2);
+        block.remove(); b.remove(); if (body === b) body = null;
+        drain();
+      };
+    };
   }
   function crackScreen(cx, cy) {
     secret("crack");
@@ -2309,14 +2333,23 @@
       for (j = 0; j <= 16; j++) { var aa = j / 16 * Math.PI * 2, rr = r * rand(.8, 1.2); ring += (j ? " L" : "M") + (cx + Math.cos(aa) * rr).toFixed(0) + " " + (cy + Math.sin(aa) * rr).toFixed(0); }
       lines += '<path d="' + ring + '" stroke-width="1.2" opacity=".7"/>';
     }
-    var c = el("div", "crack", '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none"><g fill="none" stroke="rgba(0,0,0,.55)" stroke-width="4" transform="translate(2,2)">' + lines + '</g><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="bevel">' + lines + '</g><circle cx="' + cx + '" cy="' + cy + '" r="18" fill="rgba(255,255,255,.35)"/></svg><p>u killed me 2 many times. click 2 fix ur screen</p>');
-    c.setAttribute("role", "button"); c.setAttribute("aria-label", "Cracked screen, click to fix");
+    var c = el("div", "crack", '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none"><g fill="none" stroke="rgba(0,0,0,.55)" stroke-width="4" transform="translate(2,2)">' + lines + '</g><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="bevel">' + lines + '</g><circle cx="' + cx + '" cy="' + cy + '" r="18" fill="rgba(255,255,255,.35)"/></svg><p></p>');
+    c.setAttribute("aria-label", "Cracked screen");
     document.body.appendChild(c); shakeIt(document.body);
-    c.addEventListener("click", function () { blip("pop"); c.style.transition = "opacity .3s"; c.style.opacity = "0"; setTimeout(c.remove.bind(c), 320); });
+    var msg = $("p", c), left = FIX_AFTER;
+    (function tick() {
+      if (left > 0) { msg.textContent = "u killed me 2 many times... ur screen stays broken 4 " + left + "s"; left--; setTimeout(tick, 1000); return; }
+      msg.textContent = "ok fine. click 2 fix ur screen";
+      c.classList.add("fixable"); c.setAttribute("role", "button"); c.setAttribute("aria-label", "Cracked screen, click to fix");
+      c.addEventListener("click", function () {
+        blip("pop"); mLock = false;
+        c.style.transition = "opacity .3s"; c.style.opacity = "0"; setTimeout(c.remove.bind(c), 320);
+      });
+    })();
   }
   document.addEventListener("click", function (e) {
     var t = e.target;
-    if (!t || !t.closest || t.closest("a, button, input, textarea, label, .cut, .mfall, .crack, .ufo, .pops")) return;
+    if (!t || !t.closest || t.closest("a, button, input, textarea, label, .cut, .mfall, .crack, .mblock, .ufo, .pops")) return;
     var txt = t.textContent || "";
     if (txt.length > 90 || !/mentos/i.test(txt)) return;
     mentosFall(e.clientX);
