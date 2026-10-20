@@ -643,24 +643,35 @@
   .dw li b.idle { background: #faa61a; } .dw li b.dnd { background: #ed4245; }
 
   /* ===== ufo honda ===== */
-  .ufo { position: fixed; left: 2vw; bottom: 2vh; width: min(380px, 78vw); aspect-ratio: 2.3 / 1; z-index: 70; pointer-events: none; }
-  .ufo .road { position: absolute; inset: 22% 0 0 0; border-radius: 50%; background: radial-gradient(closest-side, #2f6b2a 0 44%, #d8d8d8 45% 47%, #3a3a3a 48% 88%, #d8d8d8 89% 91%, transparent 92%); animation: fadeIn .6s; }
-  .ufo .road::after { content: ""; position: absolute; inset: 17% 13%; border-radius: 50%; border: 2px dashed rgba(255,255,255,.75); }
-  .ufo .isl { position: absolute; left: 50%; top: 61%; translate: -50% -50%; font-size: clamp(1.4rem, 5vw, 2rem); z-index: 1; }
-  .ufo .sign { position: absolute; left: 50%; top: 52%; translate: -50% -50%; font: 1rem/1 "VT323", monospace; background: #0050b4; color: #fff; padding: 1px 5px; border: 1px solid #fff; z-index: 1; white-space: nowrap; }
-  .ufo .saucer { position: absolute; left: 50%; top: -95%; width: 34%; translate: -50% 0; z-index: 4; animation: saucerIn 1.4s cubic-bezier(.2,1.2,.4,1) both, saucerBob 1.6s ease-in-out 1.4s infinite; }
+  .ufo { position: fixed; inset: 0; z-index: 70; pointer-events: none; overflow: hidden; }
+  .ufo > * { position: absolute; left: 0; top: 0; }
+  .ufo .saucer { width: 130px; margin-left: -65px; z-index: 4; animation: saucerIn 1.4s cubic-bezier(.2,1.2,.4,1) both, saucerBob 1.6s ease-in-out 1.4s infinite; }
   .ufo .saucer.away { animation: saucerOut 1.2s ease-in forwards; }
-  @keyframes saucerIn { from { transform: translate(-60vw, -40vh) rotate(-25deg) scale(.4); } }
-  @keyframes saucerBob { 50% { translate: -50% -8px; } }
-  @keyframes saucerOut { to { transform: translate(40vw, -80vh) scale(.3); opacity: 0; } }
+  @keyframes saucerIn { from { transform: translate(-60vw, -50vh) rotate(-25deg) scale(.4); } }
+  @keyframes saucerBob { 50% { translate: 0 -8px; } }
+  @keyframes saucerOut { to { transform: translate(40vw, -90vh) scale(.3); opacity: 0; } }
   .ufo .dome { width: 46%; aspect-ratio: 1.6; margin: 0 auto -12%; border-radius: 50% 50% 10% 10%; background: radial-gradient(circle at 40% 35%, #e9fff6, #8dffd8 40%, #2bb88f); border: 2px solid #0b3b2c; }
   .ufo .disc { height: 0; padding-bottom: 26%; border-radius: 50%; background: linear-gradient(#d7d7e8, #8a8aa8 55%, #4b4b66); border: 2px solid #222; position: relative; }
   .ufo .disc::after { content: ""; position: absolute; left: 10%; right: 10%; top: 40%; height: 18%; background: repeating-linear-gradient(90deg, #ffe14d 0 8%, transparent 8% 16%); animation: blink .4s steps(2) infinite; }
-  .ufo .beam { position: absolute; left: 50%; top: 2%; width: 44%; height: 80%; translate: -50% 0; z-index: 3; clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); background: linear-gradient(rgba(141,255,58,.75), rgba(141,255,58,.08)); opacity: 0; transition: opacity .4s; animation: flick .15s steps(2) infinite; }
+  .ufo .beam { width: 150px; margin-left: -75px; z-index: 3; clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); background: linear-gradient(rgba(141,255,58,.75), rgba(141,255,58,.08)); opacity: 0; transition: opacity .4s; animation: flick .15s steps(2) infinite; }
   .ufo .beam.on { opacity: 1; }
-  .ufo .car { position: absolute; left: 0; top: 0; width: 34%; z-index: 2; image-rendering: pixelated; pointer-events: auto; cursor: pointer; transform-origin: 50% 90%; filter: drop-shadow(0 4px 2px rgba(0,0,0,.5)); }
-  .ufo .smoke { position: absolute; z-index: 1; width: 14px; height: 14px; border-radius: 50%; background: rgba(230,230,230,.8); animation: smoke .9s ease-out forwards; }
+  /* the "roundabout": a dashed tyre track around a 2000s hourglass */
+  .ufo .ring { border: 3px dashed rgba(141,255,58,.55); border-radius: 50%; z-index: 1; opacity: 0; transition: opacity .5s; box-shadow: 0 0 18px rgba(141,255,58,.25), inset 0 0 18px rgba(141,255,58,.2); }
+  .ufo .ring.on { opacity: 1; }
+  .ufo .hg { width: 34px; margin: -24px 0 0 -17px; z-index: 3; filter: drop-shadow(2px 2px 0 rgba(0,0,0,.6)); }
+  .hg svg { display: block; width: 100%; animation: hgFlip 1.6s cubic-bezier(.6,0,.3,1) infinite; }
+  .hg .st { transform-origin: 8px 10px; transform-box: view-box; animation: sandTop 1.6s linear infinite; }
+  .hg .sb { transform-origin: 8px 19px; transform-box: view-box; animation: sandBot 1.6s linear infinite; }
+  .hg .ss { animation: sandStream 1.6s steps(1) infinite; }
+  @keyframes hgFlip { 0%, 78% { transform: rotate(0); } 100% { transform: rotate(180deg); } }
+  @keyframes sandTop { 0% { transform: scaleY(1); } 75%, 100% { transform: scaleY(0); } }
+  @keyframes sandBot { 0% { transform: scaleY(0); } 75%, 100% { transform: scaleY(1); } }
+  @keyframes sandStream { 0% { opacity: 1; } 75% { opacity: 0; } }
+  .ufo .car { width: min(120px, 30vw); z-index: 2; image-rendering: pixelated; pointer-events: auto; cursor: pointer; transform-origin: 50% 90%; filter: drop-shadow(0 4px 2px rgba(0,0,0,.5)); }
+  .ufo .smoke { z-index: 1; width: 14px; height: 14px; border-radius: 50%; background: rgba(230,230,230,.8); animation: smoke .9s ease-out forwards; }
   @keyframes smoke { to { transform: scale(3.2) translateY(-14px); opacity: 0; } }
+  /* while the honda drifts, the real cursor hides and the hourglass takes its place (#top = body, beats every other cursor rule) */
+  html.busy #top, html.busy #top * { cursor: none !important; }
   .ufo-txt { position: fixed; left: 50%; top: 22%; z-index: 75; translate: -50% 0; pointer-events: none; font-size: clamp(2rem, 8vw, 4.6rem); line-height: 1; color: var(--toxic); white-space: nowrap; text-shadow: 4px 4px 0 #000, 0 0 24px var(--toxic); animation: ufoTxt 2.6s ease-out forwards; }
   @keyframes ufoTxt { 0% { transform: scale(3); opacity: 0; } 15%, 75% { transform: none; opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
 
@@ -2044,26 +2055,49 @@
   });
   drawSecrets();
 
-  /* ---------- UFO honda (drifts round a roundabout) ---------- */
+  /* ---------- UFO honda (drifts round ur cursor, which turns into a 2000s hourglass) ---------- */
+  var MX = innerWidth / 2, MY = innerHeight / 2;
+  document.addEventListener("pointermove", function (e) { MX = e.clientX; MY = e.clientY; }, { passive: true });
+  var HOURGLASS = '<svg viewBox="0 0 16 22" shape-rendering="crispEdges" aria-hidden="true">' +
+    '<path d="M3 2H13V6L9 11L13 16V20H3V16L7 11L3 6Z" fill="#fff" stroke="#000" stroke-width="1"/>' +
+    '<path class="st" d="M4 4H12V6L8.6 10H7.4L4 6Z" fill="#e8b400"/>' +
+    '<path class="sb" d="M4 19H12V17L8 13L4 17Z" fill="#e8b400"/>' +
+    '<rect class="ss" x="7.6" y="10" width=".8" height="8" fill="#e8b400"/>' +
+    '<rect x="1" y="0" width="14" height="2" fill="#000"/><rect x="1" y="20" width="14" height="2" fill="#000"/></svg>';
   function ufoHonda() {
     if (document.getElementById("ufo")) return;
     secret("honda");
-    popup({ type: "honda", title: "ufo.exe", html: "<b>A UFO APPEARS!!</b><br>something is landing on the roundabout...", buttons: [{ label: "o_O" }, { label: "rawr" }] });
+    popup({ type: "honda", title: "ufo.exe", html: "<b>A UFO APPEARS!!</b><br>ur cursor is loading... something is drifting round it", buttons: [{ label: "o_O" }, { label: "rawr" }] });
     if (RM) return;
     var txt = el("div", "ufo-txt k", "A UFO APPEARS"); document.body.appendChild(txt); setTimeout(txt.remove.bind(txt), 2700);
     var u = el("div", "ufo"); u.id = "ufo"; u.setAttribute("aria-hidden", "true");
-    u.innerHTML = '<div class="road"></div><span class="sign">MENTOS RONDEL</span><span class="isl">&#127795;</span><div class="beam"></div>' +
+    u.innerHTML = '<div class="ring"></div><div class="beam"></div><div class="hg">' + HOURGLASS + '</div>' +
       '<div class="saucer"><div class="dome"></div><div class="disc"></div></div><img class="car" src="images/honda.png" alt="">';
     document.body.appendChild(u);
-    var car = $(".car", u), beam = $(".beam", u), saucer = $(".saucer", u);
+    var car = $(".car", u), beam = $(".beam", u), saucer = $(".saucer", u), ring = $(".ring", u), hg = $(".hg", u);
     car.style.opacity = "0";
     car.addEventListener("click", function (e) { blip("pop"); hearts(e.clientX, e.clientY); });
-    function geo() {
-      var W = u.clientWidth, H = u.clientHeight;
-      return { W: W, H: H, cx: W / 2, cy: H * .61, rx: W / 2 * .68, ry: H * .78 / 2 * .68, cw: W * .34 };
+    if (FINE) html.classList.add("busy");
+
+    // the orbit centre trails the cursor a little, so the car gets dragged round like it's drifting
+    var R = Math.min(140, innerWidth * .3), RX = R, RY = R * .45, CW = Math.min(120, innerWidth * .3);
+    var cx = MX, cy = MY, alive = true, beamTo = null;
+    function clampC() {
+      cx = Math.max(RX + 10, Math.min(innerWidth - RX - 10, cx));
+      cy = Math.max(200, Math.min(innerHeight - RY - 30, cy));
     }
+    (function follow() {
+      if (!alive) return;
+      cx += (MX - cx) * .12; cy += (MY - cy) * .12; clampC();
+      hg.style.transform = "translate(" + (FINE ? MX : cx) + "px," + (FINE ? MY : cy) + "px)";
+      ring.style.cssText = "left:" + (cx - RX) + "px;top:" + (cy - RY) + "px;width:" + RX * 2 + "px;height:" + RY * 2 + "px";
+      saucer.style.left = cx + "px"; saucer.style.top = (cy - 190) + "px";
+      var by = cy - 160, ty = beamTo == null ? cy + RY : beamTo;
+      beam.style.left = cx + "px"; beam.style.top = by + "px"; beam.style.height = Math.max(0, ty - by) + "px";
+      requestAnimationFrame(follow);
+    })();
     function place(x, y, s, dir, tilt) {
-      var G = geo(), w = G.cw * s, h = w * 77 / 150;
+      var w = CW * s, h = w * 77 / 150;
       car.style.width = w + "px";
       car.style.left = (x - w / 2) + "px"; car.style.top = (y - h * .9) + "px";
       car.style.transform = "scaleX(" + dir + ") rotate(" + tilt + "deg)";
@@ -2076,39 +2110,41 @@
     }
     (async function () {
       await sleep(1500);
-      beam.classList.add("on"); blip("on");
-      var G = geo(), th = Math.PI / 2, lastSmoke = 0;
-      car.style.opacity = "1";
-      // lowered by the beam onto the front of the roundabout
-      await anim(1300, function (p) { place(G.cx, G.H * .05 + (G.cy + G.ry - G.H * .05) * p, .25 + .75 * p, 1, (1 - p) * 20 * Math.sin(p * 12)); });
+      beam.classList.add("on"); ring.classList.add("on"); blip("on");
+      car.style.opacity = "1"; car.style.zIndex = "5";
+      // lowered by the beam onto the front of the orbit
+      await anim(1300, function (p) { var top = cy - 150; place(cx, top + (cy + RY - top) * p, .25 + .75 * p, 1, (1 - p) * 20 * Math.sin(p * 12)); });
       beam.classList.remove("on");
-      await sleep(300);
-      // drift laps
-      await anim(8000, function (p) {
-        G = geo();
-        var a = th + p * Math.PI * 2 * 2.5 * (0.6 + 0.4 * p);
-        var x = G.cx + G.rx * Math.cos(a), y = G.cy + G.ry * Math.sin(a);
+      await sleep(250);
+      // drift laps round the hourglass
+      var lastSmoke = 0, a = Math.PI / 2;
+      await anim(9000, function (p) {
+        a = Math.PI / 2 + p * Math.PI * 2 * 3 * (.6 + .4 * p);
+        var x = cx + RX * Math.cos(a), y = cy + RY * Math.sin(a);
         var dir = -Math.sin(a) >= 0 ? 1 : -1, depth = (Math.sin(a) + 1) / 2;
-        car.style.zIndex = Math.sin(a) < -.2 ? "0" : "2";
+        car.style.zIndex = Math.sin(a) < -.15 ? "2" : "5"; // behind the hourglass on the far side
         place(x, y, .72 + .28 * depth, dir, dir * (8 + 4 * Math.sin(a * 3)));
         var now = performance.now();
-        if (now - lastSmoke > 70) {
+        if (now - lastSmoke > 60) {
           lastSmoke = now;
-          var s = el("span", "smoke"); s.style.left = (x - dir * G.cw * .38) + "px"; s.style.top = (y - 10) + "px";
+          var s = el("span", "smoke"); s.style.left = (x - dir * CW * .36 - 7) + "px"; s.style.top = (y - 12) + "px";
           u.appendChild(s); setTimeout(s.remove.bind(s), 900);
         }
       });
       // beamed back up
-      var x0 = parseFloat(car.style.left) + car.offsetWidth / 2, y0 = parseFloat(car.style.top) + car.offsetHeight * .9;
-      beam.classList.add("on"); blip("on");
-      await anim(1100, function (p) { place(x0 + (G.cx - x0) * p, y0 + (G.H * .05 - y0) * p, 1 - .8 * p, 1, p * 25); car.style.opacity = String(1 - p * .9); });
-      car.style.opacity = "0"; beam.classList.remove("on");
+      var x0 = cx + RX * Math.cos(a), y0 = cy + RY * Math.sin(a);
+      beamTo = y0; beam.classList.add("on"); blip("on"); car.style.zIndex = "5";
+      await anim(1100, function (p) { var top = cy - 150; beamTo = y0 + (top - y0) * p; place(x0 + (cx - x0) * p, beamTo, 1 - .8 * p, 1, p * 25); car.style.opacity = String(1 - p * .9); });
+      car.style.opacity = "0"; beam.classList.remove("on"); ring.classList.remove("on");
+      html.classList.remove("busy"); hg.style.opacity = "0";
       saucer.classList.add("away");
       await sleep(1200);
+      alive = false;
       u.style.transition = "opacity .5s"; u.style.opacity = "0";
       await sleep(500); u.remove();
     })();
   }
+
   /* ---------- live roblox player count ---------- */
   // goes through roproxy because roblox.com blocks browser requests; stays hidden while the game is content-restricted
   var UNIVERSE = 10768473123;
