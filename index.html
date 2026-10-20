@@ -664,6 +664,26 @@
   .ufo-txt { position: fixed; left: 50%; top: 22%; z-index: 75; translate: -50% 0; pointer-events: none; font-size: clamp(2rem, 8vw, 4.6rem); line-height: 1; color: var(--toxic); white-space: nowrap; text-shadow: 4px 4px 0 #000, 0 0 24px var(--toxic); animation: ufoTxt 2.6s ease-out forwards; }
   @keyframes ufoTxt { 0% { transform: scale(3); opacity: 0; } 15%, 75% { transform: none; opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
 
+  /* ===== guestbook ===== */
+  .gb-sub { text-align: center; color: var(--pink); font-size: 1.3rem; margin: 0 0 14px; }
+  .gb-form { display: grid; gap: 8px; background: #111; border: 2px dashed var(--purple); padding: 12px; font-size: 1.25rem; }
+  .gb-form label { display: grid; gap: 2px; color: var(--toxic); }
+  .gb-form input, .gb-form textarea { font: 1.15rem "VT323", monospace; background: #000; color: #fff; border: 2px inset #888; padding: 4px 8px; resize: vertical; }
+  .gb-form input:focus, .gb-form textarea:focus { outline: 2px solid var(--purple); }
+  .gb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .gb-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .gb-count { color: var(--chrome); }
+  .gb-status { margin: 0; min-height: 1.2em; color: var(--pink); }
+  .gb-list { list-style: none; margin: 16px 0 0; padding: 0; max-height: 460px; overflow: auto; border: 2px solid var(--chrome); }
+  .gb-list li { padding: 8px 12px; border-bottom: 1px dashed #444; background: #0c0c0c; }
+  .gb-list li:nth-child(even) { background: #160a26; }
+  .gb-list li.fresh { animation: popIn .4s cubic-bezier(.2,1.6,.4,1); }
+  .gb-meta { display: flex; justify-content: space-between; gap: 10px; font: 1.15rem "VT323", monospace; }
+  .gb-meta b { color: var(--toxic); font-weight: 400; }
+  .gb-meta time { color: var(--chrome); }
+  .gb-msg { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .gb-empty { padding: 14px; text-align: center; color: var(--chrome); font: 1.2rem "VT323", monospace; }
+
   /* ===== 2000s cursor (mouse only) ===== */
   @media (hover: hover) and (pointer: fine) {
     html.cur, html.cur * { cursor: var(--c-arrow), auto; }
@@ -748,6 +768,7 @@
     <a href="#videos">Videos<span class="new" aria-hidden="true">NEW!</span></a>
     <a href="#games">Games</a>
     <a href="#discord">Discord</a>
+    <a href="#guestbook">Guestbook</a>
     <a href="#trust">Why trust this website</a>
     <div class="player" id="player">
       <button type="button" id="playbtn" aria-pressed="false">
@@ -771,7 +792,7 @@
       <div class="links">
         <a class="btn" href="https://www.youtube.com/@MentosAndDan" target="_blank" rel="noopener">Watch on YouTube</a>
         <a class="btn white" href="#games">Play my games</a>
-        <a class="btn" href="https://discord.gg/JKNd5j34D" target="_blank" rel="noopener">Join the Discord</a>
+        <a class="btn" href="https://discord.com/invite/yzvYu7mH" target="_blank" rel="noopener">Join the Discord</a>
       </div>
       <p class="trustlink"><a href="#trust">Why trust this website</a></p>
     </div>
@@ -868,9 +889,28 @@
           <div>
             <h2 class="k" style="margin-bottom:0">Join the Discord</h2>
             <p>Chat with other players, get game updates first and tell me what to build next.</p>
-            <a class="btn" href="https://discord.gg/JKNd5j34D" target="_blank" rel="noopener">Join the server</a>
+            <a class="btn" href="https://discord.com/invite/yzvYu7mH" target="_blank" rel="noopener">Join the server</a>
             <div class="dw px" id="dwidget" hidden><div class="dw-h"><span>who&#39;s online rn</span><span class="dw-n"></span></div><ul></ul></div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="guestbook">
+    <div class="wrap">
+      <div class="win gb" style="max-width:680px;margin:0 auto">
+        <div class="bar"><span>guestbook.exe</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="body">
+          <h2 class="k" style="text-align:center">Guestbook</h2>
+          <p class="gb-sub px">~*~ sign my guestbook pls ~*~ leave a msg 4 everyone 2 see ~*~</p>
+          <form class="gb-form px" id="gbform" autocomplete="off">
+            <label>ur name <input type="text" name="name" maxlength="30" required></label>
+            <label>ur msg <textarea name="message" maxlength="300" rows="3" required></textarea></label>
+            <label class="gb-hp" aria-hidden="true">website <input type="text" name="website" tabindex="-1"></label>
+            <div class="gb-row"><span class="gb-count">0/300</span><button class="btn" type="submit">sign it &#9998;</button></div>
+            <p class="gb-status" role="status"></p>
+          </form>
+          <ol class="gb-list" id="gblist" aria-live="polite"></ol>
         </div>
       </div>
     </div>
@@ -911,7 +951,7 @@
 (function () {
   "use strict";
   var YT = "https://www.youtube.com/@MentosAndDan";
-  var DISCORD = "https://discord.gg/JKNd5j34D";
+  var DISCORD = "https://discord.com/invite/yzvYu7mH";
   var html = document.documentElement;
   var RM = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
   var FINE = !!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches);
@@ -1851,7 +1891,7 @@
   }
 
   /* ---------- in-page links get transitions ---------- */
-  var LABELS = { videos: "loading videos.exe", games: "LOADING LEVEL 1-1...", discord: "connecting 2 discord...", top: "rewinding tape..." };
+  var LABELS = { videos: "loading videos.exe", games: "LOADING LEVEL 1-1...", discord: "connecting 2 discord...", guestbook: "opening guestbook.exe...", top: "rewinding tape..." };
   document.addEventListener("click", function (e) {
     var a = e.target.closest('a[href^="#"]');
     if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey) return;
@@ -2077,8 +2117,7 @@
   liveCount(); setInterval(liveCount, 60000);
 
   /* ---------- discord widget ---------- */
-  // TODO: put the server ID here once Server Settings > Widget > Enable Server Widget is on
-  var DISCORD_SERVER_ID = "";
+  var DISCORD_SERVER_ID = "1489586932240482324";
   function discordWidget() {
     if (!DISCORD_SERVER_ID || !window.fetch) return;
     fetch("https://discord.com/api/guilds/" + DISCORD_SERVER_ID + "/widget.json").then(function (r) { return r.json(); }).then(function (d) {
@@ -2091,11 +2130,65 @@
         $("img", li).src = m.avatar_url; $("b", li).className = m.status; $("span", li).textContent = m.username;
         ul.appendChild(li);
       });
-      if (d.instant_invite) $$('a[href^="https://discord.gg/"]').forEach(function (a) { a.href = d.instant_invite; });
+      // the widget hands out a fresh invite, so the Join buttons never point at an expired one
+      if (d.instant_invite) {
+        DISCORD = d.instant_invite;
+        $$('a[href^="https://discord.com/invite/"], a[href^="https://discord.gg/"]').forEach(function (a) { a.href = d.instant_invite; });
+      }
       box.hidden = false;
     }).catch(function () {});
   }
   discordWidget();
+
+  /* ---------- guestbook (supabase) ---------- */
+  // the publishable key is meant to be public; row level security only allows reading and adding rows
+  var SB_URL = "";
+  var SB_KEY = "sb_publishable_i86b-GgydbEtlzV6lBuDXg_DC-9HQyi";
+  var BAD = /\b(fuck|shit|bitch|cunt|nigg\w*|fag\w*|retard\w*|kurv\w*|pič\w*|piča|jeb\w*|kokot\w*|debil\w*)\b/gi;
+  var gbForm = $("#gbform"), gbList = $("#gblist"), gbStatus = $(".gb-status", gbForm);
+  function gbClean(s) { return s.replace(BAD, function (w) { return "*".repeat(w.length); }).trim(); }
+  function gbItem(e, fresh) {
+    var li = el("li", fresh ? "fresh" : null, '<div class="gb-meta"><b></b><time></time></div><p class="gb-msg"></p>');
+    $("b", li).textContent = e.name;
+    var d = new Date(e.created_at);
+    $("time", li).textContent = isNaN(d) ? "" : d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    $(".gb-msg", li).textContent = e.message;
+    return li;
+  }
+  function gbApi(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ apikey: SB_KEY, "Content-Type": "application/json" }, opts.headers || {});
+    return fetch(SB_URL + "/rest/v1/" + path, opts).then(function (r) { if (!r.ok) throw new Error(r.status); return r.status === 204 || r.status === 201 ? null : r.json(); });
+  }
+  function gbLoad() {
+    if (!SB_URL) { gbList.innerHTML = '<li class="gb-empty">guestbook is still under construction... come back soon</li>'; return; }
+    gbApi("guestbook?select=name,message,created_at&order=created_at.desc&limit=60").then(function (rows) {
+      gbList.innerHTML = "";
+      if (!rows.length) { gbList.innerHTML = '<li class="gb-empty">no msgs yet... be the first 2 sign it!!</li>'; return; }
+      rows.forEach(function (e) { gbList.appendChild(gbItem(e)); });
+    }).catch(function () { gbList.innerHTML = '<li class="gb-empty">guestbook.exe is not responding... try again later</li>'; });
+  }
+  gbForm.message.addEventListener("input", function () { $(".gb-count", gbForm).textContent = gbForm.message.value.length + "/300"; });
+  gbForm.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (gbForm.website.value) return; // bots fill the hidden field
+    var name = gbClean(gbForm.name.value).slice(0, 30), msg = gbClean(gbForm.message.value).slice(0, 300);
+    if (!name || !msg) { gbStatus.textContent = "u need a name AND a msg"; return; }
+    if (!SB_URL) { gbStatus.textContent = "guestbook isnt set up yet, sorry!"; return; }
+    var last = parseInt(store("localStorage", "mentosSigned"), 10) || 0, wait = Math.ceil((last + 60000 - Date.now()) / 1000);
+    if (wait > 0) { gbStatus.textContent = "chill... u can sign again in " + wait + "s"; return; }
+    var btn = $("button", gbForm); btn.disabled = true; gbStatus.textContent = "sending...";
+    gbApi("guestbook", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ name: name, message: msg }) }).then(function () {
+      store("localStorage", "mentosSigned", String(Date.now()));
+      var empty = $(".gb-empty", gbList); if (empty) empty.remove();
+      gbList.insertBefore(gbItem({ name: name, message: msg, created_at: new Date().toISOString() }, true), gbList.firstChild);
+      gbForm.message.value = ""; $(".gb-count", gbForm).textContent = "0/300";
+      gbStatus.textContent = "thx 4 signing!! <3"; blip("on");
+      var r = gbForm.getBoundingClientRect(); hearts(r.left + r.width / 2, r.top + 20);
+    }).catch(function () { gbStatus.textContent = "error 404: msg got lost in the internet. try again?"; })
+      .then(function () { btn.disabled = false; });
+  });
+  gbLoad();
 
   /* ---------- new zones in the ticker ---------- */
   var NEWZ = ZONES.map(function (z, i) { return isNewZone(z) ? i : -1; }).filter(function (i) { return i > -1; });
