@@ -2438,7 +2438,7 @@
   }
   document.addEventListener("click", function (e) {
     var t = e.target;
-    if (!t || !t.closest || t.closest("a, button, input, textarea, label, .cut, .mfall, .crack, .mblock, .ufo, .pops")) return;
+    if (!t || !t.closest || t.closest("a, button, input, textarea, label, select, option, .cut, .mfall, .crack, .mblock, .ufo, .pops, .wamp, .booth")) return;
     var txt = t.textContent || "";
     if (txt.length > 90 || !/mentos/i.test(txt)) return;
     mentosFall(e.clientX);
