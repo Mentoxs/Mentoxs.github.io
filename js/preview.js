@@ -644,6 +644,7 @@ addEventListener("keydown", (e) => {
   if (e.code === "Space") e.preventDefault();
   if (e.code === "Escape" && !$("#tp").hidden) { $("#tp").hidden = true; $("#start").hidden = false; menu = false; return; }
   if (!locked || e.repeat) return;
+  if (e.code === "KeyH") { document.exitPointerLock(); location.href = "fun.html"; return; } // H = leave the game
   if (e.code === "KeyT") { openTp(); return; }
   Z(21).globalKey(e.code);
   if (P.zone && P.zone.key && !(P.vamp && (e.code === "KeyE" || e.code === "KeyF" || e.code === "KeyR") && P.zone.n !== 4 && P.zone.n !== 3 && P.zone.n !== 1)) P.zone.key(e.code);

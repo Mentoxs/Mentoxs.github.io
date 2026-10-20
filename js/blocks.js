@@ -411,6 +411,9 @@ addEventListener("keydown", (e) => {
   if (e.code === "KeyF") { player.fly = !player.fly; player.v.y = 0; toast(player.fly ? "fly: ON" : "fly: off"); }
   if (e.code === "KeyV") { player.view = (player.view + 1) % 3; model.visible = player.view !== 0; }
   if (e.code === "KeyB") openPicker();
+  // L = leave parkour / a gallery build, H = leave the game (back 2 the fun page)
+  if (e.code === "KeyL") { if (parkour) leaveParkour(); else if (visiting) leaveVisit(); }
+  if (e.code === "KeyH") { document.exitPointerLock(); location.href = "fun.html"; }
   if (e.code === "Space") e.preventDefault();
 });
 addEventListener("keyup", (e) => { keys[e.code] = false; });
@@ -455,6 +458,7 @@ function snapshot() {
   g.drawImage(s, (320 - w) / 2, (180 - h) / 2, w, h);
   return c.toDataURL("image/jpeg", .72);
 }
+function leaveVisit() { visiting = null; loadWorld(save.seed, save.edits); showVisit(); history.replaceState(null, "", location.pathname); toast("welcome home"); }
 function showVisit() {
   const v = $("#visit");
   if (!visiting) { v.hidden = true; return; }
@@ -462,8 +466,8 @@ function showVisit() {
   v.append("visiting: " + visiting.title + " by " + visiting.name);
   const link = document.createElement("button"); link.type = "button"; link.textContent = "copy link";
   link.addEventListener("click", () => { navigator.clipboard && navigator.clipboard.writeText(location.origin + location.pathname + "?build=" + visiting.id); toast("link copied"); });
-  const back = document.createElement("button"); back.type = "button"; back.textContent = "back 2 my world";
-  back.addEventListener("click", () => { visiting = null; loadWorld(save.seed, save.edits); showVisit(); history.replaceState(null, "", location.pathname); toast("welcome home"); });
+  const back = document.createElement("button"); back.type = "button"; back.textContent = "back 2 my world [L]";
+  back.addEventListener("click", leaveVisit);
   v.append(link, back);
 }
 async function visit(id) {
@@ -572,7 +576,7 @@ function parkourHud() {
   v.hidden = false; v.textContent = "";
   const t = parkour.start ? ((parkour.done || performance.now()) - parkour.start) / 1000 : 0, best = +store("mentosParkourBest") || 0;
   v.append("parkour • " + t.toFixed(1) + "s • checkpoint " + (parkour.cp + 1) + "/" + parkour.cps.length + (best ? " • best " + (best / 1000).toFixed(1) + "s" : ""));
-  const back = document.createElement("button"); back.type = "button"; back.textContent = "leave";
+  const back = document.createElement("button"); back.type = "button"; back.textContent = "leave [L]";
   back.addEventListener("click", leaveParkour); v.append(back);
 }
 function startParkour() {
