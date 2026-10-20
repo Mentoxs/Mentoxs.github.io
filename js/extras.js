@@ -1,4 +1,4 @@
-// extras for index.html: mentochi (shared pet), profile card, winamp player, webring, seasons, photo booth.
+// extras for index.html: mentochi (shared pet), profile card, winamp player, webring, photo booth.
 // Uses the small api index.html puts on window.MENTOS.
 (function () {
   "use strict";
@@ -381,65 +381,6 @@
   }
 
   /* =====================================================================
-     SEASONS: october = pumpkins, december = snow + santa hats on gastly
-     ===================================================================== */
-  var HAT = ["....XXR.", "...XXXRR", "..XXXX.R", ".XXXXX..", "WWWWWWWW", "WWWWWWWW"];
-  var PUMP = ["...G....", "..GG....", ".OOOOOO.", "OOKOOKOO", "OOOOOOOO", "OKOKKOKO", "OOKKKKOO", ".OOOOOO."];
-  function pixSvg(rows, pal) {
-    var r = "", w = rows[0].length;
-    rows.forEach(function (row, y) { for (var x = 0; x < w; x++) { var c = pal[row[x]]; if (c) r += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + c + '"/>'; } });
-    return '<svg viewBox="0 0 ' + w + " " + rows.length + '" shape-rendering="crispEdges" aria-hidden="true">' + r + "</svg>";
-  }
-  function season() {
-    var q = (location.search.match(/[?&]season=(\w+)/) || [])[1];
-    if (q) return q;
-    var m = new Date().getMonth();
-    return m === 9 ? "oct" : m === 11 ? "dec" : "";
-  }
-  function startSeason() {
-    var s = season(); if (s !== "oct" && s !== "dec") return;
-    document.documentElement.classList.add("season-" + s);
-    // ticker headlines
-    document.querySelectorAll(".ticker .grp").forEach(function (g) {
-      g.insertBefore(el("span", null, "&#9733;"), g.firstChild);
-      g.insertBefore(el("span", null, s === "dec" ? "merry rawrmas" : "spooky szn"), g.firstChild);
-    });
-    // decorations that ride along on every gastly image
-    var art = s === "dec" ? pixSvg(HAT, { X: "#e0201b", R: "#e0201b", W: "#ffffff" }) : pixSvg(PUMP, { O: "#ff8a1f", G: "#3fae00", K: "#2a0f00" });
-    var pairs = Array.prototype.slice.call(document.querySelectorAll('img[src*="gastly.webp"]')).map(function (img) {
-      var d = el("div", s === "dec" ? "s-hat" : "s-pump", art); d.setAttribute("aria-hidden", "true"); document.body.appendChild(d); return [img, d];
-    });
-    (function follow() {
-      pairs.forEach(function (p) {
-        var r = p[0].getBoundingClientRect(), d = p[1];
-        if (!r.width || r.bottom < 0 || r.top > innerHeight || getComputedStyle(p[0]).visibility === "hidden" || !p[0].offsetParent) { d.style.display = "none"; return; }
-        d.style.display = "block";
-        if (s === "dec") { var w = r.width * .55; d.style.width = w + "px"; d.style.height = w * .75 + "px"; d.style.left = (r.left + r.width * .3) + "px"; d.style.top = (r.top - w * .3) + "px"; }
-        else { var w2 = r.width * .38; d.style.width = d.style.height = w2 + "px"; d.style.left = (r.right - w2 * .8) + "px"; d.style.top = (r.bottom - w2 * .9) + "px"; }
-      });
-      requestAnimationFrame(follow);
-    })();
-    if (s === "dec" && !RM) {
-      var c = el("canvas", "snow"); c.setAttribute("aria-hidden", "true"); document.body.appendChild(c);
-      var g = c.getContext("2d"), flakes = [];
-      function size() { c.width = innerWidth; c.height = innerHeight; }
-      size(); addEventListener("resize", size);
-      for (var i = 0; i < 110; i++) flakes.push({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, s: 2 + Math.random() * 3, v: 20 + Math.random() * 40, w: Math.random() * 6 });
-      var last = performance.now();
-      (function fall(now) {
-        var dt = Math.min(.05, (now - last) / 1000); last = now;
-        g.clearRect(0, 0, c.width, c.height); g.fillStyle = "rgba(255,255,255,.85)";
-        flakes.forEach(function (f) {
-          f.y += f.v * dt; f.x += Math.sin(now / 1000 + f.w) * 12 * dt;
-          if (f.y > c.height) { f.y = -5; f.x = Math.random() * c.width; }
-          g.fillRect(Math.round(f.x), Math.round(f.y), f.s, f.s);
-        });
-        requestAnimationFrame(fall);
-      })(last);
-    }
-  }
-
-  /* =====================================================================
      PHOTO BOOTH: webcam -> 16x16 pixel glitch sticker (camera only after u click)
      ===================================================================== */
   var booth = null, stream = null, frozen = null, liveT = 0;
@@ -500,5 +441,4 @@
   buildPet();
   renderProfile(); setInterval(renderProfile, 3000);
   buildRing();
-  startSeason();
 })();
