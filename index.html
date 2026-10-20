@@ -51,7 +51,7 @@
   /* side rails (wide screens only) */
   .rail { position: fixed; top: 0; bottom: 0; width: calc((100vw - 1010px) / 2); pointer-events: none; display: none; overflow: hidden; z-index: 0; }
   .rail.l { left: 0; } .rail.r { right: 0; }
-  .rail .vine { position: absolute; top: 0; bottom: 0; width: 100px; background: url("images/thorns-tile.png") center top / 100px auto repeat-y; opacity: .9; } /* tile = thorns + flipped copy, so the repeats join up */
+  .rail .vine { position: absolute; top: 0; bottom: 0; width: 100px; background: url("images/thorns-tile.png?v=2") center top / 100px auto repeat-y; opacity: .9; } /* tile = thorns + flipped copy, so the repeats join up */
   .rail.l .vine { left: 6px; } .rail.r .vine { right: 6px; transform: scaleX(-1); }
   .rail img { position: absolute; }
   .rail.l img { right: 6px; } .rail.r img { left: 6px; }
@@ -1938,7 +1938,7 @@
         // strapko walks out of the portal; let him reach you and you get jumpscared. click him to shove him back
         add("lant");
         var st = el("img", "strapko"), p = 0, last = performance.now(), alive = true, scaring = false;
-        st.src = "images/strapko.png"; st.alt = "Strapko"; st.draggable = false;
+        st.src = "images/strapko.png?v=2"; st.alt = "Strapko"; st.draggable = false;
         anch.appendChild(st);
         st.addEventListener("pointerdown", function (e) {
           e.preventDefault(); e.stopPropagation();
@@ -2227,7 +2227,7 @@
   /* ---------- jumpscare (strapko got too close in The Hollow) ---------- */
   function jumpscare(done) {
     secret("scared");
-    var s = el("div", "scare", '<img src="images/scare.jpg" alt="">');
+    var s = el("div", "scare", '<img src="images/scare.jpg?v=2" alt="">');
     document.body.appendChild(s);
     blip("scream"); setTimeout(function () { blip("scream"); }, 120);
     shakeIt(document.body.querySelector(".cut:not([hidden])") || document.body);
