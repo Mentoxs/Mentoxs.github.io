@@ -946,7 +946,7 @@
   <div class="wrap">
     <div class="k">Mentos</div>
     <div class="counter-wrap px">ur visit no.<span class="counter" id="counter"><b>0</b><b>0</b><b>0</b><b>0</b><b>0</b><b>0</b><b>1</b></span></div>
-    <div><button class="secrets" id="secrets" type="button">secrets found: <b>0/6</b></button><span class="caughtb" id="caught" hidden><img alt=""> GASTLY caught</span></div>
+    <div><button class="secrets" id="secrets" type="button">secrets found: <b>0/6</b></button><button class="secrets" id="popsw" type="button" aria-pressed="true">popups: <b>ON</b></button><span class="caughtb" id="caught" hidden><img alt=""> GASTLY caught</span></div>
     <div class="blinkies" aria-hidden="true">
       <span class="bk b1">RAWR XD</span>
       <span class="bk b2">MADE IN NOTEPAD</span>
@@ -1060,7 +1060,7 @@
     });
     if (o.foot) {
       var f = el("label", "pop-foot", '<input type="checkbox"> no more random popups pls');
-      $("input", f).addEventListener("change", function (e) { store("localStorage", "mentosNoPops", e.target.checked ? "1" : "0"); });
+      $("input", f).addEventListener("change", function (e) { store("localStorage", "mentosNoPops", e.target.checked ? "1" : "0"); drawPopSwitch(); });
       p.appendChild(f);
     }
     $(".x", p).addEventListener("click", function () { closePop(p); });
@@ -1140,6 +1140,16 @@
       }, POP_LIFE);
     }, POP_EVERY);
   }
+  // footer switch, so popups muted with the checkbox can be turned back on
+  function drawPopSwitch() {
+    var off = store("localStorage", "mentosNoPops") === "1", b = $("#popsw");
+    b.setAttribute("aria-pressed", String(!off)); $("b", b).textContent = off ? "OFF" : "ON";
+  }
+  $("#popsw").addEventListener("click", function () {
+    var off = store("localStorage", "mentosNoPops") === "1";
+    store("localStorage", "mentosNoPops", off ? "0" : "1"); drawPopSwitch(); blip(off ? "on" : "tick");
+  });
+  drawPopSwitch();
   function toast() {
     var t = el("button", "toast", '<img src="images/gastly.webp" alt=""><span><small>Mentos Messenger</small><b>Mentos</b> has just signed in.</span>');
     t.type = "button";
