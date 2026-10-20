@@ -72,10 +72,6 @@
   .ticker .grp span { padding-right: 2.2rem; }
   .ticker .grp span:nth-child(even) { color: var(--white); }
   .ticker:hover .track { animation-play-state: paused; }
-  /* TV-news style tag pinned on the left; the headlines slide in from the right and disappear under it */
-  .tk-lbl { position: absolute; left: 0; top: 0; bottom: 0; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 0 26px 0 12px; background: linear-gradient(#ff3b3b, #b30000); color: #fff; font-size: 1.45rem; letter-spacing: .1em; text-shadow: 2px 2px 0 #000; clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); }
-  .tk-lbl i { width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px #fff; animation: blink 1s steps(2) infinite; }
-  .ticker::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 60px; background: linear-gradient(90deg, transparent, var(--purple)); pointer-events: none; }
   @keyframes marq { to { transform: translateX(-50%); } }
 
   /* taskbar nav */
@@ -833,7 +829,6 @@
 </div>
 
 <div class="ticker k" role="marquee" aria-label="Mentosovi zajebalo">
-  <span class="tk-lbl px" aria-hidden="true"><i></i>BREAKING</span>
   <div class="track" aria-hidden="true">
     <span class="grp"><span>Mentosovi zajebalo</span><span>&#9733;</span><span>rawr xD</span><span>&#9733;</span><span>Kiko Dungeon coming soon</span><span>&#9733;</span><span>join the discord</span><span>&#9733;</span></span>
     <span class="grp"><span>Mentosovi zajebalo</span><span>&#9733;</span><span>rawr xD</span><span>&#9733;</span><span>Kiko Dungeon coming soon</span><span>&#9733;</span><span>join the discord</span><span>&#9733;</span></span>
