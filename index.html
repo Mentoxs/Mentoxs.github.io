@@ -721,7 +721,7 @@
     <span class="spark purple" style="top:22%;right:16%"></span>
     <span class="spark green" style="bottom:20%;left:22%"></span>
     <span class="spark" style="bottom:14%;right:24%"></span>
-    <img class="splash-ghost" src="images/gastly.png" alt="">
+    <img class="splash-ghost" src="images/gastly.webp" alt="">
     <div class="splash-title k glitch" data-text="Mentos">Mentos</div>
     <p class="splash-sub px">~*~ welcome 2 my corner of the internet ~*~</p>
     <div class="splash-btns">
@@ -737,9 +737,9 @@
 
 <div class="rail l" aria-hidden="true">
   <div class="vine"></div>
-  <img class="ghost" src="images/gastly.png" alt="" style="top:16%;width:110px">
+  <img class="ghost" src="images/gastly.webp" alt="" style="top:16%;width:110px">
   <img src="images/star.png" alt="" style="top:52%;width:140px">
-  <img class="ghost" src="images/gastly.png" alt="" style="top:78%;width:80px;transform:scaleX(-1)">
+  <img class="ghost" src="images/gastly.webp" alt="" style="top:78%;width:80px;transform:scaleX(-1)">
   <span class="spark" style="top:8%;left:22%"></span>
   <span class="spark purple" style="top:38%;left:40%"></span>
   <span class="spark" style="top:66%;left:18%"></span>
@@ -748,8 +748,8 @@
 <div class="rail r" aria-hidden="true">
   <div class="vine"></div>
   <img src="images/star.png" alt="" style="top:10%;width:140px;transform:scaleX(-1)">
-  <img class="ghost" src="images/gastly.png" alt="" style="top:40%;width:100px;transform:scaleX(-1)">
-  <img class="ghost" src="images/gastly.png" alt="" style="top:70%;width:120px">
+  <img class="ghost" src="images/gastly.webp" alt="" style="top:40%;width:100px;transform:scaleX(-1)">
+  <img class="ghost" src="images/gastly.webp" alt="" style="top:70%;width:120px">
   <span class="spark purple" style="top:24%;right:40%"></span>
   <span class="spark" style="top:56%;right:20%"></span>
   <span class="spark purple" style="top:84%;right:42%"></span>
@@ -942,7 +942,7 @@
       <span class="bk b4">WEB 3.0</span>
       <span class="bk b5">SCENE 4 LIFE</span>
     </div>
-    <button class="ghostbtn" type="button" id="ghostbtn" aria-label="Summon Gastly" title="dont click"><img src="images/gastly.png" alt=""></button>
+    <button class="ghostbtn" type="button" id="ghostbtn" aria-label="Summon Gastly" title="dont click"><img src="images/gastly.webp" alt=""></button>
     <div>&copy; 2026 Mentos. Not affiliated with Roblox Corporation.</div>
   </div>
 </footer>
@@ -1024,7 +1024,7 @@
     warn: '<svg viewBox="0 0 40 40"><path d="M20 3 38 36H2z" fill="#ffd400" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/><rect x="18.3" y="13" width="3.4" height="12" fill="#000"/><rect x="18.3" y="28.5" width="3.4" height="3.4" fill="#000"/></svg>',
     error: '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#e02a2a" stroke="#fff" stroke-width="2.5"/><path d="M13 13l14 14M27 13 13 27" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>',
     info: '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#7c3aed" stroke="#fff" stroke-width="2.5"/><rect x="18" y="17" width="4" height="13" fill="#fff"/><circle cx="20" cy="11.5" r="2.6" fill="#fff"/></svg>',
-    ghost: '<img src="images/gastly.png" alt="">',
+    ghost: '<img src="images/gastly.webp" alt="">',
     ray: '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png" alt="" style="image-rendering:pixelated">',
     honda: '<img src="images/honda.png" alt="" style="image-rendering:pixelated;object-fit:contain">'
   };
@@ -1114,7 +1114,7 @@
     });
   }
   function toast() {
-    var t = el("button", "toast", '<img src="images/gastly.png" alt=""><span><small>Mentos Messenger</small><b>Mentos</b> has just signed in.</span>');
+    var t = el("button", "toast", '<img src="images/gastly.webp" alt=""><span><small>Mentos Messenger</small><b>Mentos</b> has just signed in.</span>');
     t.type = "button";
     t.addEventListener("click", function () { t.remove(); });
     document.body.appendChild(t);
@@ -1220,12 +1220,12 @@
     if (RM) return pokeBattle();
     return cutscene("ghostcut", async function (c) {
       for (var i = 0; i < 12; i++) {
-        var g = el("img", "gh"); g.src = "images/gastly.png"; g.alt = "";
+        var g = el("img", "gh"); g.src = "images/gastly.webp"; g.alt = "";
         g.style.width = rand(50, 130) + "px"; g.style.top = rand(3, 62) + "%";
         g.style.setProperty("--d", rand(2.4, 4.2) + "s"); g.style.setProperty("--dl", rand(0, 2) + "s");
         c.appendChild(g);
       }
-      var big = el("img", "bigg"); big.src = "images/gastly.png"; big.alt = ""; c.appendChild(big);
+      var big = el("img", "bigg"); big.src = "images/gastly.webp"; big.alt = ""; c.appendChild(big);
       var box = el("div", "pk px", '<span class="pk-t" aria-live="polite"></span><span class="arrow" aria-hidden="true">&#9660;</span>'); c.appendChild(box);
       var t = $(".pk-t", box);
       await wait(900);
