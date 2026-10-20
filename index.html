@@ -51,7 +51,7 @@
   /* side rails (wide screens only) */
   .rail { position: fixed; top: 0; bottom: 0; width: calc((100vw - 1010px) / 2); pointer-events: none; display: none; overflow: hidden; z-index: 0; }
   .rail.l { left: 0; } .rail.r { right: 0; }
-  .rail .vine { position: absolute; top: 0; bottom: 0; width: 100px; background: url("images/thorns-clear.png") center top / 100px auto repeat-y; opacity: .9; }
+  .rail .vine { position: absolute; top: 0; bottom: 0; width: 100px; background: url("images/thorns-tile.png") center top / 100px auto repeat-y; opacity: .9; } /* tile = thorns + flipped copy, so the repeats join up */
   .rail.l .vine { left: 6px; } .rail.r .vine { right: 6px; transform: scaleX(-1); }
   .rail img { position: absolute; }
   .rail.l img { right: 6px; } .rail.r img { left: 6px; }
@@ -480,9 +480,13 @@
   .zs > .bar { background: linear-gradient(#ffe24a, #ffd500 55%, #c9a800); color: #111; border-bottom-color: #111; }
   .zs-stage { position: relative; aspect-ratio: 16/9; max-height: 64vh; width: 100%; overflow: hidden; background: #000; }
   .zs-shot { position: absolute; inset: 0; }
-  .zs-shot img { width: 100%; height: 100%; object-fit: cover; display: block; transform-origin: var(--ox, 50%) var(--oy, 50%); animation: kb 9s cubic-bezier(.2,.6,.3,1) forwards; }
+  /* pan box has the screenshots' 1218x683 shape and covers the stage, so % positions inside it match spots in the shot */
+  .zs-pan { position: absolute; left: 0; top: 50%; width: 100%; aspect-ratio: 1218 / 683; margin-top: -28.04%; transform-origin: var(--ox, 50%) var(--oy, 50%); animation: kb 9s cubic-bezier(.2,.6,.3,1) forwards; }
+  .zs-pan img { width: 100%; height: 100%; display: block; }
+  .zs-anch { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+  .zs-shot { z-index: 1; }
   @keyframes kb { from { transform: scale(1.22) translate(var(--tx, 0), var(--ty, 0)); filter: brightness(2.2) saturate(.3); } 12% { filter: none; } to { transform: scale(1.04); } }
-  .zs-shot.launch img { animation: kbLaunch 2.4s cubic-bezier(.5,0,.2,1) forwards; }
+  .zs-shot.launch .zs-pan { animation: kbLaunch 2.4s cubic-bezier(.5,0,.2,1) forwards; }
   @keyframes kbLaunch { from { transform: scale(2.4) rotate(-8deg); filter: blur(3px) brightness(1.6); } to { transform: scale(1.05); filter: none; } }
   .zs-shade { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(90deg, rgba(0,0,0,.72), rgba(0,0,0,.15) 55%, transparent), linear-gradient(transparent 55%, rgba(0,0,0,.55)); }
   .zs-lb { position: absolute; left: 0; right: 0; height: 8%; background: #000; z-index: 6; pointer-events: none; }
@@ -600,6 +604,58 @@
   .fx-hollow .lant { left: 18%; top: 50%; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(rgba(255,190,90,.55), transparent 65%); animation: lant .25s steps(2) infinite alternate; }
   @keyframes lant { to { transform: scale(1.08); opacity: .8; } }
 
+  /* zone 21: bats loose on the whole screen */
+  .bats { position: fixed; inset: 0; z-index: 160; pointer-events: none; overflow: hidden; }
+  .bat { position: absolute; left: 0; top: 0; filter: drop-shadow(0 0 6px rgba(255,40,40,.45)); }
+  .bat svg { display: block; width: 100%; }
+  .bat .w2 { visibility: hidden; }
+  .bat .w1 { animation: flapA .22s steps(1) infinite; } .bat .w2 { animation: flapB .22s steps(1) infinite; }
+  @keyframes flapA { 50% { visibility: hidden; } }
+  @keyframes flapB { 50% { visibility: visible; } }
+
+  /* zone 22: shadow creature */
+  .sh-pool { position: absolute; width: 9%; aspect-ratio: 2.6; translate: -50% -50%; border-radius: 50%; background: radial-gradient(closest-side, rgba(10,0,25,.95), rgba(40,0,70,.6) 60%, transparent); opacity: 0; transition: opacity .5s; filter: blur(1px); }
+  .sh-pool.on { opacity: 1; }
+  .sc { position: absolute; width: 5.2%; translate: -50% -100%; overflow: hidden; padding-top: 0; }
+  .sc .sc-m { display: block; transform: translateY(105%); filter: drop-shadow(0 0 5px #7a1cff) drop-shadow(0 0 2px #000); }
+  .sc .sc-m svg { display: block; width: 100%; }
+  .sc.up .sc-m { transform: none; transition: transform 1s cubic-bezier(.2,.8,.3,1); }
+  .sc.down .sc-m { transform: translateY(105%); transition: transform .8s ease-in; }
+  .sc .arm { transform-box: fill-box; transform-origin: 50% 0; }
+  .sc.wave .arm { animation: wave .35s ease-in-out infinite alternate; }
+  @keyframes wave { from { transform: rotate(-150deg); } to { transform: rotate(-100deg); } }
+  .sc { overflow: visible; }
+  .sc { clip-path: inset(-400% -400% 0 -400%); } /* hides whatever is still below the ground line */
+  .sc-b { position: absolute; left: 50%; bottom: 105%; translate: -50% 0; white-space: nowrap; background: #fff; color: #111; font-size: clamp(.8rem, 1.6vw, 1.15rem); line-height: 1.2; padding: 1px 8px; border: 2px solid #000; border-radius: 8px; opacity: 0; transition: opacity .2s; }
+  .sc.wave .sc-b { opacity: 1; }
+
+  /* zone 23: strapko + jumpscare */
+  .strapko { position: absolute; translate: -50% -100%; transform-origin: 50% 100%; pointer-events: auto; cursor: pointer; filter: drop-shadow(0 0 10px rgba(255,90,217,.6)) brightness(.85); user-select: none; -webkit-user-drag: none; }
+  .strapko.hit { animation: shove .35s ease-out; }
+  @keyframes shove { 30% { transform: scale(.85) translateY(-6%); filter: brightness(3); } }
+  .resist { position: absolute; z-index: 6; translate: -50% -100%; color: #fff; font-size: clamp(1.2rem, 3vw, 2rem); white-space: nowrap; text-shadow: 3px 3px 0 #000, 0 0 12px var(--pink); pointer-events: none; animation: dmgUp .9s ease-out forwards; }
+  .scare { position: fixed; inset: 0; z-index: 600; background: #000; display: grid; place-items: center; pointer-events: none; animation: scareIn 1.3s steps(1) forwards; }
+  .scare img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; filter: contrast(1.6) saturate(1.4) sepia(.4) hue-rotate(-30deg); animation: scareZoom 1.3s cubic-bezier(.2,1.6,.4,1) forwards; }
+  .scare::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px), radial-gradient(transparent 40%, rgba(120,0,0,.7)); animation: flick .08s steps(2) infinite; }
+  @keyframes scareZoom { 0% { transform: scale(2.2) rotate(-6deg); } 12% { transform: scale(1) rotate(3deg); } 20% { transform: scale(1.04) rotate(-2deg); } 100% { transform: scale(1.08) rotate(1deg); } }
+  @keyframes scareIn { 0%, 5%, 10% { opacity: 1; } 7% { opacity: .2; } 90% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* mentos falls from the sky */
+  .mfall { position: fixed; z-index: 140; width: min(190px, 40vw); image-rendering: pixelated; pointer-events: auto; cursor: pointer; transform-origin: 50% 100%; }
+  .mfall img { display: block; width: 100%; }
+  .mfall .xe { position: absolute; width: 14%; translate: -50% -50%; font: 900 clamp(1.1rem, 3.4vw, 1.8rem)/1 Verdana, sans-serif; color: #b00000; text-shadow: 0 0 2px #000, 1px 1px 0 #000; opacity: 0; text-align: center; }
+  .mfall.dead .xe { opacity: 1; animation: popIn .3s cubic-bezier(.2,1.6,.4,1); }
+  .mfall.dead img { filter: saturate(.5) brightness(.8); }
+  .mfall.alive .xe { opacity: 0; }
+  .mfall.alive img { filter: drop-shadow(0 0 12px #f00) brightness(1.1); }
+  .drop { position: fixed; z-index: 139; width: 10px; height: 10px; border-radius: 50% 50% 50% 0; background: #b00000; pointer-events: none; }
+  .flood { position: fixed; left: 0; right: 0; bottom: 0; height: 0; z-index: 138; pointer-events: none; background: linear-gradient(#d40000, #6b0000); transition: height 1.6s cubic-bezier(.2,.7,.3,1); }
+  .flood::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 16px; background: radial-gradient(circle at 10px 16px, #d40000 10px, transparent 11px) 0 0 / 20px 16px repeat-x; animation: waves 1.2s linear infinite; }
+  @keyframes waves { to { background-position: 20px 0; } }
+  .crack { position: fixed; inset: 0; z-index: 650; pointer-events: auto; cursor: pointer; animation: fadeIn .1s; }
+  .crack svg { width: 100%; height: 100%; display: block; }
+  .crack p { position: absolute; left: 50%; bottom: 12%; translate: -50% 0; margin: 0; background: #000; color: #ff3b3b; border: 2px solid #ff3b3b; padding: 4px 14px; font: 1.5rem "VT323", monospace; white-space: nowrap; }
+
   /* ===== poke ball ===== */
   .pball { position: absolute; z-index: 4; width: 7%; min-width: 26px; image-rendering: pixelated; left: 16%; top: 72%; animation: throwB .75s ease-out forwards; }
   @keyframes throwB { 50% { top: 4%; } to { left: 74%; top: 30%; transform: rotate(900deg); } }
@@ -710,8 +766,9 @@
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    /* the UFO only runs when the visitor asks for it, so it keeps its own animations */
-    :not(.ufo, .ufo *), :not(.ufo *)::before, :not(.ufo *)::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition: none !important; }
+    /* effects the visitor starts on purpose (UFO, zone tour, mentos fall...) keep their own animations */
+    :not(:is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare), :is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare) *),
+    :not(:is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare) *, .flood)::before, :not(:is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare) *)::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition: none !important; }
     .rv { opacity: 1; }
   }
 </style>
@@ -1006,12 +1063,13 @@
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
       var o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
-      var f = { pop: [880, 1320], error: [300, 200], tick: [1500, 1500], stamp: [140, 70], on: [523, 784] }[kind] || [880, 1320];
-      o.type = kind === "stamp" ? "sawtooth" : "square";
+      var f = { pop: [880, 1320], error: [300, 200], tick: [1500, 1500], stamp: [140, 70], on: [523, 784], thud: [90, 35], glass: [2600, 900], scream: [1100, 1900] }[kind] || [880, 1320];
+      o.type = kind === "stamp" || kind === "thud" || kind === "scream" ? "sawtooth" : "square";
       o.frequency.setValueAtTime(f[0], t);
-      o.frequency.setValueAtTime(f[1], t + .08);
-      var len = kind === "tick" ? .04 : .25;
-      g.gain.setValueAtTime(kind === "tick" ? .03 : .06, t);
+      if (kind === "scream") o.frequency.linearRampToValueAtTime(f[1], t + .9);
+      else o.frequency.setValueAtTime(f[1], t + .08);
+      var len = kind === "tick" ? .04 : kind === "scream" ? 1 : kind === "glass" ? .5 : .25;
+      g.gain.setValueAtTime(kind === "tick" ? .03 : kind === "scream" ? .1 : .06, t);
       g.gain.exponentialRampToValueAtTime(.0001, t + len);
       o.connect(g); g.connect(actx.destination);
       o.start(t); o.stop(t + len + .02);
@@ -1760,9 +1818,29 @@
   function isNewZone(z) { return !!z[5] && Date.now() - Date.parse(z[5]) < 45 * 864e5; }
   var TITLES = ["THE CHOSEN ONE", "Kiko's Opp", "Mentos Enjoyer", "RAWR LORD", "Strapko Fan #1", "GOD", "Certified Goober"];
 
-  function zoneFx(fx, type) {
+  // pixel bat, two wing frames that swap to flap
+  var BAT = '<svg viewBox="0 0 16 10" shape-rendering="crispEdges" aria-hidden="true">' +
+    '<g class="w1" fill="#1b0b22" stroke="#5a1a6e" stroke-width=".5"><path d="M7 4L1 0L2 3L0 4L3 5L4 7L7 6Z"/><path d="M9 4L15 0L14 3L16 4L13 5L12 7L9 6Z"/></g>' +
+    '<g class="w2" fill="#1b0b22" stroke="#5a1a6e" stroke-width=".5"><path d="M7 4L0 6L2 7L1 9L4 8L6 9L7 6Z"/><path d="M9 4L16 6L14 7L15 9L12 8L10 9L9 6Z"/></g>' +
+    '<path d="M7 2H8V3H8.5V2H9.5V3H9V8H7Z" fill="#120616"/><rect x="7.3" y="4" width=".7" height=".7" fill="#ff2a2a"/><rect x="8.5" y="4" width=".7" height=".7" fill="#ff2a2a"/></svg>';
+  // blocky roblox-ish shadow creature; the right arm waves
+  var SHADE = '<svg viewBox="0 0 20 34" shape-rendering="crispEdges" aria-hidden="true"><g fill="#0b0014">' +
+    '<rect x="6" y="0" width="8" height="8"/><rect x="4" y="8" width="12" height="12"/><rect x="4" y="20" width="5" height="14"/><rect x="11" y="20" width="5" height="14"/>' +
+    '<rect x="0" y="8" width="4" height="11"/><rect class="arm" x="16" y="8" width="4" height="11"/></g>' +
+    '<rect x="7.5" y="3" width="2" height="1.6" fill="#d07bff"/><rect x="10.5" y="3" width="2" height="1.6" fill="#d07bff"/></svg>';
+  var SHADOW_SPOTS = [[67.3, 77.5], [42.7, 75], [75.5, 64.5], [84.5, 85]]; // shadows cast by the pillars in zone22.jpg
+  var SHADE_LINES = ["hi :)", "welcome 2 the shadows...", "psst. press Q in-game", "u can't see me", "shadow step >:)"];
+  var PORTAL = [49.6, 57]; // foot of the portal in zone23.jpg
+
+  function fxCleanup(fx) {
+    clearInterval(fx._iv);
+    (fx._clean || []).forEach(function (f) { f(); });
+    fx._clean = [];
+  }
+  function zoneFx(fx, type, anch) {
     var i, n;
     function add(cls, inner, css) { var e = el("span", cls, inner); if (css) e.style.cssText = css; fx.appendChild(e); return e; }
+    function onClean(f) { (fx._clean = fx._clean || []).push(f); }
     switch (type) {
       case "slash": for (i = 0; i < 3; i++) add("s"); break;
       case "swap": add("e fx-emoji", "&#129504;"); break;
@@ -1808,9 +1886,82 @@
       case "y2k": var gg = el("img", "gg"); gg.alt = ""; setSpr(gg, 94, false); fx.appendChild(gg); break;
       case "vs": add("side a", "MENTOS"); add("side b", "STRAPKO"); add("vs", "VS"); break;
       case "bey": add("b"); break;
-      case "vampire": for (i = 0; i < 6; i++) add("e fx-emoji", "&#129415;", "top:" + rand(8, 55) + "%;animation-delay:" + rand(-4, 0) + "s;animation-duration:" + rand(2.5, 4.5) + "s"); break;
-      case "shadow": add("fog"); add("eyes"); break;
-      case "hollow": add("lant"); add("eyes"); break;
+      case "vampire": (function () {
+        // a colony of bats loose on the whole screen while this zone is up
+        var layer = el("div", "bats"), bats = [], alive = true;
+        layer.setAttribute("aria-hidden", "true");
+        document.body.appendChild(layer);
+        for (i = 0; i < 10; i++) {
+          var b = el("div", "bat", BAT), s = rand(30, 64);
+          b.style.width = s + "px"; b.style.animationDelay = rand(-.3, 0) + "s";
+          layer.appendChild(b);
+          bats.push({ el: b, x: rand(0, innerWidth), y: rand(0, innerHeight * .7), a: rand(0, Math.PI * 2), v: rand(2.5, 5), s: s });
+        }
+        (function fly() {
+          if (!alive) return;
+          bats.forEach(function (o) {
+            o.a += rand(-.18, .18);
+            o.x += Math.cos(o.a) * o.v; o.y += Math.sin(o.a) * o.v * .7;
+            if (o.x < -o.s) o.x = innerWidth + o.s; if (o.x > innerWidth + o.s) o.x = -o.s;
+            if (o.y < -o.s || o.y > innerHeight * .85) o.a = -o.a;
+            o.el.style.transform = "translate(" + o.x + "px," + o.y + "px) scaleX(" + (Math.cos(o.a) < 0 ? -1 : 1) + ")";
+          });
+          requestAnimationFrame(fly);
+        })();
+        blip("tick");
+        onClean(function () { alive = false; layer.remove(); });
+      })(); break;
+      case "shadow": (function () {
+        // something crawls out of a pillar's shadow, waves, sinks, then tries another shadow
+        add("fog");
+        var pool = el("span", "sh-pool"), sc = el("span", "sc", '<span class="sc-b px"></span><span class="sc-m">' + SHADE + "</span>");
+        anch.appendChild(pool); anch.appendChild(sc);
+        var k = 0, timers = [];
+        function later(f, ms) { timers.push(setTimeout(f, ms)); }
+        function greet() {
+          var p = SHADOW_SPOTS[k % SHADOW_SPOTS.length];
+          pool.style.left = sc.style.left = p[0] + "%"; pool.style.top = sc.style.top = p[1] + "%";
+          $(".sc-b", sc).textContent = SHADE_LINES[k % SHADE_LINES.length];
+          sc.className = "sc"; pool.className = "sh-pool on"; void sc.offsetWidth;
+          sc.className = "sc up";
+          later(function () { sc.className = "sc up wave"; blip("tick"); }, 1100);
+          later(function () { sc.className = "sc down"; }, 3600);
+          later(function () { pool.className = "sh-pool"; k++; greet(); }, 4600);
+        }
+        later(greet, 900);
+        onClean(function () { timers.forEach(clearTimeout); });
+      })(); break;
+      case "hollow": (function () {
+        // strapko walks out of the portal; let him reach you and you get jumpscared. click him to shove him back
+        add("lant");
+        var st = el("img", "strapko"), p = 0, last = performance.now(), alive = true, scaring = false;
+        st.src = "images/strapko.png"; st.alt = "Strapko"; st.draggable = false;
+        anch.appendChild(st);
+        st.addEventListener("pointerdown", function (e) {
+          e.preventDefault(); e.stopPropagation();
+          if (scaring) return;
+          p = Math.max(0, p - .2);
+          st.classList.remove("hit"); void st.offsetWidth; st.classList.add("hit");
+          blip("stamp");
+          var t = el("span", "resist k", ["u resist him!!", "get BACK", "not today strapko", "SHOVE"][(Math.random() * 4) | 0]);
+          t.style.left = (e.clientX - fx.getBoundingClientRect().left) + "px"; t.style.top = (e.clientY - fx.getBoundingClientRect().top) + "px";
+          fx.appendChild(t); setTimeout(t.remove.bind(t), 900);
+        });
+        (function walk(now) {
+          if (!alive) return;
+          var dt = Math.min(.5, (now - last) / 1000); last = now;
+          if (!scaring) p = Math.min(1, p + dt / 22);
+          var h = 7 + 133 * Math.pow(p, 2.1), y = PORTAL[1] + 55 * Math.pow(p, 1.7);
+          var x = PORTAL[0] + Math.sin(now / 700) * 1.6 * p;
+          st.style.left = x + "%"; st.style.top = y + "%"; st.style.height = h + "%";
+          st.style.opacity = String(Math.min(1, p * 30));
+          st.style.rotate = (Math.sin(now / 260) * 3) + "deg"; // stumbling walk
+          fx.style.setProperty("--fear", String(.55 + p * .45));
+          if (p >= 1 && !scaring) { scaring = true; jumpscare(function () { p = 0; scaring = false; }); }
+          requestAnimationFrame(walk);
+        })(last);
+        onClean(function () { alive = false; });
+      })(); break;
     }
   }
 
@@ -1852,19 +2003,22 @@
         cur = i;
         win.style.setProperty("--zc", z[4]);
         // teleport burst like the in-game createTeleportBurst
-        clearInterval(fx._iv);
+        fxCleanup(fx);
         stage.appendChild(el("div", "zs-flash"));
         stage.appendChild(el("div", "zs-burst"));
         stage.appendChild(el("div", "zs-burst w"));
         $$(".zs-flash, .zs-burst", stage).slice(0, -3).forEach(function (o) { o.remove(); });
         blip("pop");
-        var img = el("img"); img.alt = "Zone " + (i + 1) + ": " + z[0] + " in Roblox Studio";
+        // the pan layer keeps the screenshot's own aspect, so things pinned to spots in the shot (shadows, the portal) stay put while it zooms
+        var pan = el("div", "zs-pan"), img = el("img"), anch = el("div", "zs-anch");
+        img.alt = "Zone " + (i + 1) + ": " + z[0] + " in Roblox Studio";
         img.src = "images/zones/zone" + (i + 1) + ".jpg";
         var d = dir || 1;
-        img.style.setProperty("--tx", (d * rand(2, 5)) + "%"); img.style.setProperty("--ty", rand(-3, 3) + "%");
-        img.style.setProperty("--ox", rand(30, 70) + "%"); img.style.setProperty("--oy", rand(35, 65) + "%");
-        shot.innerHTML = ""; shot.className = "zs-shot" + (z[3] === "launch" ? " launch" : ""); shot.appendChild(img);
-        fx.innerHTML = ""; fx.className = "zs-fx fx-" + z[3]; zoneFx(fx, z[3]);
+        pan.style.setProperty("--tx", (d * rand(2, 5)) + "%"); pan.style.setProperty("--ty", rand(-3, 3) + "%");
+        pan.style.setProperty("--ox", rand(30, 70) + "%"); pan.style.setProperty("--oy", rand(35, 65) + "%");
+        pan.appendChild(img); pan.appendChild(anch);
+        shot.innerHTML = ""; shot.className = "zs-shot" + (z[3] === "launch" ? " launch" : ""); shot.appendChild(pan);
+        fx.innerHTML = ""; fx.className = "zs-fx fx-" + z[3]; zoneFx(fx, z[3], anch);
         restart($(".zs-lb.t", c), "t"); restart($(".zs-lb.b", c), "b");
         num.textContent = String(i + 1).padStart(2, "0") + " / " + ZONES.length;
         badge.textContent = "ZONE " + (i + 1) + (i < FIRST_PLACE ? " • FIRST PLACE" : " • SECOND PLACE");
@@ -1908,7 +2062,7 @@
       show(start || 0, 1);
       $(".zs-arrow.next", c).focus({ preventScroll: true });
       // stays open until the window is closed (g.end)
-      return new Promise(function (res) { g.onEnd = function () { stopAuto(); clearInterval(fx._iv); res(); }; });
+      return new Promise(function (res) { g.onEnd = function () { stopAuto(); fxCleanup(fx); res(); }; });
     });
   }
 
@@ -2044,7 +2198,8 @@
 
   /* ---------- secrets found counter ---------- */
   var SECRETS = [["rawr", "typed rawr"], ["mentos", "summoned RAYQUAZA"], ["konami", "entered the konami code"],
-    ["kiko", "fought the wild KIKO"], ["gastly", "caught GASTLY"], ["honda", "spotted the UFO honda"]];
+    ["kiko", "fought the wild KIKO"], ["gastly", "caught GASTLY"], ["honda", "spotted the UFO honda"],
+    ["scared", "let strapko get too close"], ["splat", "made mentos fall"], ["crack", "killed mentos too many times"]];
   function foundList() { try { return JSON.parse(store("localStorage", "mentosSecrets") || "[]"); } catch (e) { return []; } }
   function drawSecrets() {
     $("#secrets b").textContent = foundList().length + "/" + SECRETS.length;
@@ -2065,6 +2220,107 @@
         '<ul class="slist">' + SECRETS.map(function (s) { var on = l.indexOf(s[0]) > -1; return '<li class="' + (on ? "on" : "off") + '">' + (on ? "&#10004; " + s[1] : "&#10067; ???") + "</li>"; }).join("") + "</ul>" });
   });
   drawSecrets();
+
+  /* ---------- jumpscare (strapko got too close in The Hollow) ---------- */
+  function jumpscare(done) {
+    secret("scared");
+    var s = el("div", "scare", '<img src="images/scare.jpg" alt="">');
+    document.body.appendChild(s);
+    blip("scream"); setTimeout(function () { blip("scream"); }, 120);
+    shakeIt(document.body.querySelector(".cut:not([hidden])") || document.body);
+    setTimeout(function () { s.remove(); if (done) done(); }, 1300);
+  }
+
+  /* ---------- click anything that says mentos: he falls from the sky ---------- */
+  var EYES = [[45.5, 28.4], [64.4, 29.4]]; // where his eyes are on mentos-fall.png, in %
+  var kills = [], body = null, flood = null, cleanupT = 0;
+  function mentosFall(atX) {
+    secret("splat");
+    var now = Date.now();
+    kills = kills.filter(function (t) { return now - t < 20000; }); kills.push(now);
+    if (body) body.remove();
+    clearTimeout(cleanupT);
+    var b = el("div", "mfall", '<img src="images/mentos-fall.png" alt="">' + EYES.map(function (e) { return '<span class="xe" style="left:' + e[0] + '%;top:' + e[1] + '%">&#10006;</span>'; }).join(""));
+    b.setAttribute("aria-hidden", "true");
+    document.body.appendChild(b); body = b;
+    var w = b.offsetWidth, h = w * 176 / 150, x = Math.max(8, Math.min(innerWidth - w - 8, atX - w / 2));
+    var floorY = innerHeight - w * .42 - h, t0 = performance.now(), spin = rand(-1, 1) * 540; // top edge when his feet hit the floor
+    b.style.left = x + "px";
+    (function fallStep(t) {
+      if (body !== b) return;
+      var p = Math.min(1, (t - t0) / 900), y = -h + (floorY + h) * p * p;
+      b.style.top = y + "px"; b.style.transform = "rotate(" + spin * p + "deg)";
+      if (p < 1) { requestAnimationFrame(fallStep); return; }
+      land(b, x + w / 2, innerHeight - 6);
+    })(t0);
+    b.addEventListener("click", function () { if (b.classList.contains("dead")) { b._pokes = (b._pokes || 0) + 1; blip("thud"); if (b._pokes >= 3) revive(b); } });
+  }
+  function land(b, cx, cy) {
+    b.style.transform = "rotate(88deg) scale(1.15, .8)"; // splat, lying on the floor
+    b.classList.add("dead");
+    blip("thud"); shakeIt(document.body); hearts(cx, cy - 40);
+    for (var i = 0; i < 26; i++) {
+      var d = el("span", "drop"), a = rand(Math.PI * 1.05, Math.PI * 1.95), v = rand(80, 260);
+      d.style.left = cx + "px"; d.style.top = cy + "px";
+      d.animate([{ transform: "translate(0,0) scale(1)" }, { transform: "translate(" + Math.cos(a) * v + "px," + (Math.sin(a) * v + 140) + "px) scale(.4)", opacity: .2 }], { duration: rand(500, 900), easing: "cubic-bezier(.2,.6,.6,1)", fill: "forwards" });
+      document.body.appendChild(d); setTimeout(d.remove.bind(d), 950);
+    }
+    if (!flood) { flood = el("div", "flood"); flood.setAttribute("aria-hidden", "true"); document.body.appendChild(flood); void flood.offsetWidth; }
+    flood.style.height = "18vh";
+    if (kills.length >= 5) { setTimeout(function () { revive(b); }, 900); return; }
+    cleanupT = setTimeout(function () {
+      if (flood) { flood.style.height = "0"; var f = flood; flood = null; setTimeout(f.remove.bind(f), 1700); }
+      if (body === b) { b.style.transition = "opacity .6s"; b.style.opacity = "0"; setTimeout(function () { b.remove(); if (body === b) body = null; }, 650); }
+    }, 7000);
+  }
+  // killed him too many times: he gets up and punches ur screen
+  function revive(b) {
+    if (b._rev) return; b._rev = true;
+    clearTimeout(cleanupT); kills = [];
+    b.classList.remove("dead"); b.classList.add("alive");
+    b.style.transition = "transform .6s cubic-bezier(.3,1.6,.5,1)"; b.style.transform = "rotate(0deg)";
+    blip("error");
+    setTimeout(function () {
+      var r = b.getBoundingClientRect();
+      b.style.transition = "transform .35s ease-in";
+      b.style.transform = "translate(" + (innerWidth / 2 - r.left - r.width / 2) + "px," + (innerHeight / 2 - r.bottom) + "px) scale(5)";
+    }, 900);
+    setTimeout(function () {
+      crackScreen(innerWidth / 2, innerHeight / 2);
+      b.remove(); if (body === b) body = null;
+      if (flood) { flood.style.height = "0"; var f = flood; flood = null; setTimeout(f.remove.bind(f), 1700); }
+    }, 1260);
+  }
+  function crackScreen(cx, cy) {
+    secret("crack");
+    blip("glass"); setTimeout(function () { blip("thud"); }, 60);
+    var W = innerWidth, H = innerHeight, lines = "", i, j;
+    for (i = 0; i < 14; i++) {
+      var a = i / 14 * Math.PI * 2 + rand(-.2, .2), x = cx, y = cy, d = "M" + cx + " " + cy;
+      for (j = 0; j < 7; j++) {
+        var len = rand(40, 140) * (1 + j * .25);
+        a += rand(-.35, .35); x += Math.cos(a) * len; y += Math.sin(a) * len; d += " L" + x.toFixed(0) + " " + y.toFixed(0);
+        if (Math.random() < .35) { var b2 = a + rand(-1.2, 1.2), bl = rand(30, 90); lines += '<path d="M' + x.toFixed(0) + " " + y.toFixed(0) + " l" + (Math.cos(b2) * bl).toFixed(0) + " " + (Math.sin(b2) * bl).toFixed(0) + '"/>'; }
+      }
+      lines += '<path d="' + d + '"/>';
+    }
+    for (i = 1; i <= 3; i++) {
+      var r = 30 * i * i, ring = "";
+      for (j = 0; j <= 16; j++) { var aa = j / 16 * Math.PI * 2, rr = r * rand(.8, 1.2); ring += (j ? " L" : "M") + (cx + Math.cos(aa) * rr).toFixed(0) + " " + (cy + Math.sin(aa) * rr).toFixed(0); }
+      lines += '<path d="' + ring + '" stroke-width="1.2" opacity=".7"/>';
+    }
+    var c = el("div", "crack", '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none"><g fill="none" stroke="rgba(0,0,0,.55)" stroke-width="4" transform="translate(2,2)">' + lines + '</g><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="bevel">' + lines + '</g><circle cx="' + cx + '" cy="' + cy + '" r="18" fill="rgba(255,255,255,.35)"/></svg><p>u killed me 2 many times. click 2 fix ur screen</p>');
+    c.setAttribute("role", "button"); c.setAttribute("aria-label", "Cracked screen, click to fix");
+    document.body.appendChild(c); shakeIt(document.body);
+    c.addEventListener("click", function () { blip("pop"); c.style.transition = "opacity .3s"; c.style.opacity = "0"; setTimeout(c.remove.bind(c), 320); });
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    if (!t || !t.closest || t.closest("a, button, input, textarea, label, .cut, .mfall, .crack, .ufo, .pops")) return;
+    var txt = t.textContent || "";
+    if (txt.length > 90 || !/mentos/i.test(txt)) return;
+    mentosFall(e.clientX);
+  });
 
   /* ---------- UFO honda (drifts round ur cursor, which turns into a 2000s hourglass) ---------- */
   var MX = innerWidth / 2, MY = innerHeight / 2;
