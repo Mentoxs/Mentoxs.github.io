@@ -88,3 +88,8 @@
 .booth .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .booth .note { color: var(--pink); }
 .vw-s.photo { filter: none; }
+
+/* youtube tracks: the official video plays in a small screen inside winamp (youtube needs it visible, min 200x200) */
+.wa-yt { margin: 0 4px 4px; background: #000; border: 2px inset #444; }
+.wa-yt[hidden] { display: none; }
+.wa-yt iframe, .wa-yt > div { display: block; width: 288px; height: 200px; border: 0; }

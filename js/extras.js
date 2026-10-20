@@ -189,6 +189,8 @@
   // each chip song: bpm, progression of [root, quality] per bar, a melody (scale steps per 8th, null = rest) and a style
   var SONGS = [
     { title: "megalomaniac.mp3", mp3: true },
+    { title: "STARSTRUKK - 3OH!3 feat. Katy Perry", yt: "dvf--10EYXw" },
+    { title: "I FINK U FREEKY - Die Antwoord", yt: "8Uee_mcxvrw" },
     { title: "gastly gang (8-bit) - mentos", bpm: 132, key: 57, prog: [["A", "m"], ["F", "M"], ["C", "M"], ["G", "M"]], style: "arp",
       mel: [12, null, 15, 14, 12, null, 10, null, 12, 15, 17, 15, 14, null, 12, null, 8, null, 10, 12, 15, null, 14, 12, 10, null, 7, null, 10, 12, 14, null] },
     { title: "kiko dungeon crawl - mentos", bpm: 96, key: 50, prog: [["D", "m"], ["A#", "M"], ["G", "m"], ["A", "M"]], style: "dark",
@@ -253,22 +255,53 @@
     var song = SONGS[WA.cur], sp = 60 / song.bpm / 4;
     while (WA.nextT < WA.ctx.currentTime + .12) { chipStep(song, WA.step, WA.nextT); WA.step++; WA.nextT += sp; }
   }
+  /* youtube tracks: the songs stream from their official videos via the youtube player
+     (youtube's rules: the player has to stay visible and at least 200x200, so the video shows inside winamp) */
+  var YT_P = null, ytReady = false, ytWant = null;
+  function ytLoad(cb) {
+    if (ytReady) { cb(); return; }
+    ytWant = cb;
+    if (window.YT && window.YT.Player) { ytMake(); return; }
+    var prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function () { if (prev) prev(); ytMake(); };
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) { var s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s); }
+  }
+  function ytMake() {
+    if (YT_P) return;
+    YT_P = new window.YT.Player(waEl.querySelector(".wa-yt div"), {
+      width: 288, height: 200, playerVars: { playsinline: 1, rel: 0, modestbranding: 1 },
+      events: {
+        onReady: function () { ytReady = true; YT_P.setVolume(Math.round(WA.vol * 100)); if (ytWant) { var f = ytWant; ytWant = null; f(); } },
+        onStateChange: function (e) { if (e.data === 0 && SONGS[WA.cur].yt) waPlay(WA.cur + 1); }, // ended -> next track
+        onError: function () { if (SONGS[WA.cur].yt) { waEl.querySelector(".wa-marq span").textContent = "this video can't play here right now... skipping *** "; setTimeout(function () { waPlay(WA.cur + 1); }, 1500); } }
+      }
+    });
+  }
+  function ytShow(on) { if (waEl) waEl.querySelector(".wa-yt").hidden = !on; }
   function waPlay(i) {
     if (i != null && i !== WA.cur) { waStop(); WA.cur = (i + SONGS.length) % SONGS.length; ls("mentosTrack", String(WA.cur)); }
     var song = SONGS[WA.cur];
     if (!waCtx()) return;
     WA.playing = true;
-    if (song.mp3) { hookMp3(); var p = M.audio.play(); if (p && p.catch) p.catch(function () {}); }
-    else { M.audio.pause(); WA.step = 0; WA.nextT = WA.ctx.currentTime + .05; WA.chipStart = WA.ctx.currentTime; clearInterval(WA.timer); WA.timer = setInterval(chipScheduler, 25); }
+    ytShow(!!song.yt);
+    if (song.yt) {
+      M.audio.pause(); clearInterval(WA.timer);
+      ytLoad(function () {
+        var d = YT_P.getVideoData && YT_P.getVideoData();
+        if (!d || d.video_id !== song.yt) YT_P.loadVideoById(song.yt); else YT_P.playVideo();
+      });
+    } else if (song.mp3) { if (YT_P && ytReady) YT_P.pauseVideo(); hookMp3(); var p = M.audio.play(); if (p && p.catch) p.catch(function () {}); }
+    else { if (YT_P && ytReady) YT_P.pauseVideo(); M.audio.pause(); WA.step = 0; WA.nextT = WA.ctx.currentTime + .05; WA.chipStart = WA.ctx.currentTime; clearInterval(WA.timer); WA.timer = setInterval(chipScheduler, 25); }
     M.showPlay(true); waDraw();
   }
   function waPause() {
     WA.playing = false; clearInterval(WA.timer); if (!M.audio.paused) M.audio.pause();
+    if (YT_P && ytReady && SONGS[WA.cur].yt) YT_P.pauseVideo();
     M.showPlay(false); waDraw();
   }
-  function waStop() { waPause(); if (SONGS[WA.cur].mp3) M.audio.currentTime = 0; WA.step = 0; }
+  function waStop() { waPause(); if (SONGS[WA.cur].mp3) M.audio.currentTime = 0; if (SONGS[WA.cur].yt && YT_P && ytReady) YT_P.seekTo(0, true); WA.step = 0; }
   // if the intro's "ENTER with music" starts the mp3, the player follows along
-  M.audio.addEventListener("play", function () { if (!SONGS[WA.cur].mp3) { clearInterval(WA.timer); WA.cur = 0; } WA.playing = true; hookMp3(); waDraw(); });
+  M.audio.addEventListener("play", function () { if (!SONGS[WA.cur].mp3) { clearInterval(WA.timer); if (YT_P && ytReady) YT_P.pauseVideo(); ytShow(false); WA.cur = 0; } WA.playing = true; hookMp3(); waDraw(); });
   M.audio.addEventListener("pause", function () {
     if (SONGS[WA.cur].mp3) { WA.playing = false; waDraw(); }
     else if (WA.playing) M.showPlay(true); // the mp3 was paused because an 8-bit song took over
@@ -283,7 +316,7 @@
       '<input class="wa-seek" type="range" min="0" max="1000" value="0" aria-label="Seek">' +
       '<div class="wa-ctrl"><button type="button" data-a="prev" aria-label="Previous">|&lt;</button><button type="button" data-a="play" aria-label="Play">&#9654;</button><button type="button" data-a="pause" aria-label="Pause">||</button><button type="button" data-a="stop" aria-label="Stop">&#9632;</button><button type="button" data-a="next" aria-label="Next">&gt;|</button>' +
       '<input type="range" class="wa-vol" min="0" max="100" aria-label="Volume"><select class="wa-skin" aria-label="Player skin"><option value="classic">classic</option><option value="mentos">mentos</option><option value="toxic">toxic</option></select></div>' +
-      '<div class="wa-pl" role="list"></div>';
+      '<div class="wa-yt" hidden><div></div></div><div class="wa-pl" role="list"></div>';
     document.body.appendChild(waEl);
     var q = function (s) { return waEl.querySelector(s); };
     q(".wa-x").addEventListener("click", function () { waEl.hidden = true; });
@@ -296,10 +329,14 @@
       });
     });
     var vol = q(".wa-vol"); vol.value = Math.round(WA.vol * 100);
-    vol.addEventListener("input", function () { WA.vol = vol.value / 100; ls("mentosVol", String(WA.vol)); if (WA.master) WA.master.gain.value = WA.vol; else M.audio.volume = WA.vol; });
+    vol.addEventListener("input", function () { WA.vol = vol.value / 100; ls("mentosVol", String(WA.vol)); if (YT_P && ytReady) YT_P.setVolume(Math.round(WA.vol * 100)); if (WA.master) WA.master.gain.value = WA.vol; else M.audio.volume = WA.vol; });
     var sk = q(".wa-skin"); sk.value = waEl.getAttribute("data-skin");
     sk.addEventListener("change", function () { waEl.setAttribute("data-skin", sk.value); ls("mentosWaSkin", sk.value); });
-    q(".wa-seek").addEventListener("input", function (e) { if (SONGS[WA.cur].mp3 && M.audio.duration) M.audio.currentTime = e.target.value / 1000 * M.audio.duration; });
+    q(".wa-seek").addEventListener("input", function (e) {
+      var s = SONGS[WA.cur];
+      if (s.mp3 && M.audio.duration) M.audio.currentTime = e.target.value / 1000 * M.audio.duration;
+      if (s.yt && YT_P && ytReady && YT_P.getDuration()) YT_P.seekTo(e.target.value / 1000 * YT_P.getDuration(), true);
+    });
     SONGS.forEach(function (s, i) {
       var b = el("button"); b.type = "button"; b.setAttribute("role", "listitem"); b.textContent = (i + 1) + ". " + s.title;
       b.addEventListener("click", function () { waPlay(i); }); q(".wa-pl").appendChild(b);
@@ -327,12 +364,15 @@
     (function f() {
       requestAnimationFrame(f);
       if (waEl.hidden) return;
-      var s = SONGS[WA.cur], sec = s.mp3 ? M.audio.currentTime : WA.playing && WA.ctx ? WA.ctx.currentTime - WA.chipStart : 0;
+      var s = SONGS[WA.cur], yt = s.yt && YT_P && ytReady;
+      var sec = s.mp3 ? M.audio.currentTime : s.yt ? (yt ? YT_P.getCurrentTime() || 0 : 0) : WA.playing && WA.ctx ? WA.ctx.currentTime - WA.chipStart : 0;
       tm.textContent = String(Math.floor(sec / 60)).padStart(2, "0") + ":" + String(Math.floor(sec % 60)).padStart(2, "0");
       if (s.mp3 && M.audio.duration && document.activeElement !== seek) seek.value = Math.round(M.audio.currentTime / M.audio.duration * 1000);
-      if (!s.mp3) seek.value = Math.round((WA.step % (s.prog.length * 16 * 2)) / (s.prog.length * 16 * 2) * 1000);
+      if (s.yt) { if (yt && YT_P.getDuration() && document.activeElement !== seek) seek.value = Math.round(sec / YT_P.getDuration() * 1000); }
+      else if (!s.mp3) seek.value = Math.round((WA.step % (s.prog.length * 16 * 2)) / (s.prog.length * 16 * 2) * 1000);
       g.clearRect(0, 0, cv.width, cv.height);
-      if (WA.an && WA.playing) WA.an.getByteFrequencyData(data); else data.fill(0);
+      if (s.yt && WA.playing) { for (var k = 0; k < data.length; k++) data[k] = 90 + Math.random() * 150 * (1 - k / 32); } // youtube audio can't be read, so the bars just dance
+      else if (WA.an && WA.playing) WA.an.getByteFrequencyData(data); else data.fill(0);
       for (var i = 0; i < 19; i++) {
         var h = Math.round(data[i + 1] / 255 * cv.height);
         for (var y = 0; y < h; y++) { g.fillStyle = y > cv.height * .75 ? "#ff3b3b" : y > cv.height * .45 ? "#ffd500" : "#00e000"; g.fillRect(i * 2, cv.height - 1 - y, 1, 1); }
