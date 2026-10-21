@@ -272,7 +272,45 @@ function pantsPx(s, x, y) {
   return s.pants;
 }
 function shoesPx(s, x, y) { return s.shoes === "check" ? ((x + y) % 2 ? "#111" : "#eee") : s.shoes; }
+/* ---- the visitor's own Minecraft skin (64x64, or the old 64x32 kind), cut up the standard Minecraft way ---- */
+// one box part at (u, v) in the skin file, w x h x d pixels; (ou, ov) = where its outer layer (hat/jacket) is
+function mcFaces(img, u, v, w, h, d, ou, ov) {
+  const cut = (sx, sy, sw, sh, mode) => canvasTex(sw, sh, (p, g) => {
+    if (mode === "rot") { g.translate(sw, sh); g.scale(-1, -1); }
+    if (mode === "flipv") { g.translate(0, sh); g.scale(1, -1); }
+    g.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+    if (ou != null) g.drawImage(img, sx - u + ou, sy - v + ov, sw, sh, 0, 0, sw, sh);
+  });
+  const M = (t) => new THREE.MeshLambertMaterial({ map: t, transparent: true, alphaTest: .5 });
+  // order the 3D box wants: right side (+x), left side (-x), top, bottom, back, front
+  return [cut(u, v + d, d, h), cut(u + d + w, v + d, d, h), cut(u + d, v, w, d, "rot"), cut(u + d + w, v, w, d, "flipv"), cut(u + 2 * d + w, v + d, w, h), cut(u + d, v + d, w, h)].map(M);
+}
+function isSlim(img) {
+  if (img.height !== 64) return false;
+  const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d"); g.drawImage(img, 0, 0);
+  return g.getImageData(55, 20, 1, 12).data.every((v, i) => i % 4 !== 3 || v === 0); // slim arms leave this column empty
+}
+function makeCustomMaterials(img) {
+  const tall = img.height === 64, slim = isSlim(img), aw = slim ? 3 : 4, o = (x, y) => (tall ? [x, y] : [null, null]);
+  const head = mcFaces(img, 0, 0, 8, 8, 8, 32, 0);
+  const body = mcFaces(img, 16, 16, 8, 12, 4, ...o(16, 32));
+  const armR = mcFaces(img, 40, 16, aw, 12, 4, ...o(40, 32));
+  const legR = mcFaces(img, 0, 16, 4, 12, 4, ...o(0, 32));
+  const armL = tall ? mcFaces(img, 32, 48, aw, 12, 4, 48, 48) : armR; // old 64x32 skins: left = copy of right
+  const legL = tall ? mcFaces(img, 16, 48, 4, 12, 4, 0, 48) : legR;
+  return { head, body, arm: armR, armR, armL, leg: legR, legR, legL, slim, headFront: head[5].map };
+}
+// little 16x16 front view (same style as the built-in skin thumbnails)
+function mcThumb(img) {
+  const c = document.createElement("canvas"); c.width = c.height = 16; const g = c.getContext("2d"), tall = img.height === 64;
+  g.drawImage(img, 8, 8, 8, 8, 4, 0, 8, 8); g.drawImage(img, 40, 8, 8, 8, 4, 0, 8, 8);
+  g.drawImage(img, 20, 20, 8, 8, 4, 8, 8, 8);
+  g.drawImage(img, 44, 20, 4, 8, 0, 8, 4, 8);
+  if (tall) g.drawImage(img, 36, 52, 4, 8, 12, 8, 4, 8); else g.drawImage(img, 44, 20, 4, 8, 12, 8, 4, 8);
+  return c;
+}
 function makeSkinMaterials(s) {
+  if (s.img) return makeCustomMaterials(s.img);
   const M = (t) => new THREE.MeshLambertMaterial({ map: t, transparent: true, alphaTest: .5 });
   const hairRows = { long: 8, fringe: 3, curly: 3, spiky: 2, pigtails: 2, none: 0 }[s.style];
   // head faces (8x8): order +x,-x,+y,-y,+z(back),-z(front)
@@ -329,10 +367,11 @@ const U = 1.8 / 32;
 function makeCharacter(s) {
   const m = makeSkinMaterials(s), g = new THREE.Group();
   const box = (w, h, d, mats) => new THREE.Mesh(new THREE.BoxGeometry(w * U, h * U, d * U), mats);
-  const limb = (mats, x, y) => { const p = new THREE.Group(); const b = box(4, 12, 4, mats); b.position.y = -6 * U; p.add(b); p.position.set(x * U, y * U, 0); g.add(p); return p; };
+  const limb = (mats, x, y, w = 4) => { const p = new THREE.Group(); const b = box(w, 12, 4, mats); b.position.y = -6 * U; p.add(b); p.position.set(x * U, y * U, 0); g.add(p); return p; };
   const head = box(8, 8, 8, m.head); head.position.y = 28 * U; g.add(head);
   const body = box(8, 12, 4, m.body); body.position.y = 18 * U; g.add(body);
-  g.userData = { head, armL: limb(m.arm, -6, 24), armR: limb(m.arm, 6, 24), legL: limb(m.leg, -2, 12), legR: limb(m.leg, 2, 12), mats: m };
+  const aw = m.slim ? 3 : 4, ax = 4 + aw / 2; // slim (Alex) skins have 3px arms
+  g.userData = { head, armL: limb(m.armL || m.arm, -ax, 24, aw), armR: limb(m.armR || m.arm, ax, 24, aw), legL: limb(m.legL || m.leg, -2, 12), legR: limb(m.legR || m.leg, 2, 12), mats: m };
   return g;
 }
 function animateCharacter(g, t, moving) {
@@ -367,6 +406,51 @@ SKINS.forEach((s) => {
   b.addEventListener("click", () => { skin = s; store("mentosSkin", s.id); showSkin(s); setPlayerSkin(); });
   $("#skins").appendChild(b);
 });
+
+// "my skin" button: upload any Minecraft skin PNG from ur computer
+const upBtn = document.createElement("button");
+upBtn.type = "button"; upBtn.className = "skin up"; upBtn.dataset.id = "custom";
+upBtn.innerHTML = '<span class="upic" aria-hidden="true">+</span>upload ur MC skin';
+const upInput = document.createElement("input");
+upInput.type = "file"; upInput.accept = "image/png"; upInput.hidden = true;
+$("#skins").append(upBtn, upInput);
+let customSkin = null;
+const skinMsg = (t) => { $("#saveinfo").textContent = t; toast(t); }; // toasts hide behind the menu, so also write it next to the buttons
+function useCustom(img, pick) {
+  customSkin = { id: "custom", name: "My skin", img };
+  upBtn.innerHTML = ""; upBtn.appendChild(mcThumb(img)); upBtn.appendChild(document.createTextNode("My skin"));
+  const ch = document.createElement("small"); ch.textContent = "change"; ch.className = "chg"; upBtn.appendChild(ch);
+  if (pick) { skin = customSkin; store("mentosSkin", "custom"); showSkin(skin); setPlayerSkin(); }
+}
+upBtn.addEventListener("click", (e) => {
+  // first click on an uploaded skin = wear it; clicking "change" (or no skin yet) = pick a file
+  if (customSkin && !e.target.classList.contains("chg") && skin !== customSkin) { skin = customSkin; store("mentosSkin", "custom"); showSkin(skin); setPlayerSkin(); return; }
+  upInput.click();
+});
+upInput.addEventListener("change", () => {
+  const f = upInput.files[0]; upInput.value = ""; if (!f) return;
+  if (f.size > 200000) { skinMsg("that file is way 2 big 4 a skin"); return; }
+  const url = URL.createObjectURL(f), img = new Image();
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    if (img.width !== 64 || (img.height !== 64 && img.height !== 32)) { skinMsg("skins must be 64x64 (or 64x32) PNG"); return; }
+    // redraw it so only clean pixels get saved
+    const c = document.createElement("canvas"); c.width = 64; c.height = img.height; c.getContext("2d").drawImage(img, 0, 0);
+    const data = c.toDataURL("image/png"), clean = new Image();
+    clean.onload = () => { store("mentosSkinImg", data); useCustom(clean, true); skinMsg("skin equipped!"); };
+    clean.src = data;
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); skinMsg("couldn't read that image"); };
+  img.src = url;
+});
+{
+  const saved = store("mentosSkinImg");
+  if (saved && /^data:image\/png;base64,/.test(saved)) {
+    const img = new Image();
+    img.onload = () => useCustom(img, store("mentosSkin") === "custom");
+    img.src = saved;
+  }
+}
 showSkin(skin);
 
 /* ---------------- player ---------------- */

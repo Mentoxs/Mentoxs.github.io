@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="extras.css?v=5">
+<link rel="stylesheet" href="extras.css?v=6">
 <style>
   @font-face { font-family: "Kaijuz"; src: url("fonts/Kaijuz.ttf") format("truetype"); font-display: swap; }
   :root {
@@ -661,17 +661,42 @@
   .crack svg { width: 100%; height: 100%; display: block; }
   .crack p { position: absolute; left: 50%; bottom: 12%; translate: -50% 0; margin: 0; background: #000; color: #ff3b3b; border: 2px solid #ff3b3b; padding: 4px 14px; font: 1.5rem "VT323", monospace; white-space: nowrap; }
 
-  /* ===== poke ball ===== */
-  .pball { position: absolute; z-index: 4; width: 7%; min-width: 26px; image-rendering: pixelated; left: 16%; top: 72%; animation: throwB .75s ease-out forwards; }
-  @keyframes throwB { 50% { top: 4%; } to { left: 74%; top: 30%; transform: rotate(900deg); } }
-  .pball.drop { left: 74%; top: 30%; animation: dropB .4s cubic-bezier(.5,0,.6,1.6) forwards; }
-  @keyframes dropB { to { top: 46%; } }
-  .pball.wob { left: 74%; top: 46%; animation: wob .55s ease-in-out; }
-  @keyframes wob { 25% { transform: rotate(-28deg); } 75% { transform: rotate(28deg); } }
-  .pball.rest { left: 74%; top: 46%; animation: none; }
-  .pball.done { left: 74%; top: 46%; filter: brightness(.6); }
+  /* ===== poke ball (throw -> hit -> open + suck in -> bounce -> wobbles -> click / burst) ===== */
+  .pball { position: absolute; z-index: 4; width: 7%; min-width: 26px; image-rendering: pixelated; left: 74%; top: 43%; transform-origin: 50% 85%; }
+  .pball.throw { animation: throwX .8s linear forwards, throwY .8s forwards; filter: drop-shadow(0 0 6px rgba(255,255,255,.7)); }
+  @keyframes throwX { from { left: 14%; transform: rotate(0) scale(.7); } to { left: 74%; transform: rotate(1260deg) scale(1); } }
+  @keyframes throwY { 0% { top: 70%; animation-timing-function: cubic-bezier(.2,.6,.4,1); } 45% { top: 6%; animation-timing-function: cubic-bezier(.6,0,.8,.4); } 100% { top: 28%; } }
+  .pball.hit { left: 74%; top: 28%; animation: hitB .4s ease-out forwards; }
+  @keyframes hitB { 35% { top: 17%; transform: rotate(-35deg) scale(1.2); filter: brightness(2.2); } to { top: 20%; transform: rotate(-12deg); } }
+  .pball.drop { left: 74%; top: 20%; animation: dropB .9s forwards; }
+  @keyframes dropB {
+    0% { top: 20%; transform: rotate(-12deg); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+    42% { top: 43%; transform: rotate(0) scale(1.12, .86); animation-timing-function: cubic-bezier(0,.55,.45,1); }
+    60% { top: 34%; transform: none; animation-timing-function: cubic-bezier(.55,0,1,.45); }
+    76% { top: 43%; transform: scale(1.07, .92); animation-timing-function: cubic-bezier(0,.55,.45,1); }
+    87% { top: 39.5%; transform: none; animation-timing-function: cubic-bezier(.55,0,1,.45); }
+    100% { top: 43%; } }
+  .pball.wobL { animation: wobL .6s ease-in-out; } .pball.wobR { animation: wobR .6s ease-in-out; }
+  @keyframes wobL { 30% { transform: translateX(-12%) rotate(-34deg); } 60% { transform: translateX(5%) rotate(14deg); } 80% { transform: rotate(-5deg); } }
+  @keyframes wobR { 30% { transform: translateX(12%) rotate(34deg); } 60% { transform: translateX(-5%) rotate(-14deg); } 80% { transform: rotate(5deg); } }
+  .pball.done { animation: clickB .5s ease-out forwards; }
+  @keyframes clickB { 20% { transform: scale(1.18, .85); filter: brightness(1.8); } 45% { transform: scale(.95, 1.06); } to { transform: none; filter: brightness(.6); } }
+  .pball.pop { animation: popB .3s ease-out forwards; }
+  @keyframes popB { to { transform: scale(1.8) rotate(25deg); opacity: 0; filter: brightness(3); } }
+  .pshadow { position: absolute; z-index: 3; left: 74%; top: 43%; width: 7%; min-width: 26px; aspect-ratio: 3 / 1; margin-top: 6.2%; background: radial-gradient(rgba(0,0,0,.55), transparent 70%); border-radius: 50%; animation: shadowIn .9s forwards; }
+  @keyframes shadowIn { from { transform: scale(.3); opacity: 0; } 42% { transform: scale(1); opacity: 1; } 60% { transform: scale(.7); } 76% { transform: scale(1); } to { transform: scale(1); opacity: 1; } }
+  /* little effects spawned at the ball's center */
+  .pfx { position: absolute; z-index: 5; pointer-events: none; translate: -50% -50%; }
+  .pfx.burst { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(#fff 0 35%, rgba(255,90,90,.9) 36% 55%, transparent 70%); animation: burst .5s ease-out forwards; }
+  @keyframes burst { from { transform: scale(.2); opacity: 1; } to { transform: scale(5); opacity: 0; } }
+  .pfx.rays { width: 160px; height: 160px; border-radius: 50%; background: repeating-conic-gradient(rgba(255,70,70,.85) 0 6deg, transparent 6deg 30deg); -webkit-mask: radial-gradient(transparent 18%, #000 20%, transparent 70%); mask: radial-gradient(transparent 18%, #000 20%, transparent 70%); animation: rays .6s ease-out forwards; }
+  @keyframes rays { from { transform: scale(.3) rotate(0); opacity: 1; } to { transform: scale(1.3) rotate(60deg); opacity: 0; } }
+  .pfx.star { width: 14px; height: 14px; background: #ffe24a; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); filter: drop-shadow(0 0 4px #fff); animation: starFly .8s ease-out forwards; }
+  @keyframes starFly { from { transform: translate(0, 0) scale(.4); opacity: 1; } 70% { opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(180deg); opacity: 0; } }
+  .pfx.bit { width: 7px; height: 7px; background: #fff; border-radius: 2px; animation: starFly .5s ease-out forwards; }
   .spr.foe.absorb { animation: absorb .45s ease-in forwards !important; }
-  @keyframes absorb { to { transform: scale(0) translateY(40%); filter: brightness(3) sepia(1) saturate(6) hue-rotate(-40deg); opacity: 0; } }
+  .spr.foe.absorb { animation-duration: .6s !important; }
+  @keyframes absorb { 35% { transform: scale(1.08); filter: brightness(2.4) sepia(1) saturate(9) hue-rotate(-50deg); opacity: 1; } to { transform: scale(0) translate(0, -60%); filter: brightness(3) sepia(1) saturate(9) hue-rotate(-50deg); opacity: 0; } }
   .spr.foe.free { animation: sprIn .4s cubic-bezier(.3,1.6,.5,1) !important; }
 
   /* ===== secrets + caught badge (footer) ===== */
@@ -789,8 +814,8 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     /* effects the visitor starts on purpose (UFO, zone tour, mentos fall...) and the news ticker keep their own animations */
-    :not(:is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare, .ticker), :is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare, .ticker) *),
-    :not(:is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare, .ticker) *, .flood)::before, :not(:is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare, .ticker) *)::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition: none !important; }
+    :not(:is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare, .ticker, .pkb-field), :is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare, .ticker, .pkb-field) *),
+    :not(:is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare, .ticker, .pkb-field) *, .flood)::before, :not(:is(.ufo, .zs-stage, .bats, .mfall, .flood, .crack, .scare, .ticker, .pkb-field) *)::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition: none !important; }
     .rv { opacity: 1; }
   }
 </style>
@@ -1807,34 +1832,60 @@
     }
 
     async function throwBall() {
-      var field = $(".pkb-field", c), ball = el("img", "pball");
+      var field = $(".pkb-field", c), ball = el("img", "pball throw"), shadow = null;
       ball.alt = ""; ball.src = BALL; field.appendChild(ball);
+      // spawn a little effect at the ball's center (burst, rays, stars, bits)
+      function fx(cls, n, spread) {
+        var x = ball.offsetLeft + ball.offsetWidth / 2, y = ball.offsetTop + ball.offsetHeight / 2;
+        for (var i = 0; i < (n || 1); i++) {
+          var d = el("div", "pfx " + cls), a = n > 1 ? (i / n) * Math.PI * 2 - Math.PI / 2 + (cls === "star" ? 0 : Math.random() * .5) : 0, r = spread || 0;
+          d.style.left = x + "px"; d.style.top = y + "px";
+          d.style.setProperty("--dx", Math.cos(a) * r + "px"); d.style.setProperty("--dy", Math.sin(a) * r + "px");
+          field.appendChild(d); (function (e) { setTimeout(function () { e.remove(); }, 900); })(d);
+        }
+      }
       t.textContent = "u threw a POKé BALL!"; blip("pop");
-      await g.sleep(750);
-      F.spr.classList.add("absorb"); flash(c); blip("on");
-      await g.sleep(450);
+      await g.sleep(800);
+      // hit! the ball pops open and sucks the pokemon in with a red light
+      ball.className = "pball hit"; blip("stamp");
+      await g.sleep(140);
+      fx("burst"); fx("rays"); flash(c); blip("on");
+      F.spr.classList.add("absorb");
+      await g.sleep(650);
+      // close + fall + bounce
       ball.className = "pball drop";
-      await g.sleep(500);
-      // gen 3-5 style odds: weaker (and sleeping) gastly is easier to catch
+      shadow = el("div", "pshadow"); field.appendChild(shadow);
+      setTimeout(function () { blip("tick"); }, 380); setTimeout(function () { blip("tick"); }, 690);
+      await g.sleep(1000);
+      // gen 3-5 style odds: weaker (and sleeping) pokemon are easier to catch
       var p = Math.min(1, (3 * F.max - 2 * F.hp) * FOE.rate * (F.sleep ? 2.5 : 1) / (3 * F.max * 255));
       var ok = Math.random() < p, shakes = ok ? 3 : (Math.random() * 3) | 0;
-      t.textContent = "...";
+      t.textContent = "";
+      await g.sleep(450);
       for (var s = 0; s < shakes; s++) {
-        ball.className = "pball wob"; blip("tick");
-        await g.sleep(600);
-        ball.className = "pball rest";
-        await g.sleep(350);
+        t.textContent += s ? " ." : ".";
+        ball.className = "pball " + (s % 2 ? "wobR" : "wobL"); blip("tick");
+        await g.sleep(650);
+        ball.className = "pball";
+        await g.sleep(s === 2 ? 700 : 450); // the last wait is the scary one
+      }
+      if (!ok) {
+        // burst open, pokemon pops back out
+        fx("burst"); fx("bit", 10, 55); ball.className = "pball pop"; flash(c); blip("error");
+        if (shadow) shadow.remove();
+        await g.sleep(250);
       }
       if (ok) {
         ball.className = "pball done"; blip("stamp"); shakeIt(c);
+        setTimeout(function () { fx("star", 5, 70); blip("on"); }, 120);
         await say("Gotcha! " + FOE.n + " was caught!", 1100);
         dexMark(FOE.id, "caught"); if (FOE.id === 92) { store("localStorage", "mentosCaught", "1"); secret("gastly"); } drawSecrets();
         hearts(innerWidth / 2, innerHeight / 3);
         await say(FOE.n + "'s data was added to the POKéDEX!", 1100);
-        await say("check the footer 4 ur shiny new badge ;)", 400);
+        await say(FOE.id === 92 ? "check the footer 4 ur shiny new badge ;)" : "see it in ur POKéDEX on the fun page ;)", 400);
         return true;
       }
-      ball.remove(); F.spr.classList.remove("absorb"); g.anim(F.spr, "free", 400); blip("error");
+      ball.remove(); F.spr.classList.remove("absorb"); g.anim(F.spr, "free", 400);
       await say(["Oh no! The POKéMON broke free!", "Aww! It appeared to be caught!", "Aargh! Almost had it!"][shakes], 900);
       return false;
     }
@@ -2862,6 +2913,6 @@
   runIntro();
 })();
 </script>
-<script src="js/extras.js?v=5" defer></script>
+<script src="js/extras.js?v=6" defer></script>
 </body>
 </html>

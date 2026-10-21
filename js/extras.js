@@ -124,6 +124,22 @@
      PROFILE CARD (everything lives in this browser)
      ===================================================================== */
   var SKIN_NAMES = { scene: "Scene Queen", emo: "Emo Kid", mentos: "Mentos", kiko: "Kiko", gastly: "Cyber Gastly", angel: "Glitter Angel", raver: "Toxic Raver", butterfly: "Butterfly Y2K" };
+  // own Minecraft skins uploaded in Block World (64x64 / 64x32 PNG saved as text)
+  var MC_RE = /^data:image\/png;base64,[A-Za-z0-9+\/=]+$/;
+  function myMcSkin() { var d = ls("mentosSkinImg"); return ls("mentosSkin") === "custom" && d && MC_RE.test(d) && d.length < 30000 ? d : null; }
+  // 16x16 front view of a Minecraft skin, like the built-in skin thumbnails
+  function mcThumb(data, cb) {
+    var im = new Image();
+    im.onload = function () {
+      if (im.width !== 64 || (im.height !== 64 && im.height !== 32)) return;
+      var c = document.createElement("canvas"); c.width = c.height = 16; var g = c.getContext("2d");
+      g.drawImage(im, 8, 8, 8, 8, 4, 0, 8, 8); g.drawImage(im, 40, 8, 8, 8, 4, 0, 8, 8);
+      g.drawImage(im, 20, 20, 8, 8, 4, 8, 8, 8); g.drawImage(im, 44, 20, 4, 8, 0, 8, 4, 8);
+      if (im.height === 64) g.drawImage(im, 36, 52, 4, 8, 12, 8, 4, 8); else g.drawImage(im, 44, 20, 4, 8, 12, 8, 4, 8);
+      cb(c.toDataURL());
+    };
+    im.src = data;
+  }
   var BADGE_ICONS = { // 8x8 pixel icons, one per secret
     rawr: ["..XXXX..", ".XXXXXX.", "XX.XX.XX", "XXXXXXXX", "XX....XX", "XXXXXXXX", "X.XX.XX.", "........"],
     mentos: ["..XXXX..", ".X....X.", "X.XXXX.X", "X.X..X.X", "X.X..X.X", "X.XXXX.X", ".X....X.", "..XXXX.."],
@@ -180,9 +196,11 @@
       '<h3>~ badges ~</h3><div class="badges" id="pbadges"></div>' +
       '<h3>~ my wall sticker ~</h3><div class="petinfo" id="psticker" style="margin:0"></div></div>';
     box.querySelector(".nm").textContent = name;
-    box.querySelector(".since").textContent = "member since " + since.toLocaleDateString() + " • skin: " + (SKIN_NAMES[skin] || "none yet");
+    var mine = myMcSkin();
+    box.querySelector(".since").textContent = "member since " + since.toLocaleDateString() + " • skin: " + (mine ? "my own MC skin" : SKIN_NAMES[skin] || "none yet");
     var img = box.querySelector(".skin");
-    if (SKIN_NAMES[skin]) { img.src = "images/skins/" + skin + ".png"; img.alt = SKIN_NAMES[skin] + " skin"; img.title = "block world skin: " + SKIN_NAMES[skin]; }
+    if (mine) { img.alt = "my own Minecraft skin"; img.title = "block world skin: my own"; mcThumb(mine, function (u) { img.src = u; }); }
+    else if (SKIN_NAMES[skin]) { img.src = "images/skins/" + skin + ".png"; img.alt = SKIN_NAMES[skin] + " skin"; img.title = "block world skin: " + SKIN_NAMES[skin]; }
     else { img.hidden = true; }
     var av = box.querySelector(".avatar"); av.src = ls("mentosAvatar") || "images/gastly.webp";
     // profile picture: any image from ur computer, squished 2 96x96
@@ -537,7 +555,7 @@
     var name = ls("mentosName"); if (!name || PUB.busy) return;
     if (!force && Date.now() - PUB.last < 4000) return;
     var pt = calcPoints(), av = ls("mentosAvatar");
-    var body = { p_name: name, p_token: token(), p_avatar: AV_RE.test(av || "") ? av : null, p_skin: SKIN_NAMES[ls("mentosSkin")] ? ls("mentosSkin") : null,
+    var body = { p_name: name, p_token: token(), p_avatar: AV_RE.test(av || "") ? av : null, p_skin: myMcSkin() ? "custom" : SKIN_NAMES[ls("mentosSkin")] ? ls("mentosSkin") : null, p_skin_img: myMcSkin(),
       p_mood: (ls("mentosStatus") || "rawr xD").slice(0, 40), p_points: pt.pts, p_rank: pt.rank, p_badges: M.foundList() };
     var sig = JSON.stringify(body);
     if (!force && sig === ls("mentosPubSig")) return;
@@ -553,16 +571,19 @@
   }
   function showProfile(name) {
     if (!name) return;
-    fetch(M.sb.url + "/rest/v1/profiles?select=name,avatar,skin,mood,points,rank,badges&name=eq." + encodeURIComponent(name), { headers: { apikey: M.sb.key } })
+    fetch(M.sb.url + "/rest/v1/profiles?select=name,avatar,skin,skin_img,mood,points,rank,badges&name=eq." + encodeURIComponent(name), { headers: { apikey: M.sb.key } })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (rows) {
         var p = rows[0];
         if (!p) { M.popup({ type: "info", title: "profile.exe", html: "<b>" + esc(name) + "</b> doesn't have a public profile yet", center: true, focus: true }); return; }
         var av = AV_RE.test(p.avatar || "") ? p.avatar : "images/gastly.webp";
-        var sk = SKIN_NAMES[p.skin] ? '<img src="images/skins/' + p.skin + '.png" alt="" style="width:32px;height:32px;image-rendering:pixelated;vertical-align:middle"> ' + SKIN_NAMES[p.skin] : "no skin yet";
+        var mc = p.skin === "custom" && MC_RE.test(p.skin_img || "") && p.skin_img.length < 30000;
+        var sk = mc ? '<img class="pp-mc" alt="" style="width:32px;height:32px;image-rendering:pixelated;vertical-align:middle"> their own MC skin'
+          : SKIN_NAMES[p.skin] ? '<img src="images/skins/' + p.skin + '.png" alt="" style="width:32px;height:32px;image-rendering:pixelated;vertical-align:middle"> ' + SKIN_NAMES[p.skin] : "no skin yet";
         M.popup({ type: "info", title: esc(p.name) + "_profile.exe", center: true, focus: true,
           html: '<span class="pp"><img class="pp-av" src="' + av + '" alt=""><span><b class="k pp-nm">' + esc(p.name) + '</b><br><span class="pp-rk">' + esc(p.rank || "n00b") + "</span> &bull; " + (+p.points || 0) + " pts" +
             "<br>mood: " + esc(p.mood || "rawr xD") + "<br>" + sk + "<br>secrets: " + ((p.badges || []).length) + "/" + M.SECRETS.length + "</span></span>" });
+        if (mc) mcThumb(p.skin_img, function (u) { document.querySelectorAll(".pp-mc:not([src])").forEach(function (i) { i.src = u; }); });
       })
       .catch(function () { M.popup({ type: "error", title: "profile.exe", html: "couldn't load that profile right now", center: true, focus: true }); });
   }

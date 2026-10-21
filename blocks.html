@@ -23,6 +23,9 @@
   .skin:hover, .skin:focus-visible { border-color: var(--purple); outline: none; }
   .skin[aria-pressed="true"] { border-color: var(--toxic); box-shadow: 0 0 14px rgba(141,255,58,.5); }
   .skin canvas { display: block; margin: 0 auto 4px; width: 64px; height: 64px; image-rendering: pixelated; }
+  .skin.up { border-style: dashed; border-color: var(--toxic); }
+  .skin .upic { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 4px; font-size: 3rem; color: var(--toxic); }
+  .skin .chg { display: block; color: var(--toxic); text-decoration: underline; font-size: 1rem; }
   .start-grid { display: grid; grid-template-columns: 240px 1fr; gap: 16px; padding: 16px; }
   .start-grid .pv { background: radial-gradient(#3a1468, #0d0420); border: 2px solid var(--chrome); display: grid; place-items: center; min-height: 280px; }
   .start-grid .pv canvas { width: 220px; height: 280px; }
@@ -86,7 +89,6 @@
           <a class="btn white" href="fun.html">&larr; Leave game [H]</a>
           <span class="px" id="saveinfo" style="color:var(--chrome);font-size:1.15rem"></span>
         </div>
-        <p class="notouch">this game needs a keyboard and mouse, sorry phone gang</p>
         <ul class="keys">
           <li><b>WASD</b> move &bull; <b>Space</b> jump</li>
           <li><b>Shift</b> sprint (fly: go down)</li>
