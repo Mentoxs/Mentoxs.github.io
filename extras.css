@@ -93,3 +93,22 @@
 .wa-yt { margin: 0 4px 4px; background: #000; border: 2px inset #444; }
 .wa-yt[hidden] { display: none; }
 .wa-yt iframe, .wa-yt > div { display: block; width: 288px; height: 200px; border: 0; }
+
+/* achievement rank on the profile card */
+.rank { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: center; margin-top: 10px; padding: 8px 10px; background: #000; border: 2px solid var(--yellow); }
+.rank .rk { grid-row: span 2; font-size: 1.5rem; color: var(--yellow); text-shadow: 2px 2px 0 #7a5a00; transform: rotate(-4deg); }
+.rank .rp { font-size: 1.15rem; color: #fff; }
+.rank .rbar { display: block; height: 10px; border: 1px solid #555; background: #111; }
+.rank .rbar b { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--yellow) 0 6px, #c99a00 6px 8px); }
+
+/* profile picture + public profile popup */
+.card-y2k .top { grid-template-columns: 116px 1fr; }
+.card-y2k .pics { position: relative; display: grid; justify-items: center; gap: 4px; }
+.card-y2k .avatar { width: 110px; height: 110px; object-fit: cover; border: 3px solid var(--pink); background: radial-gradient(#3a1468, #0d0420); box-shadow: 3px 3px 0 var(--deep); }
+.card-y2k .skin.mini { position: absolute; right: -6px; top: 74px; width: 40px; height: 40px; border-width: 2px; }
+.card-y2k .picbtn { font-size: .8rem; min-width: 0; padding: 1px 8px; }
+.card-y2k .pubnote { color: var(--chrome); font-size: 1rem; margin-top: 4px; }
+.pp { display: flex; gap: 12px; align-items: flex-start; }
+.pp-av { width: 84px; height: 84px; object-fit: cover; border: 3px solid var(--pink); flex: none; }
+.pp-nm { font-size: 1.4rem; }
+.pp-rk { color: #b8860b; font-weight: 700; }

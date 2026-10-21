@@ -1,6 +1,7 @@
 // Block World: a small voxel building game. Original textures and skins, drawn in code.
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 import { sb } from "./sb.js";
+import { isTouch, touchControls } from "./touch.js";
 
 /* ---------------- helpers ---------------- */
 const $ = (s) => document.querySelector(s);
@@ -432,7 +433,17 @@ document.addEventListener("pointerlockchange", () => {
   locked = document.pointerLockElement === canvas;
   if (!locked && !menuOpen) { $("#start").hidden = false; $("#play").textContent = "▶ Resume"; }
 });
-function lock() { ["#start", "#picker", "#gallery", "#share"].forEach((s) => { $(s).hidden = true; }); menuOpen = false; canvas.requestPointerLock(); }
+// phones have no mouse lock: the on-screen controls stand in for it
+const tc = touchControls({
+  keys, look: (dx, dy) => { player.yaw -= dx * .006; player.pitch = Math.max(-1.55, Math.min(1.55, player.pitch - dy * .006)); },
+  buttons: [{ label: "jump", code: "Space", hold: true }, { label: "break", mouse: 0 }, { label: "place", mouse: 2 }, { label: "fly", code: "KeyF" }, { label: "view", code: "KeyV" }, { label: "blocks", code: "KeyB" }],
+  pause: () => { locked = false; tc.show(false); $("#start").hidden = false; $("#play").textContent = "25B6 Resume"; }
+});
+function lock() {
+  ["#start", "#picker", "#gallery", "#share"].forEach((s) => { $(s).hidden = true; }); menuOpen = false;
+  if (isTouch) { locked = true; tc.show(true); return; }
+  canvas.requestPointerLock();
+}
 $("#play").addEventListener("click", lock);
 canvas.addEventListener("click", () => { if (!locked && $("#start").hidden && $("#picker").hidden) lock(); });
 $("#newworld").addEventListener("click", () => {
@@ -742,3 +753,7 @@ requestAnimationFrame(frame);
 
 // test hook (only with ?debug in the url): lets automated tests drive the player without mouse lock
 if (/[?&]debug\b/.test(location.search)) window.__bw = { player, keys, get: get, setLocked: (v) => { locked = v; }, press: (b) => { mouseDown = b; nextAct = 0; }, release: () => { mouseDown = -1; }, park: () => parkour };
+
+// first frame is on screen -> close the fake installer
+requestAnimationFrame(() => window.XPLOAD && window.XPLOAD.done());
+setTimeout(() => window.XPLOAD && window.XPLOAD.done(), 600); // backup if frames are paused (background tab)

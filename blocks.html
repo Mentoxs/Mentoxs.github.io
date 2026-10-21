@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="fun.css">
+<link rel="stylesheet" href="touch.css">
 <style>
   .hotbar { position: absolute; left: 50%; bottom: 12px; translate: -50% 0; display: flex; gap: 4px; padding: 4px; background: rgba(0,0,0,.55); border: 3px solid #555; pointer-events: auto; }
   .hotbar button { width: 48px; height: 48px; padding: 4px; border: 3px solid #333; background: rgba(40,40,40,.85); cursor: pointer; position: relative; }
@@ -43,6 +44,8 @@
   .form img { width: 100%; max-width: 360px; aspect-ratio: 16 / 9; object-fit: cover; border: 2px solid var(--chrome); }
   .status { color: var(--pink); min-height: 1.2em; margin: 0; }
   @media (max-width: 640px) { .start-grid { grid-template-columns: 1fr; } }
+  /* phones: hotbar goes up top so it does not sit under the joystick and buttons */
+  @media (hover: none) { .hotbar { bottom: auto; top: 46px; } .hotbar button { width: 34px; height: 34px; padding: 2px; } .hotbar button span { display: none; } .bname { bottom: auto; top: 92px; } .hud .tl { top: 92px; } }
 </style>
 </head>
 <body class="game-page">
@@ -53,13 +56,15 @@
     <span class="title k">block_world.exe</span>
   </div>
 </nav>
+<div class="xpload" id="xpload" data-msgs="Copying grass.exe...|Placing 442,368 blocks...|Teaching trees 2 grow...|Calibrating glitter...|Waterproofing the lake...|Installing scene checker...|Untangling ur skin...|Please do not unplug ur computer" role="status" aria-label="Loading"><div class="xp-win"><div class="xp-title"><span>Installing Block World...</span><i aria-hidden="true"></i></div><div class="xp-body"><img src="images/gastly.webp" alt=""><div class="xp-msg">Preparing 2 install...</div><div class="xp-bar"><i></i></div><div class="xp-small">Estimated time remaining: 3 seconds (probably)</div></div></div></div>
+<script src="js/xploader.js"></script>
 <canvas class="view" id="view" aria-label="3D block world"></canvas>
 <div class="hud" aria-hidden="true">
   <div class="tl" id="info"></div>
   <div class="cross"></div>
   <div class="bname" id="bname"></div>
   <div class="hotbar" id="hotbar"></div>
-  <div class="px" style="position:absolute;left:12px;bottom:14px;font-size:1.1rem;color:#fff;text-shadow:2px 2px 0 #000">H = leave game &bull; L = leave parkour</div>
+  <div class="px keyhint" style="position:absolute;left:12px;bottom:14px;font-size:1.1rem;color:#fff;text-shadow:2px 2px 0 #000">H = leave game &bull; L = leave parkour</div>
   <div class="visit" id="visit" hidden></div>
   <div id="toasts"></div>
 </div>

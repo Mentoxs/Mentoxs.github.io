@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<title>Behind the Scripts | Mentos</title>
+<meta name="description" content="Real Luau code from the zones in Mentos's Roblox scripting place, with explanations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fun.css">
+<style>
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; }
+  .toc a { font: 1.2rem "VT323", monospace; text-decoration: none; background: #111; border: 2px solid #444; padding: 2px 10px; color: var(--toxic); }
+  .toc a:hover { border-color: var(--yellow); color: var(--yellow); }
+  .zone { margin: 0 0 30px; }
+  .zone .body { padding: 16px; }
+  .zone h2 { margin: 0 0 4px; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1; text-shadow: 3px 3px 0 var(--purple); }
+  .zone .file { font: 1.15rem "VT323", monospace; color: var(--chrome); margin: 0 0 10px; }
+  .zone .why { margin: 0 0 12px; color: #e6e6e6; }
+  .zone ul { margin: 0 0 12px; padding-left: 20px; color: var(--chrome); }
+  .zone li b { color: var(--yellow); font-weight: 400; font-family: "VT323", monospace; font-size: 1.15em; }
+  pre { margin: 0; background: #0b0b12; border: 2px solid #2b2b3d; padding: 12px 14px; overflow: auto; max-height: 520px; font: .92rem/1.45 ui-monospace, Consolas, "Courier New", monospace; color: #e4e4f0; tab-size: 4; }
+  .kw { color: #ff79c6; } .str { color: #f1fa8c; } .num { color: #bd93f9; } .com { color: #6f7a99; font-style: italic; } .api { color: #8be9fd; } .fn { color: #50fa7b; }
+  .play { display: inline-block; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<nav class="topbar">
+  <div class="wrap">
+    <a href="fun.html">&larr; Fun</a>
+    <a href="index.html#games">Home</a>
+    <span class="title k">behind_the_scripts.exe</span>
+  </div>
+</nav>
+<main class="wrap">
+  <h1 class="k">Behind the Scripts</h1>
+  <p class="lead">real Luau from my Roblox scripting place (copied straight out of Studio), with what each piece does. if u wanna see it in action, <a href="preview.html">try the browser preview</a> or <a href="https://www.roblox.com/games/130047471706916/mentosove-scripting-miesto" target="_blank" rel="noopener">play the real game</a>.</p>
+  <nav class="toc" id="toc" aria-label="Zones"></nav>
+  <div id="zones"></div>
+</main>
+<script>
+(function () {
+  "use strict";
+  var Z = [
+    { id: "portals", zone: "Zone 3", name: "Rift Portals", file: "ServerScriptService.Zone3PortalHandler • teleport()",
+      why: "the hardest part of portals isn't teleporting, it's keeping ur momentum. if u fall into a floor portal at 60 studs/s u should fly out of the wall portal at 60 studs/s, pointing the right way.",
+      bullets: ["<b>rel</b> = where u are relative 2 the entry portal, mirrored sideways so u come out the matching side", "a <b>raycast</b> down makes sure u never pop out inside the ground", "velocity gets rotated from entry space 2 exit space: <b>dstRot * FLIP * srcRot:Inverse() * vel</b>", "if u went in slow, u still get a minimum exit speed so u don't get stuck in the portal"],
+      code: String.raw`local function teleport(player, key, set, hum, hrp)
+	local src = set[key].cf
+	local dstKey = OTHER[key]
+	local dst = set[dstKey].cf
+	local vel = hrp.AssemblyLinearVelocity
+	local oldLook = flatLook(hrp.CFrame.LookVector)
+
+	local srcRot = src - src.Position
+	local dstRot = dst - dst.Position
+	local rel = src:PointToObjectSpace(hrp.Position)
+
+	-- lateral offset is mirrored, and we always come out standing in front of the exit portal
+	local isFloorExit = dst.LookVector.Y > 0.9
+	local outDist = isFloorExit and 3.3 or 2.6
+	local newPos = dst:PointToWorldSpace(Vector3.new(-rel.X, rel.Y, -outDist))
+
+	-- never come out inside the ground
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { portalFolder, player.Character }
+	local g = Workspace:Raycast(newPos + Vector3.new(0, 4, 0), Vector3.new(0, -60, 0), params)
+	if g and newPos.Y < g.Position.Y + 3.2 then
+		newPos = Vector3.new(newPos.X, g.Position.Y + 3.2, newPos.Z)
+	end
+
+	-- momentum through the portal: rotate velocity from entry space to exit space
+	local newVel = dstRot * FLIP * srcRot:Inverse() * vel
+	local out = dst.LookVector
+	local need = isFloorExit and MIN_FLOOR_EXIT_SPEED or MIN_EXIT_SPEED
+	local along = newVel:Dot(out)
+	if along < need then
+		newVel += out * (need - along)
+	end
+
+	local newLookV = dstRot * FLIP * srcRot:Inverse() * hrp.CFrame.LookVector
+	local newLook = flatLook(newLookV) or flatLook(out) or Vector3.new(0, 0, -1)
+
+	puff(src.Position + src.LookVector, COLORS[key], 35, true)
+	hrp.CFrame = CFrame.lookAt(newPos, newPos + newLook)
+	hrp.AssemblyLinearVelocity = newVel
+	hrp.AssemblyAngularVelocity = Vector3.zero
+	puff(dst.Position + dst.LookVector, COLORS[dstKey], 35, true)
+end` },
+    { id: "gacha", zone: "Zone 4", name: "Title Gacha", file: "ServerScriptService.Zone4RNGHandler • rollRNG()",
+      why: "a fair gacha needs more than math.random. this roll skips rarities u already finished, has pity so a dry streak eventually forces a good pull, and luck boosts the rare stuff more than the common stuff.",
+      bullets: ["step 1: only roll rarities that still have a title u don't own", "step 2: <b>pity</b> counters set a minimum rarity after too many bad rolls", "step 3: weighted pick, luck scales with <b>(index / #RARITIES) ^ 2</b> so rarer = bigger boost", "step 4: inside the rarity, prefer titles u don't have yet"],
+      code: String.raw`local function rollRNG(s)
+	-- 1) Only rarities that still have a title the player doesn't own
+	local available = {}
+	for _, r in ipairs(RARITIES) do
+		for _, t in ipairs(r.titles) do
+			if not s.inventory[t] then
+				table.insert(available, r)
+				break
+			end
+		end
+	end
+	if #available == 0 then
+		available = RARITIES -- collected everything: duplicates from now on
+	end
+
+	-- 2) Pity: after a long dry streak, the roll can't be lower than a certain rarity
+	local minIndex = 1
+	if s.pityMythic >= PITY_MYTHIC_THRESHOLD then
+		minIndex = RARITY_INDEX.Mythic
+	elseif s.pityLegendary >= PITY_LEGENDARY_THRESHOLD then
+		minIndex = RARITY_INDEX.Legendary
+	elseif s.pityEpic >= PITY_EPIC_THRESHOLD then
+		minIndex = RARITY_INDEX.Epic
+	elseif s.pityRare >= PITY_RARE_THRESHOLD then
+		minIndex = RARITY_INDEX.Rare
+	end
+
+	local rollable = {}
+	for _, r in ipairs(available) do
+		if r.index >= minIndex then
+			table.insert(rollable, r)
+		end
+	end
+	if #rollable == 0 then
+		rollable = available
+	end
+
+	-- 3) Weighted pick (luck boosts the higher rarities more)
+	local weights, total = {}, 0
+	for i, r in ipairs(rollable) do
+		local boost = 1 + (s.luck - 1) * ((r.index / #RARITIES) ^ 2)
+		weights[i] = r.weight * boost
+		total += weights[i]
+	end
+
+	local roll = rng:NextNumber() * total
+	local chosen = rollable[#rollable]
+	local acc = 0
+	for i, r in ipairs(rollable) do
+		acc += weights[i]
+		if roll < acc then
+			chosen = r
+			break
+		end
+	end
+
+	-- 4) Pick a title from that rarity (prefer ones the player doesn't own)
+	local unowned = {}
+	for _, t in ipairs(chosen.titles) do
+		if not s.inventory[t] then
+			table.insert(unowned, t)
+		end
+	end
+	local pool = #unowned > 0 and unowned or chosen.titles
+	local title = pool[rng:NextInteger(1, #pool)]
+
+	return chosen, title, s.inventory[title] == true
+end` },
+    { id: "praise", zone: "Zone 5", name: "Praise Strapko", file: "ServerScriptService.Zone5PraiseHandler • spawnCoin()",
+      why: "while u hold the praise key near the statue, the server drops waves of neon coins around the zone. the server checks everything, so u can't fake coins from the client.",
+      bullets: ["coins never spawn on top of the pedestal (tries 25 random spots)", "a <b>taken</b> flag stops 2 players grabbing the same coin in the same frame", "<b>Debris:AddItem</b> cleans up coins nobody grabbed", "a loop every few seconds stops ur praise if u died, left or walked away"],
+      code: String.raw`local function spawnCoin()
+	if #coinFolder:GetChildren() >= MAX_COINS then return end
+	local coin = Instance.new("Part")
+	coin.Name = "PraiseCoin"
+	coin.Shape = Enum.PartType.Cylinder
+	coin.Size = Vector3.new(0.5, 3, 3)
+	coin.Material = Enum.Material.Neon
+	coin.Color = Color3.fromRGB(255, 200, 40)
+	coin.Anchored = true
+	coin.CanCollide = false
+	coin.CanQuery = false
+	coin.CastShadow = false
+	coin.Position = randomCoinPosition()
+	coin.Parent = coinFolder
+	CollectionService:AddTag(coin, "Zone5Coin") -- client spins/bobs these
+
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(255, 200, 40)
+	light.Range = 8
+	light.Brightness = 1
+	light.Parent = coin
+
+	local taken = false
+	coin.Touched:Connect(function(hit)
+		if taken then return end
+		local plr = Players:GetPlayerFromCharacter(hit.Parent)
+		if not plr then return end
+		local root = getRoot(plr)
+		if not root or not inZone(root.Position) then return end
+		taken = true
+		coin:Destroy()
+		addCoins(plr, COIN_VALUE)
+	end)
+
+	Debris:AddItem(coin, COIN_LIFETIME)
+end
+
+task.spawn(function()
+	while true do
+		task.wait(SPAWN_INTERVAL)
+		for plr in pairs(praising) do
+			if not plr.Parent or not canPraise(plr, STOP_RANGE) then
+				setPraise(plr, false) -- died / left zone / walked away
+			else
+				for _ = 1, COINS_PER_WAVE do spawnCoin() end
+			end
+		end
+	end
+end)` },
+    { id: "laser", zone: "Zone 6", name: "Laser Gun", file: "ServerScriptService.Zone6LaserHandler • cutTile() + processHit()",
+      why: "the laser doesn't just do damage, it cuts. walls are made of tiles that heat up and fall off glowing, then grow back. on players it saws through limbs one by one.",
+      bullets: ["a cut tile gets unanchored, turns neon orange, gets a random spin and fades out", "a <b>clone</b> of the tile is saved so the wall regenerates after <b>WALL_REGEN</b> seconds", "each limb has its own heat timer, so u have 2 hold the beam on it", "players can only be cut while they're inside zone 6"],
+      code: String.raw`local function cutTile(tile, dir)
+	if tile:GetAttribute("Cut") then return end
+	tile:SetAttribute("Cut", true)
+	heat[tile] = nil
+	local rec = tileTemplates[tile]
+	tile.Anchored = false
+	tile.CanCollide = false
+	tile.CanQuery = false
+	tile.Material = Enum.Material.Neon
+	tile.Color = Color3.fromRGB(255, 110, 20)
+	tile.AssemblyLinearVelocity = dir * 10 + Vector3.new(rng:NextNumber(-3, 3), rng:NextNumber(2, 7), rng:NextNumber(-3, 3))
+	tile.AssemblyAngularVelocity = Vector3.new(rng:NextNumber(-8, 8), rng:NextNumber(-8, 8), rng:NextNumber(-8, 8))
+	TweenService:Create(tile, TweenInfo.new(1.1), { Transparency = 1, Color = Color3.fromRGB(120, 30, 10) }):Play()
+	burst(tile, Color3.fromRGB(255, 120, 30), 12, 4)
+	Debris:AddItem(tile, 1.3)
+	if rec then
+		task.delay(WALL_REGEN, function()
+			local c = rec.clone:Clone()
+			local goal = c.Transparency
+			c.Transparency = 1
+			c.Parent = rec.parent
+			tileTemplates[c] = rec
+			TweenService:Create(c, TweenInfo.new(0.5), { Transparency = goal }):Play()
+		end)
+	end
+end
+
+local function processHit(player, st, result, dt, dir)
+	local part = result.Instance
+
+	if part.Name == "Tile" and part:IsDescendantOf(targets) then
+		heatTiles(result.Position, dt, dir)
+		return
+	end
+
+	local model = part:FindFirstAncestorOfClass("Model")
+	local hum = model and model:FindFirstChildOfClass("Humanoid")
+	if not hum then return end
+
+	-- players can only be cut while they are inside Zone 6
+	local victim = Players:GetPlayerFromCharacter(model)
+	if victim then
+		local root = model:FindFirstChild("HumanoidRootPart")
+		if not root or not isInZone6(root.Position) or hum.Health <= 0 then return end
+	end
+
+	if LIMBS[part.Name] and part.Parent == model then
+		local h = heatEntry(part)
+		h.t += dt
+		if h.t >= LIMB_CUT_TIME then
+			heat[part] = nil
+			if severLimb(model, part, dir) then playCutSound(st) end
+		end
+	else
+		-- torso / accessories: the beam saws through the limbs one after another
+		local h = heatEntry(model)
+		h.t += dt
+		if h.t >= TORSO_STEP then
+			h.t = 0
+			local limb = nextLimb(model)
+			if limb and severLimb(model, limb, dir) then playCutSound(st) end
+		end
+	end
+end` },
+    { id: "grapple", zone: "Zone 9", name: "Arm Grappling Hook", file: "ServerScriptService.Zone9GrappleHandler • startGrapple() (first half)",
+      why: "u literally throw ur own arm. the server finds ur shoulder (R6 or R15), aims from the camera's point, then clones ur actual arm parts so the thrown arm looks like ur avatar.",
+      bullets: ["2 raycasts: one from the camera 2 find what u aim at, one from the shoulder so the rope can't go through walls", "the arm clone gets every joint/weld/script stripped so it's just a model", "a claw gets attached 2 the lowest point of the arm = ur hand", "the rope hangs between a shoulder attachment and the thrown arm"],
+      code: String.raw`local function startGrapple(player, origin, direction)
+	local char = player.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	local tool = char and char:FindFirstChild(TOOL_NAME)
+	local torso = char and (char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso"))
+	if not (hum and tool and torso) or hum.Health <= 0 then return end
+	local armParts = getArmParts(char, hum)
+	if #armParts == 0 then return end
+
+	-- shoulder position
+	local shoulderWorld
+	if hum.RigType == Enum.HumanoidRigType.R15 then
+		local att = armParts[1]:FindFirstChild("RightShoulderAttachment")
+		shoulderWorld = att and att.WorldPosition or (torso.CFrame * Vector3.new(1.2, 0.6, 0))
+	else
+		shoulderWorld = torso.CFrame * Vector3.new(1, 0.5, 0)
+	end
+
+	if (origin - shoulderWorld).Magnitude > 80 then origin = shoulderWorld end
+
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local ex = { effects }
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p.Character then table.insert(ex, p.Character) end
+	end
+	params.FilterDescendantsInstances = ex
+	params.IgnoreWater = true
+
+	local aim = Workspace:Raycast(origin, direction * 400, params)
+	local aimPoint = aim and aim.Position or (origin + direction * 400)
+	local toAim = aimPoint - shoulderWorld
+	local dir = toAim.Magnitude > 0.1 and toAim.Unit or direction
+	local result = Workspace:Raycast(shoulderWorld, dir * MAX_RANGE, params)
+	local hit = result ~= nil and inZone(result.Position, 1)
+
+	-- thrown copy of the arm
+	local model = Instance.new("Model")
+	model.Name = "ThrownArm"
+	for _, p in ipairs(armParts) do
+		local c = p:Clone()
+		for _, d in ipairs(c:GetDescendants()) do
+			if d:IsA("JointInstance") or d:IsA("WeldConstraint") or d:IsA("Attachment") or d:IsA("LuaSourceContainer") then
+				d:Destroy()
+			end
+		end
+		c.Anchored = true; c.CanCollide = false; c.CanQuery = false; c.CanTouch = false; c.Massless = true
+		c.Parent = model
+	end
+	-- ... then the claw, the rope and the pull (another ~120 lines)
+end` },
+    { id: "launch", zone: "Zone 10", name: "Launch Ground", file: "ServerScriptService.Zone10LaunchGround • launch() + the Heartbeat loop",
+      why: "\"what is this ground?\" step on it and u get yeeted. instead of setting velocity once (which roblox physics fights), it uses a LinearVelocity for a split second plus an AngularVelocity so u spin.",
+      bullets: ["u fly the way u were walking, or the way u face if u stood still", "<b>Debris:AddItem(lv, 0.25)</b> = the push only lasts a quarter second, then gravity takes over", "every <b>Heartbeat</b> the server raycasts under flying players 2 detect landing", "a cooldown stops u getting launched again the instant u land"],
+      code: String.raw`local function launch(player, char, hum, hrp)
+	local st = {launchedAt = os.clock(), hum = hum, hrp = hrp, char = char}
+	active[player] = st
+
+	hum.PlatformStand = true
+	hum:ChangeState(Enum.HumanoidStateType.Physics)
+
+	local att = Instance.new("Attachment")
+	att.Name = "Z10Att"
+	att.Parent = hrp
+	st.att = att
+
+	local dir = hum.MoveDirection
+	if dir.Magnitude < 0.1 then
+		dir = hrp.CFrame.LookVector * Vector3.new(1, 0, 1)
+	end
+	if dir.Magnitude < 0.01 then dir = Vector3.new(0, 0, 1) end
+	dir = dir.Unit
+
+	local lv = Instance.new("LinearVelocity")
+	lv.Attachment0 = att
+	lv.RelativeTo = Enum.ActuatorRelativeTo.World
+	lv.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
+	lv.MaxForce = math.huge
+	lv.VectorVelocity = dir * CFG.LaunchForward + Vector3.new(0, CFG.LaunchUp, 0)
+	lv.Parent = hrp
+	st.lv = lv
+	Debris:AddItem(lv, 0.25)
+
+	local av = Instance.new("AngularVelocity")
+	av.Attachment0 = att
+	av.RelativeTo = Enum.ActuatorRelativeTo.World
+	av.MaxTorque = math.huge
+	av.AngularVelocity = Vector3.new(math.random() - 0.5, 1, math.random() - 0.5).Unit * CFG.SpinSpeed
+	av.Parent = hrp
+	st.av = av
+
+	st.swirl = makeSwirl(char, hrp)
+	landingFX(Vector3.new(hrp.Position.X, floor.Position.Y + floor.Size.Y / 2, hrp.Position.Z))
+end
+
+RunService.Heartbeat:Connect(function()
+	local now = os.clock()
+	for _, player in ipairs(Players:GetPlayers()) do
+		local char = player.Character
+		local hum = char and char:FindFirstChildOfClass("Humanoid")
+		local hrp = char and char:FindFirstChild("HumanoidRootPart")
+		local st = active[player]
+		if not (hum and hrp) or hum.Health <= 0 then
+			if st then endFlight(player, st, nil) end
+		elseif st then
+			local t = now - st.launchedAt
+			if t > CFG.MinAirTime then
+				rayParams.FilterDescendantsInstances = {char}
+				local hit = workspace:Raycast(hrp.Position, Vector3.new(0, -7, 0), rayParams)
+				if (hit and hrp.AssemblyLinearVelocity.Y <= 5) or t > CFG.MaxAirTime then
+					endFlight(player, st, hit and hit.Position or hrp.Position)
+				end
+			end
+		elseif (cooldown[player] or 0) < now and onZoneFloor(hrp) and standingOnFloor(hrp) then
+			launch(player, char, hum, hrp)
+		end
+	end
+end)` },
+    { id: "vampire", zone: "Zone 21", name: "Vampire Stone", file: "ServerScriptService.VampireAbilities • doDash() + doBolt()",
+      why: "the vampire update. Shadow Dash teleports u forward through smoke without going through walls, and Blood Bolt is an invisible carrier part that streams blood particles while it tweens 2 the target.",
+      bullets: ["the dash raycasts first and stops <b>3.5 studs</b> before anything in the way", "in bat form the dash is longer and can go up/down", "the bolt flies at 120 studs/s using a <b>Tween</b>, then checks what it hit", "hitting some1 slows them, knocks them back and gives u blood"],
+      code: String.raw`local function doDash(plr, char, root, aim)
+	local dir = cleanDir(aim) or root.CFrame.LookVector
+	local flying = plr:GetAttribute("Flying") or plr:GetAttribute("BatForm")
+	if not flying then
+		dir = Vector3.new(dir.X, 0, dir.Z)
+		if dir.Magnitude < 0.05 then dir = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z) end
+		if dir.Magnitude < 0.05 then return false end
+		dir = dir.Unit
+	end
+	local dist = flying and 55 or 38
+	local filter = {char}
+	for _, p in ipairs(Players:GetPlayers()) do if p.Character then table.insert(filter, p.Character) end end
+	for _, m in ipairs(CS:GetTagged("BloodTarget")) do table.insert(filter, m) end
+	local rp = RaycastParams.new(); rp.FilterType = Enum.RaycastFilterType.Exclude; rp.FilterDescendantsInstances = filter
+	local res = workspace:Raycast(root.Position, dir * dist, rp)
+	local travel = res and math.max(0, res.Distance - 3.5) or dist
+	if travel < 4 then notify(plr, "Something blocks your path.", "ffaa55"); return false end
+	local from = root.Position
+	local to = from + dir * travel
+	burstAt(from, 16); smoke(from, 1)
+	for i = 1, 5 do smoke(from:Lerp(to, i / 6), 0.5) end
+	local look = Vector3.new(dir.X, 0, dir.Z)
+	if look.Magnitude < 0.05 then look = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z) end
+	char:PivotTo(CFrame.lookAt(to, to + look))
+	if not flying then root.AssemblyLinearVelocity = dir * 28 end
+	burstAt(to, 12); smoke(to, 1)
+	FX:FireClient(plr, "dash")
+	return true
+end
+
+local function doBolt(plr, char, root, aim)
+	local dir = cleanDir(aim) or root.CFrame.LookVector
+	local head = char:FindFirstChild("Head")
+	local origin = (head and head.Position or root.Position) + dir * 2.2
+	local rp = RaycastParams.new(); rp.FilterType = Enum.RaycastFilterType.Exclude; rp.FilterDescendantsInstances = {char}
+	local res = workspace:Raycast(origin, dir * 130, rp)
+	local hitPos = res and res.Position or (origin + dir * 130)
+	local dist = (hitPos - origin).Magnitude
+	local t = math.max(dist / 120, 0.05)
+
+	-- invisible carrier that streams blood while it flies
+	local orb = Instance.new("Part")
+	orb.Name = "BloodBolt"; orb.Size = Vector3.one; orb.Transparency = 1
+	orb.Anchored = true; orb.CanCollide = false; orb.CanQuery = false; orb.CanTouch = false; orb.CastShadow = false
+	orb.Position = origin; orb.Parent = workspace
+	local stream = bloodStream(orb, 0.6, 60)
+	TweenService:Create(orb, TweenInfo.new(t, Enum.EasingStyle.Linear), {Position = hitPos}):Play()
+	bloodSplat(origin, 0.6, 0.5)
+
+	task.delay(t, function()
+		local victim = res and res.Instance and res.Instance:FindFirstAncestorOfClass("Model")
+		if victim and victim ~= char then
+			local alive, vhum = isLiving(victim)
+			local vplr = Players:GetPlayerFromCharacter(victim)
+			if alive and (vplr or CS:HasTag(victim, "BloodTarget")) then
+				slow(victim, 3.5)
+				knock(victim, vplr, dir * 42 + Vector3.new(0, 16, 0))
+				if not vplr then vhum:TakeDamage(15) end
+				if plr.Parent then
+					plr:SetAttribute("Blood", math.min(150, (plr:GetAttribute("Blood") or 0) + 7))
+					FX:FireClient(plr, "hit")
+				end
+				if vplr then FX:FireClient(vplr, "shake", 4) end
+			end
+		end
+		bloodSplat(hitPos, 1.3)
+		stopStream(stream)
+		Debris:AddItem(orb, 1.5) -- let the trailing particles fade
+	end)
+	FX:FireClient(plr, "bolt")
+	return true
+end` },
+    { id: "teleport", zone: "every zone", name: "The Teleport Menu", file: "ServerScriptService.TeleportHandler",
+      why: "the yellow/black teleport UI on the left side of the screen. the server caches where every zone's floor is once, then checks every request so exploiters can't teleport anywhere they want.",
+      bullets: ["zone positions come from the actual floors (or an <b>ArrivalPoint</b> part if a zone has one)", "the client only sends a zone number, never a position", "the number is type-checked and clamped 2 1..40", "no teleporting out of a sky coaster ride"],
+      code: String.raw`-- Cache zone positions
+local zonePositions = {}
+local function cacheFrom(folder)
+	if not folder then return end
+	for _, child in ipairs(folder:GetChildren()) do
+		local num = child.Name:match("Zone_(%d+)")
+		local floor = child:FindFirstChild("Floor")
+		if num and floor then
+			local arrival = child:FindFirstChild("ArrivalPoint")
+			zonePositions[tonumber(num)] = arrival and arrival.Position or (floor.Position + Vector3.new(0, 5, 0))
+		end
+	end
+end
+cacheFrom(firstPlace)
+cacheFrom(secondZones)
+
+teleportEvent.OnServerEvent:Connect(function(player, zoneNum)
+	-- no teleporting out of a coaster ride
+	if player:GetAttribute("OnCoaster") then return end
+
+	if zoneNum == "Coaster" then
+		local character = player.Character
+		local hrp = character and character:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			hrp.AssemblyLinearVelocity = Vector3.zero
+			hrp.CFrame = COASTER_CF
+		end
+		return
+	end
+
+	-- Validate input
+	if typeof(zoneNum) ~= "number" then return end
+	zoneNum = math.floor(zoneNum)
+	if zoneNum < 1 or zoneNum > MAX_ZONE then return end
+
+	local targetPos = zonePositions[zoneNum]
+	if not targetPos then return end
+
+	local character = player.Character
+	if not character then return end
+
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	-- Teleport the player
+	hrp.CFrame = CFrame.new(targetPos)
+end)` }
+  ];
+  // tiny luau highlighter: comments, strings, numbers, keywords, roblox api, function calls
+  var KW = "and|break|do|else|elseif|end|false|for|function|if|in|local|nil|not|or|repeat|return|then|true|until|while|continue|typeof";
+  var API = "Vector3|CFrame|Instance|Enum|Color3|TweenInfo|TweenService|RaycastParams|Workspace|workspace|game|task|math|Players|Debris|CollectionService|CS|RunService|os|table|ipairs|pairs|tonumber";
+  var RE = new RegExp("(--[^\\n]*)|(\"(?:[^\"\\\\]|\\\\.)*\")|\\b(\\d+(?:\\.\\d+)?)\\b|\\b(" + KW + ")\\b|\\b(" + API + ")\\b|\\b([A-Za-z_]\\w*)(?=\\s*\\()", "g");
+  function hl(code) {
+    var out = "", last = 0, esc = function (s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+    code.replace(RE, function (m, com, str, num, kw, api, fn, i) {
+      out += esc(code.slice(last, i));
+      var cls = com ? "com" : str ? "str" : num ? "num" : kw ? "kw" : api ? "api" : "fn";
+      out += '<span class="' + cls + '">' + esc(m) + "</span>"; last = i + m.length; return m;
+    });
+    return out + esc(code.slice(last));
+  }
+  var toc = document.getElementById("toc"), box = document.getElementById("zones");
+  Z.forEach(function (z) {
+    var a = document.createElement("a"); a.href = "#" + z.id; a.textContent = z.zone + ": " + z.name; toc.appendChild(a);
+    var s = document.createElement("section"); s.className = "win zone"; s.id = z.id;
+    s.innerHTML = '<div class="bar"><span></span><span class="dots" aria-hidden="true"><i></i><i></i></span></div><div class="body"><h2 class="k"></h2><p class="file"></p><p class="why"></p><ul></ul><pre><code></code></pre></div>';
+    s.querySelector(".bar span").textContent = z.id + ".luau";
+    s.querySelector("h2").textContent = z.zone + ": " + z.name;
+    s.querySelector(".file").textContent = z.file;
+    s.querySelector(".why").textContent = z.why;
+    s.querySelector("ul").innerHTML = z.bullets.map(function (b) { return "<li>" + b + "</li>"; }).join("");
+    s.querySelector("code").innerHTML = hl(z.code);
+    box.appendChild(s);
+  });
+})();
+</script>
+</body>
+</html>

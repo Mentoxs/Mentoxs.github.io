@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="extras.css?v=4">
+<link rel="stylesheet" href="extras.css?v=5">
 <style>
   @font-face { font-family: "Kaijuz"; src: url("fonts/Kaijuz.ttf") format("truetype"); font-display: swap; }
   :root {
@@ -1369,6 +1369,7 @@
 
   function ghostCut() {
     if (busy) return;
+    FOE = pickWild();
     if (RM) return pokeBattle();
     return cutscene("ghostcut", async function (c) {
       for (var i = 0; i < 12; i++) {
@@ -1377,13 +1378,14 @@
         g.style.setProperty("--d", rand(2.4, 4.2) + "s"); g.style.setProperty("--dl", rand(0, 2) + "s");
         c.appendChild(g);
       }
-      var big = el("img", "bigg"); big.src = "images/gastly.webp"; big.alt = ""; c.appendChild(big);
+      var big = el("img", "bigg"); big.alt = ""; c.appendChild(big);
+      if (FOE.id === 92) big.src = "images/gastly.webp"; else { setSpr(big, FOE.id, false); big.style.imageRendering = "pixelated"; }
       var box = el("div", "pk px", '<span class="pk-t" aria-live="polite"></span><span class="arrow" aria-hidden="true">&#9660;</span>'); c.appendChild(box);
       var t = $(".pk-t", box);
       await wait(900);
-      await typeInto(t, "A wild GASTLY appeared!", 38); await wait(1100);
+      await typeInto(t, "A wild " + FOE.n + " appeared!", 38); await wait(1100);
       flash(c); shakeIt(c); blip("error");
-      await typeInto(t, "GASTLY wants to battle!!", 38); await wait(1100);
+      await typeInto(t, FOE.n + " wants to battle!!", 38); await wait(1100);
     }).then(pokeBattle);
   }
 
@@ -1599,8 +1601,42 @@
   ];
   var RAY = { id: 384, n: "RAYQUAZA", ty: ["dragon", "flying"], hp: 215, atk: 150, def: 95, spd: 95, legend: true,
     mv: [mv("DRAGON ASCENT", "flying", 120, 100, 5), mv("OUTRAGE", "dragon", 120, 100, 10), mv("EXTREME SPEED", "normal", 80, 100, 5, "first"), mv("DRAGON DANCE", "status", 0, 100, 20, "boost")] };
-  var FOE = { n: "GASTLY", ty: ["ghost", "poison"], hp: 380, atk: 110, def: 75, spd: 90,
-    mv: [mv("LICK", "ghost", 30, 100), mv("SHADOW BALL", "ghost", 80, 100), mv("SLUDGE BOMB", "poison", 90, 100), mv("NIGHT SHADE", "ghost", 0, 100, 0, "fixed"), mv("HYPNOSIS", "psychic", 0, 60, 0, "sleep")] };
+  // wild pokemon (moves: weak, strong, strong, fixed damage, sleep). rate = catch rate like the games
+  var NSHADE = mv("NIGHT SHADE", "ghost", 0, 100, 0, "fixed"), HYPNO = mv("HYPNOSIS", "psychic", 0, 60, 0, "sleep");
+  var WILD = [
+    { id: 92, n: "GASTLY", ty: ["ghost", "poison"], hp: 380, atk: 110, def: 75, spd: 90, rate: 190, lv: 66,
+      mv: [mv("LICK", "ghost", 30, 100), mv("SHADOW BALL", "ghost", 80, 100), mv("SLUDGE BOMB", "poison", 90, 100), NSHADE, HYPNO] },
+    { id: 93, n: "HAUNTER", ty: ["ghost", "poison"], hp: 420, atk: 125, def: 80, spd: 100, rate: 90, lv: 70,
+      mv: [mv("LICK", "ghost", 30, 100), mv("SHADOW BALL", "ghost", 80, 100), mv("SLUDGE BOMB", "poison", 90, 100), NSHADE, HYPNO] },
+    { id: 94, n: "GENGAR", ty: ["ghost", "poison"], hp: 480, atk: 140, def: 90, spd: 110, rate: 45, lv: 77,
+      mv: [mv("SHADOW CLAW", "ghost", 70, 100), mv("SHADOW BALL", "ghost", 80, 100), mv("SLUDGE WAVE", "poison", 95, 100), NSHADE, HYPNO] },
+    { id: 200, n: "MISDREAVUS", ty: ["ghost"], hp: 360, atk: 105, def: 85, spd: 85, rate: 45, lv: 60,
+      mv: [mv("ASTONISH", "ghost", 30, 100), mv("SHADOW BALL", "ghost", 80, 100), mv("PSYBEAM", "psychic", 65, 100), NSHADE, HYPNO] },
+    { id: 353, n: "SHUPPET", ty: ["ghost"], hp: 340, atk: 110, def: 70, spd: 60, rate: 225, lv: 58,
+      mv: [mv("ASTONISH", "ghost", 30, 100), mv("SHADOW BALL", "ghost", 80, 100), mv("KNOCK OFF", "dark", 65, 100), NSHADE, HYPNO] },
+    { id: 355, n: "DUSKULL", ty: ["ghost"], hp: 360, atk: 90, def: 110, spd: 40, rate: 190, lv: 58,
+      mv: [mv("ASTONISH", "ghost", 30, 100), mv("SHADOW BALL", "ghost", 80, 100), mv("PURSUIT", "dark", 40, 100), NSHADE, HYPNO] },
+    { id: 607, n: "LITWICK", ty: ["ghost", "fire"], hp: 340, atk: 115, def: 75, spd: 40, rate: 190, lv: 58,
+      mv: [mv("ASTONISH", "ghost", 30, 100), mv("SHADOW BALL", "ghost", 80, 100), mv("FLAMETHROWER", "fire", 90, 100), NSHADE, HYPNO] }
+  ];
+  var FOE = WILD[0];
+  // who shows up: gengar only on fridays, haunter at night, the rest at random (?wild=94 forces one, for testing)
+  function pickWild() {
+    var force = +(location.search.match(/[?&]wild=(\d+)/) || [])[1], f = WILD.find(function (w) { return w.id === force; });
+    if (f) return f;
+    var d = new Date(), r = Math.random(), byId = function (id) { return WILD.find(function (w) { return w.id === id; }); };
+    if (d.getDay() === 5 && r < .35) return byId(94);
+    if ((d.getHours() >= 20 || d.getHours() < 6) && r < .45) return byId(93);
+    var pool = [[92, 55], [200, 12], [353, 12], [355, 12], [607, 9]], roll = Math.random() * 100;
+    for (var i = 0; i < pool.length; i++) { roll -= pool[i][1]; if (roll <= 0) return byId(pool[i][0]); }
+    return WILD[0];
+  }
+  // pokedex: seen / caught per species, kept in this browser (dex.html reads it too)
+  function dex() { try { return JSON.parse(store("localStorage", "mentosDex") || "{}"); } catch (e) { return {}; } }
+  function dexMark(id, what) {
+    var d = dex(), e = d[id] || { seen: 0, caught: 0, first: Date.now() };
+    e[what]++; d[id] = e; store("localStorage", "mentosDex", JSON.stringify(d));
+  }
   function rayOK() { return store("localStorage", "mentosRay") === "1"; }
   function tys(list) { return list.map(function (x) { return '<i class="ty" style="background:' + TYC[x] + '">' + x + "</i>"; }).join(""); }
 
@@ -1619,7 +1655,7 @@
     var grid = $(".pick-grid", c), sub = $(".pick-sub", c);
     var list = MONS.concat([RAY]);
     list.forEach(function (m) { setSpr(new Image(), m.id, true); }); // warm the back sprites for the battle
-    setSpr(new Image(), 92, false);
+    setSpr(new Image(), FOE.id, false);
     function card(m) {
       var locked = m.legend && !rayOK();
       return { v: m, cls: "pcard" + (m.legend ? " legend" : "") + (locked ? " locked" : ""),
@@ -1647,20 +1683,21 @@
     c.innerHTML = '<div class="win gwin"><div class="bar"><span>wild_battle.exe</span><button type="button" class="x" aria-label="Run away">&times;</button></div>' +
       '<div class="pkb-field"><div class="plat foe"></div><div class="plat me"></div>' +
       '<img class="spr foe" alt="Wild Gastly"><img class="spr me" alt="">' +
-      '<div class="ibox foe"><div class="row"><b>GASTLY</b><span>Lv66</span></div><div class="hpb"><small>HP</small><span class="tr"><i></i></span></div></div>' +
+      '<div class="ibox foe"><div class="row"><b>' + FOE.n + '</b><span>Lv' + FOE.lv + '</span></div><div class="hpb"><small>HP</small><span class="tr"><i></i></span></div></div>' +
       '<div class="ibox me"><div class="row"><b>' + me.n + '</b><span>Lv50</span></div><div class="hpb"><small>HP</small><span class="tr"><i></i></span></div><div class="hpn"></div></div></div>' +
       '<div class="pkb-ui"><div class="gmsg px"><span class="t" aria-live="polite"></span></div><div class="pkb-menu px"></div></div></div>';
     var t = $(".t", c), menu = $(".pkb-menu", c), hpn = $(".hpn", c);
     var P = { d: me, name: me.n, hp: me.hp, max: me.hp, boost: 0, sleep: 0, pp: me.mv.map(function (m) { return m.pp; }), spr: $(".spr.me", c), bar: $(".ibox.me .tr i", c) };
-    var F = { d: FOE, name: "Wild GASTLY", hp: FOE.hp, max: FOE.hp, boost: 0, sleep: 0, spr: $(".spr.foe", c), bar: $(".ibox.foe .tr i", c) };
+    var F = { d: FOE, name: "Wild " + FOE.n, hp: FOE.hp, max: FOE.hp, boost: 0, sleep: 0, spr: $(".spr.foe", c), bar: $(".ibox.foe .tr i", c) };
     var potions = 2, balls = 3;
     setSpr(P.spr, me.id, true); P.spr.alt = me.n;
-    setSpr(F.spr, 92, false); // gen 5 pixel gastly, same style as the team
+    setSpr(F.spr, FOE.id, false); // gen 5 pixel sprite, same style as the team
     function say(s, ms) { return g.say(t, s, ms); }
     function draw(u) { setBar(u.bar, u.hp, u.max); if (u === P) hpn.textContent = P.hp + " / " + P.max; }
     draw(P); draw(F);
 
-    await say("Wild GASTLY wants to fight!", 900);
+    dexMark(FOE.id, "seen");
+    await say("Wild " + FOE.n + " wants to fight!", 900);
     t.textContent = "Go! " + me.n + "!";
     P.spr.classList.add("in"); blip("on");
     await g.sleep(600);
@@ -1686,7 +1723,7 @@
         }
         if (a === "bag") {
           var it = await g.pick(menu, [{ v: "potion", off: !potions, html: "POTION<small>x" + potions + " &bull; heals 60</small>" },
-            { v: "ball", off: !balls, html: "POK&eacute; BALL<small>x" + balls + " &bull; catch GASTLY</small>" }, { v: "back", html: "BACK", cls: "back", keys: ["backspace", "3"] }]);
+            { v: "ball", off: !balls, html: "POK&eacute; BALL<small>x" + balls + " &bull; catch " + FOE.n + "</small>" }, { v: "back", html: "BACK", cls: "back", keys: ["backspace", "3"] }]);
           if (it === "back") continue;
           if (it === "ball") return { k: "ball" };
           if (P.hp >= P.max) { await say(me.n + "'s HP is already full!", 900); continue; }
@@ -1753,17 +1790,17 @@
     async function ending() {
       if (F.hp <= 0) {
         F.spr.classList.add("faint"); blip("stamp");
-        await say("Wild GASTLY fainted!", 1000);
+        await say("Wild " + FOE.n + " fainted!", 1000);
         hearts(innerWidth / 2, innerHeight / 3);
         await say(me.n + " gained 666 EXP. Points!", 1100);
-        await say("GASTLY respects u now. rawr xD", 400);
+        await say(FOE.n + " respects u now. rawr xD", 400);
         return true;
       }
       if (P.hp <= 0) {
         P.spr.classList.add("faint"); blip("stamp");
         await say(me.n + " fainted!", 1000);
         await say("u have no more POKéMON that can fight!", 1000);
-        await say("u blacked out! GASTLY licks ur face as a goodbye.", 400);
+        await say("u blacked out! " + FOE.n + " licks ur face as a goodbye.", 400);
         return true;
       }
       return false;
@@ -1779,7 +1816,7 @@
       ball.className = "pball drop";
       await g.sleep(500);
       // gen 3-5 style odds: weaker (and sleeping) gastly is easier to catch
-      var p = Math.min(1, (3 * F.max - 2 * F.hp) * 190 * (F.sleep ? 2.5 : 1) / (3 * F.max * 255));
+      var p = Math.min(1, (3 * F.max - 2 * F.hp) * FOE.rate * (F.sleep ? 2.5 : 1) / (3 * F.max * 255));
       var ok = Math.random() < p, shakes = ok ? 3 : (Math.random() * 3) | 0;
       t.textContent = "...";
       for (var s = 0; s < shakes; s++) {
@@ -1790,10 +1827,10 @@
       }
       if (ok) {
         ball.className = "pball done"; blip("stamp"); shakeIt(c);
-        await say("Gotcha! GASTLY was caught!", 1100);
-        store("localStorage", "mentosCaught", "1"); secret("gastly"); drawSecrets();
+        await say("Gotcha! " + FOE.n + " was caught!", 1100);
+        dexMark(FOE.id, "caught"); if (FOE.id === 92) { store("localStorage", "mentosCaught", "1"); secret("gastly"); } drawSecrets();
         hearts(innerWidth / 2, innerHeight / 3);
-        await say("GASTLY's data was added to the POKéDEX!", 1100);
+        await say(FOE.n + "'s data was added to the POKéDEX!", 1100);
         await say("check the footer 4 ur shiny new badge ;)", 400);
         return true;
       }
@@ -2291,7 +2328,8 @@
   /* ---------- secrets found counter ---------- */
   var SECRETS = [["rawr", "typed rawr"], ["mentos", "summoned RAYQUAZA"], ["konami", "entered the konami code"],
     ["kiko", "fought the wild KIKO"], ["gastly", "caught GASTLY"], ["honda", "spotted the UFO honda"],
-    ["scared", "let strapko get too close"], ["splat", "made mentos fall"], ["crack", "killed mentos too many times"]];
+    ["scared", "let strapko get too close"], ["splat", "made mentos fall"], ["crack", "killed mentos too many times"],
+    ["escape", "escaped from tomas"]];
   function foundList() { try { return JSON.parse(store("localStorage", "mentosSecrets") || "[]"); } catch (e) { return []; } }
   function drawSecrets() {
     $("#secrets b").textContent = foundList().length + "/" + SECRETS.length;
@@ -2696,7 +2734,7 @@
   var vwGhost = null, vwTip = null;
   vwBoard.addEventListener("pointermove", function (e) {
     var hit = e.target.closest && e.target.closest(".vw-s:not(.ghost)");
-    if (hit) { if (!vwTip) { vwTip = el("div", "vw-tip"); vwBoard.appendChild(vwTip); } vwTip.textContent = hit.getAttribute("data-name"); vwTip.style.left = hit.style.left; vwTip.style.top = hit.style.top; vwTip.style.marginLeft = "1.25%"; }
+    if (hit) { if (!vwTip) { vwTip = el("div", "vw-tip"); vwBoard.appendChild(vwTip); } vwTip.textContent = hit.getAttribute("data-name") + " • click 4 profile"; vwTip.style.left = hit.style.left; vwTip.style.top = hit.style.top; vwTip.style.marginLeft = "1.25%"; }
     else if (vwTip) { vwTip.remove(); vwTip = null; }
     if (!vwCanStick()) return;
     var c = vwCell(e);
@@ -2706,6 +2744,9 @@
   });
   vwBoard.addEventListener("pointerleave", function () { if (vwGhost) { vwGhost.remove(); vwGhost = null; } if (vwTip) { vwTip.remove(); vwTip = null; } });
   vwBoard.addEventListener("click", function (e) {
+    // clicking someone else's sticker opens their profile
+    var hitS = e.target.closest && e.target.closest(".vw-s:not(.ghost)");
+    if (hitS) { if (window.MENTOS_PROFILE) window.MENTOS_PROFILE.show(hitS.getAttribute("data-name")); return; }
     if (!vwCanStick()) { vwHelp(); blip("error"); return; }
     var c = vwCell(e);
     if (vwTaken[c.x + "," + c.y]) { vwStatus.textContent = "that spot is taken, pick another"; return; }
@@ -2816,11 +2857,11 @@
 
   // small api for js/extras.js (pet, profile, winamp, webring, photo booth)
   window.MENTOS = { $: $, $$: $$, el: el, store: store, blip: blip, popup: popup, hearts: hearts, api: gbApi, secret: secret, foundList: foundList, SECRETS: SECRETS,
-    stickerHtml: stickerHtml, audio: audio, showPlay: showPlay, setPhotoSticker: function (url) { vwPick.s = "photo"; vwPick.photo = url; vwDrawTools(); vwHelp(); $("#wall").scrollIntoView({ behavior: "smooth", block: "center" }); } };
+    stickerHtml: stickerHtml, audio: audio, showPlay: showPlay, sb: { url: SB_URL, key: SB_KEY }, setPhotoSticker: function (url) { vwPick.s = "photo"; vwPick.photo = url; vwDrawTools(); vwHelp(); $("#wall").scrollIntoView({ behavior: "smooth", block: "center" }); } };
 
   runIntro();
 })();
 </script>
-<script src="js/extras.js?v=4" defer></script>
+<script src="js/extras.js?v=5" defer></script>
 </body>
 </html>

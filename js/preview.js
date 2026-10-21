@@ -1,5 +1,6 @@
 // Browser preview of "mentosove scripting miesto": a small Roblox-style world with 8 zones rebuilt from the game's scripts.
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { isTouch, touchControls } from "./touch.js";
 
 const $ = (s) => document.querySelector(s);
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -632,7 +633,17 @@ $("#tpclose").addEventListener("click", () => { $("#tp").hidden = true; lock(); 
 /* ---------------- input ---------------- */
 const keys = {};
 let locked = false, menu = false;
-function lock() { $("#start").hidden = true; menu = false; canvas.requestPointerLock(); }
+// phones have no mouse lock: the on-screen controls stand in for it
+const tc = touchControls({
+  keys, look: (dx, dy) => { P.yaw -= dx * .006; P.pitch = Math.max(-1.25, Math.min(.85, P.pitch - dy * .006)); },
+  buttons: [{ label: "jump", code: "Space", hold: true }, { label: "use", mouse: 0 }, { label: "E", code: "KeyE" }, { label: "Q", code: "KeyQ" }, { label: "F", code: "KeyF" }, { label: "R", code: "KeyR" }, { label: "U", code: "KeyU" }, { label: "T", code: "KeyT" }, { label: "C", code: "KeyC" }],
+  pause: () => { locked = false; tc.show(false); $("#start").hidden = false; $("#play").textContent = "25B6 Resume"; }
+});
+function lock() {
+  $("#start").hidden = true; menu = false;
+  if (isTouch) { locked = true; tc.show(true); return; }
+  canvas.requestPointerLock();
+}
 $("#play").addEventListener("click", lock);
 canvas.addEventListener("click", () => { if (!locked && $("#start").hidden && $("#tp").hidden) lock(); });
 document.addEventListener("pointerlockchange", () => {
@@ -727,3 +738,7 @@ requestAnimationFrame(frame);
 
 // test hook (only with ?debug): drive the game without mouse lock
 if (/[?&]debug\b/.test(location.search)) window.__pv = { P, keys, zones, teleport, setLocked: (v) => { locked = v; }, key: (c) => { Z(21).globalKey(c); if (P.zone && P.zone.key) P.zone.key(c); }, down: () => P.zone && P.zone.down && P.zone.down(), up: () => zones.forEach((z) => z.up && z.up()), targets, breakables, scene, camera, step: (n, ms) => { for (let i = 0; i < (n || 1); i++) tick(last + (ms || 16)); } };
+
+// first frame is on screen -> close the fake installer
+requestAnimationFrame(() => window.XPLOAD && window.XPLOAD.done());
+setTimeout(() => window.XPLOAD && window.XPLOAD.done(), 600); // backup if frames are paused (background tab)

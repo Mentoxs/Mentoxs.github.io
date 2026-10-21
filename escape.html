@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<title>Escape Tomas | Mentos</title>
+<meta name="description" content="A tiny 2D horror escape: run through a dark maze with ur lantern while Tomas chases u.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fun.css">
+<link rel="stylesheet" href="touch.css">
+<style>
+  .esc-hud { position: fixed; left: 12px; top: 52px; z-index: 5; font: 1.35rem/1.25 "VT323", monospace; color: #fff; text-shadow: 2px 2px 0 #000; pointer-events: none; }
+  .esc-hud b { color: var(--yellow); font-weight: 400; }
+  .stam { width: 160px; height: 10px; border: 2px solid #000; background: #222; margin-top: 4px; }
+  .stam i { display: block; height: 100%; background: var(--toxic); }
+  .caught { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: #000; text-align: center; }
+  .caught[hidden] { display: none; }
+  .caught img { width: min(70vmin, 520px); animation: grab .5s cubic-bezier(.2,1.6,.4,1); filter: drop-shadow(0 0 30px #f00); }
+  @keyframes grab { from { transform: scale(.1) rotate(-30deg); } }
+  .caught h2 { margin: 10px 0; font-size: clamp(2rem, 8vw, 4rem); color: #ff3b3b; text-shadow: 4px 4px 0 #000; }
+</style>
+</head>
+<body class="game-page">
+<nav class="topbar" style="position:fixed;left:0;right:0;z-index:20">
+  <div class="wrap">
+    <a href="fun.html">&larr; Fun</a>
+    <a href="index.html">Home</a>
+    <span class="title k">escape_tomas.exe</span>
+  </div>
+</nav>
+<canvas class="view" id="view" aria-label="Dark maze with a lantern"></canvas>
+<div class="esc-hud" id="hud" aria-live="polite"></div>
+<div class="hud" aria-hidden="true"><div id="toasts"></div></div>
+
+<div class="overlay" id="start">
+  <div class="win">
+    <div class="bar"><span>escape_tomas.exe</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+    <div style="padding:16px">
+      <h1 class="k" style="margin:0 0 6px;font-size:clamp(2rem,6vw,3.2rem)">Escape Tomas</h1>
+      <p style="margin:0 0 10px;color:var(--chrome)">a mini 2D version of The Hollow. it's pitch black, u only have ur lantern. grab the <b style="color:#8dd8ff">3 souls</b>, then run 2 the exit door before <b style="color:#ff5a5a">Tomas</b> catches u. he gets faster the longer u take.</p>
+      <ul class="keys">
+        <li><b>WASD / arrows</b> run</li>
+        <li><b>Shift</b> sprint (uses stamina)</li>
+        <li><b>Space</b> lantern flare</li>
+        <li><b>R</b> restart &bull; <b>H</b> leave</li>
+      </ul>
+      <p class="px" id="best" style="color:var(--toxic);font-size:1.2rem;margin:10px 0 0"></p>
+      <div class="row" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" type="button" id="play">&#9654; Play</button>
+        <a class="btn white" href="fun.html">&larr; Leave</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="caught" id="caught" hidden>
+  <div>
+    <img src="images/tomas-head.png" alt="Tomas caught u">
+    <h2 class="k">TOMAS GOT U</h2>
+    <button class="btn" type="button" id="again">try again [R]</button>
+  </div>
+</div>
+
+<div class="touch" id="touch" hidden>
+  <div class="stick" id="stick"><i></i></div>
+  <div class="tbtns"><button type="button" data-k="Space">flare</button><button type="button" data-k="ShiftLeft">sprint</button></div>
+</div>
+
+<script src="js/escape.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+/* on-screen phone controls shared by blocks.html, preview.html and escape.html (only shown on touch screens) */
+.touch { position: fixed; inset: 0; z-index: 6; pointer-events: none; touch-action: none; user-select: none; -webkit-user-select: none; }
+.touch[hidden] { display: none; }
+.stick { position: absolute; left: 22px; bottom: 26px; width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,.12); border: 3px solid rgba(255,255,255,.45); pointer-events: auto; touch-action: none; }
+.stick i { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; margin: -29px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #b27dff 55%, #4c1d95); border: 3px solid #fff; box-shadow: 0 0 14px rgba(157,77,255,.7); }
+.tbtns { position: absolute; right: 18px; bottom: 22px; display: grid; grid-template-columns: repeat(3, 62px); gap: 10px; justify-items: center; pointer-events: auto; }
+.tbtns button { width: 62px; height: 62px; border-radius: 50%; border: 3px solid #fff; background: rgba(20,10,40,.6); color: #fff; font: 1.05rem/1 "VT323", monospace; touch-action: none; }
+.tbtns button.on, .tbtns button:active { background: var(--purple, #9d4dff); }
+.lookpad { position: absolute; right: 0; top: 0; bottom: 0; width: 55%; pointer-events: auto; touch-action: none; }
+.touch-top { position: absolute; right: 12px; top: 52px; display: flex; gap: 8px; pointer-events: auto; }
+.touch-top button { font: 1.1rem "VT323", monospace; background: rgba(0,0,0,.6); color: #fff; border: 2px solid #fff; border-radius: 8px; padding: 4px 10px; }
+
+/* phones: no keyboard, so hide the key hints that sit under the joystick */
+@media (hover: none) { .keyhint { display: none; } }
+body:has(.touch:not([hidden])) .keyhint { display: none; }
+/* phones: zone hint goes up top so it does not cover the buttons */
+body:has(.touch:not([hidden])) #hint { bottom: auto; top: 150px; font-size: 1rem; max-width: 92vw; }

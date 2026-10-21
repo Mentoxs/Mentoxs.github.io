@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="fun.css">
+<link rel="stylesheet" href="touch.css">
 <style>
   /* black + yellow like the in-game teleport UI */
   .ybtn { font: 1.35rem/1 "VT323", monospace; background: #0f0f0f; color: var(--yellow); border: 3px solid var(--yellow); border-radius: 10px; padding: 6px 14px; cursor: pointer; pointer-events: auto; }
@@ -45,11 +46,13 @@
     <span class="title k">scripting_place_preview.exe</span>
   </div>
 </nav>
+<div class="xpload" id="xpload" data-msgs="Downloading zones 1-23...|Sharpening the katana...|Charging the Laser Gun...|Waking up Strapko...|Polishing the Vampire Stone...|Spinning the title gacha...|Loading green spiky hair...|Please do not unplug ur computer" role="status" aria-label="Loading"><div class="xp-win"><div class="xp-title"><span>Installing Mentosove scripting miesto...</span><i aria-hidden="true"></i></div><div class="xp-body"><img src="images/gastly.webp" alt=""><div class="xp-msg">Preparing 2 install...</div><div class="xp-bar"><i></i></div><div class="xp-small">Estimated time remaining: 3 seconds (probably)</div></div></div></div>
+<script src="js/xploader.js"></script>
 <canvas class="view" id="view" aria-label="3D preview of the scripting place"></canvas>
 <div class="hud">
   <div class="cross" aria-hidden="true"></div>
   <button class="ybtn tpbtn" type="button" id="tpbtn">Teleport [T]</button>
-  <div class="px" style="position:absolute;left:12px;bottom:14px;font-size:1.1rem;color:#fff;text-shadow:2px 2px 0 #000">H = leave game</div>
+  <div class="px keyhint" style="position:absolute;left:12px;bottom:14px;font-size:1.1rem;color:#fff;text-shadow:2px 2px 0 #000">H = leave game</div>
   <div class="stats" aria-live="polite"><div class="coins" id="coins">0 coins</div><div id="praise"></div><div id="ttl"></div></div>
   <div class="blood" id="blood" aria-hidden="true"><i></i></div>
   <div class="hint" id="hint"></div>

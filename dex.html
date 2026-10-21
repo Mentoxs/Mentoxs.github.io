@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<title>Pokedex | Mentos</title>
+<meta name="description" content="Every wild Pokemon u met on Mentos's site. Gotta catch 'em all.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fun.css">
+<style>
+  .dexwin { max-width: 860px; margin: 0 auto 50px; }
+  .dexhead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 16px; background: linear-gradient(#e33, #a00); border-bottom: 4px solid #000; }
+  .dexhead .k { font-size: 2rem; color: #fff; text-shadow: 3px 3px 0 #000; margin: 0; }
+  .lights { display: flex; gap: 6px; }
+  .lights i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #000; }
+  .count { font: 1.5rem "VT323", monospace; color: #fff; text-shadow: 2px 2px 0 #000; }
+  .count b { color: var(--yellow); font-weight: 400; }
+  .bar2 { height: 14px; margin: 0 16px; border: 2px solid #000; background: #300; }
+  .bar2 i { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--yellow) 0 10px, #ffb000 10px 12px); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; padding: 16px; }
+  .entry { background: #0f1a12; border: 3px solid #2b3d2f; border-radius: 10px; padding: 10px; font: 1.2rem/1.15 "VT323", monospace; color: #cfe8c8; }
+  .entry.caught { border-color: var(--yellow); box-shadow: 0 0 12px rgba(255,213,0,.35); }
+  .entry .scr { background: #a9b88f; border: 3px solid #263020; border-radius: 6px; height: 110px; display: grid; place-items: center; }
+  .entry img { width: 96px; height: 96px; image-rendering: pixelated; }
+  .entry.unseen img { filter: brightness(0); opacity: .55; }
+  .entry .num { color: #7fa07a; }
+  .entry .nm { font-size: 1.45rem; color: #fff; }
+  .entry .st { margin-top: 4px; }
+  .entry .st b { font-weight: 400; color: var(--toxic); }
+  .entry.caught .st b { color: var(--yellow); }
+  .entry .hint { color: #7fa07a; font-size: 1.05rem; margin-top: 4px; }
+  .ty { display: inline-block; font-style: normal; color: #fff; font-size: .9em; padding: 0 6px; border-radius: 3px; text-transform: uppercase; margin-right: 3px; }
+  .cta { text-align: center; padding: 0 16px 18px; }
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<nav class="topbar">
+  <div class="wrap">
+    <a href="fun.html">&larr; Fun</a>
+    <a href="index.html">Home</a>
+    <span class="title k">pokedex.exe</span>
+  </div>
+</nav>
+<main class="wrap">
+  <h1 class="k">Pok&eacute;dex</h1>
+  <p class="lead">every wild Pok&eacute;mon u met on this site. type <b>rawr</b> on the home page to find one. some only come out at night... and one only on fridays.</p>
+  <div class="win dexwin">
+    <div class="dexhead">
+      <div class="lights" aria-hidden="true"><i style="background:#59d0ff;width:30px;height:30px"></i><i style="background:#ff3b3b"></i><i style="background:#ffd500"></i><i style="background:#8dff3a"></i></div>
+      <p class="k">Gotta catch 'em all</p>
+      <div class="count" id="count"></div>
+    </div>
+    <div style="background:#a00;padding-bottom:12px"><div class="bar2"><i id="bar"></i></div></div>
+    <div class="grid" id="grid"></div>
+    <div class="cta"><a class="btn" href="index.html?play=gastly">find a wild Pok&eacute;mon &#9654;</a></div>
+  </div>
+</main>
+<script>
+(function () {
+  "use strict";
+  // keep in sync with WILD in index.html
+  var WILD = [
+    [92, "GASTLY", ["ghost", "poison"], "common, any time"],
+    [93, "HAUNTER", ["ghost", "poison"], "only shows up at night (8pm - 6am)"],
+    [94, "GENGAR", ["ghost", "poison"], "only on fridays..."],
+    [200, "MISDREAVUS", ["ghost"], "rare"],
+    [353, "SHUPPET", ["ghost"], "rare"],
+    [355, "DUSKULL", ["ghost"], "rare"],
+    [607, "LITWICK", ["ghost", "fire"], "rare"]
+  ];
+  var TYC = { ghost: "#705898", poison: "#a040a0", fire: "#f08030" };
+  var SPR = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/";
+  var d = {};
+  try { d = JSON.parse(localStorage.getItem("mentosDex") || "{}"); } catch (e) {}
+  // gastly caught before the pokedex existed still counts
+  try { if (localStorage.getItem("mentosCaught") === "1" && !(d[92] && d[92].caught)) d[92] = { seen: Math.max(1, (d[92] || {}).seen || 0), caught: 1 }; } catch (e) {}
+  var caught = 0, grid = document.getElementById("grid");
+  WILD.forEach(function (w) {
+    var e = d[w[0]] || { seen: 0, caught: 0 }, seen = e.seen > 0 || e.caught > 0;
+    if (e.caught) caught++;
+    var div = document.createElement("div");
+    div.className = "entry" + (e.caught ? " caught" : "") + (seen ? "" : " unseen");
+    div.innerHTML = '<div class="scr"><img alt=""></div><div class="num">#' + String(w[0]).padStart(3, "0") + '</div><div class="nm"></div><div class="tys"></div><div class="st"></div><div class="hint"></div>';
+    var img = div.querySelector("img");
+    img.onerror = function () { img.onerror = null; img.src = SPR + w[0] + ".png"; };
+    img.src = SPR + "versions/generation-v/black-white/animated/" + w[0] + ".gif";
+    img.alt = seen ? w[1] : "unknown pokemon";
+    div.querySelector(".nm").textContent = seen ? w[1] : "???";
+    div.querySelector(".tys").innerHTML = seen ? w[2].map(function (t) { return '<i class="ty" style="background:' + TYC[t] + '">' + t + "</i>"; }).join("") : "";
+    div.querySelector(".st").innerHTML = e.caught ? "<b>CAUGHT</b> x" + e.caught + " &bull; battled " + e.seen : seen ? "<b>battled</b> " + e.seen + "x &bull; not caught" : "not seen yet";
+    div.querySelector(".hint").textContent = w[3];
+    grid.appendChild(div);
+  });
+  document.getElementById("count").innerHTML = "caught <b>" + caught + "/" + WILD.length + "</b>";
+  document.getElementById("bar").style.width = (caught / WILD.length * 100) + "%";
+})();
+</script>
+</body>
+</html>

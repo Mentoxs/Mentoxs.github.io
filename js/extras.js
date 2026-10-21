@@ -133,11 +133,29 @@
     honda: ["........", "..XXXX..", ".X.XX.X.", "XXXXXXXX", "XXXXXXXX", ".XX..XX.", ".XX..XX.", "........"],
     scared: [".XXXXXX.", "XXXXXXXX", "X..XX..X", "X..XX..X", "XXXXXXXX", ".XX..XX.", ".X.XX.X.", "........"],
     splat: ["...X....", "..XXX..X", ".XXXXXX.", "XXXXXXXX", ".XXXXXX.", "X.XXXX..", "..X..X..", "........"],
-    crack: ["X...X...", ".X..X..X", "..X.X.X.", "XXXXXXXX", "..X.X.X.", ".X..X..X", "X...X...", "........"]
+    crack: ["X...X...", ".X..X..X", "..X.X.X.", "XXXXXXXX", "..X.X.X.", ".X..X..X", "X...X...", "........"],
+    escape: ["XXXXXXXX", "X......X", "X.XX...X", "X.XX.XXX", "X...XX.X", "X...X..X", "X......X", "XXXXXXXX"]
   };
   function iconSvg(rows) {
     var r = ""; rows.forEach(function (row, y) { for (var x = 0; x < 8; x++) if (row[x] === "X") r += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>'; });
     return '<svg viewBox="0 0 8 8" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">' + r + "</svg>";
+  }
+  // achievement points: everything u did on the site adds up 2 a rank
+  var RANKS = [[0, "n00b"], [200, "poser"], [450, "scene kid"], [800, "emo legend in training"], [1200, "rawr master"], [1700, "LEGEND"]];
+  function calcPoints() {
+    var p = M.foundList().length * 100, d = {};
+    try { d = JSON.parse(ls("mentosDex") || "{}"); } catch (e) {}
+    Object.keys(d).forEach(function (k) { p += (d[k].caught ? 75 : 0) + (d[k].seen ? 15 : 0); });
+    if (ls("mentosName")) p += 50;
+    if (ls("mentosStuck") === "1") p += 50;
+    if (ls("mentosShared")) p += 75;
+    var pb = +ls("mentosParkourBest") || 0, eb = +ls("mentosEscapeBest") || 0;
+    if (pb) p += 100 + (pb < 60000 ? 50 : 0);
+    if (eb && eb < 60000) p += 50;
+    p += Math.min(20, +ls("mentosVisits") || 1) * 5;
+    var r = RANKS[0], nx = null;
+    RANKS.forEach(function (k, i) { if (p >= k[0]) { r = k; nx = RANKS[i + 1] || null; } });
+    return { pts: p, rank: r[1], base: r[0], next: nx };
   }
   var profileSig = "";
   function renderProfile() {
@@ -147,7 +165,7 @@
     var found = M.foundList(), skin = ls("mentosSkin"), sticker = null;
     try { sticker = JSON.parse(ls("mentosSticker") || "null"); } catch (e) {}
     var best = +ls("mentosParkourBest") || 0;
-    var sig = [name, found.join(), skin, ls("mentosSticker"), ls("mentosCaught"), ls("mentosRay"), ls("mentosVisits"), best, ls("mentosSharedCount")].join("|");
+    var sig = [name, found.join(), skin, ls("mentosSticker"), ls("mentosCaught"), ls("mentosRay"), ls("mentosVisits"), best, ls("mentosSharedCount"), ls("mentosDex"), ls("mentosEscapeBest"), ls("mentosShared"), ls("mentosAvatar")].join("|");
     if (sig === profileSig && box.childElementCount) return;
     profileSig = sig;
     if (!name) {
@@ -155,19 +173,30 @@
       return;
     }
     var since = new Date(+ls("mentosFirst"));
-    box.innerHTML = '<div class="card-y2k"><div class="top"><img class="skin" alt=""><div><p class="nm k"></p><div class="since"></div>' +
+    box.innerHTML = '<div class="card-y2k"><div class="top"><div class="pics"><img class="avatar" alt="ur profile picture"><img class="skin mini" alt=""><button type="button" class="xpbtn picbtn">change pic</button><input type="file" accept="image/*" hidden></div><div><p class="nm k"></p><div class="since"></div><div class="pubnote px"></div>' +
       '<label class="status">mood: <input maxlength="40" id="pstatus"></label></div></div>' +
+      '<div class="rank"><span class="rk k" id="prank"></span><span class="rp px" id="ppts"></span><i class="rbar"><b id="prbar"></b></i></div>' +
       '<h3>~ stats ~</h3><div class="stats"><div><b id="pvisits"></b>visits</div><div><b>' + found.length + "/" + M.SECRETS.length + '</b>secrets</div><div><b id="pbest"></b>parkour best</div></div>' +
       '<h3>~ badges ~</h3><div class="badges" id="pbadges"></div>' +
       '<h3>~ my wall sticker ~</h3><div class="petinfo" id="psticker" style="margin:0"></div></div>';
     box.querySelector(".nm").textContent = name;
     box.querySelector(".since").textContent = "member since " + since.toLocaleDateString() + " • skin: " + (SKIN_NAMES[skin] || "none yet");
     var img = box.querySelector(".skin");
-    if (SKIN_NAMES[skin]) { img.src = "images/skins/" + skin + ".png"; img.alt = SKIN_NAMES[skin] + " skin"; }
-    else { img.src = "images/gastly.webp"; img.style.imageRendering = "auto"; img.title = "pick a skin in Block World"; }
+    if (SKIN_NAMES[skin]) { img.src = "images/skins/" + skin + ".png"; img.alt = SKIN_NAMES[skin] + " skin"; img.title = "block world skin: " + SKIN_NAMES[skin]; }
+    else { img.hidden = true; }
+    var av = box.querySelector(".avatar"); av.src = ls("mentosAvatar") || "images/gastly.webp";
+    // profile picture: any image from ur computer, squished 2 96x96
+    var fin = box.querySelector("input[type=file]");
+    box.querySelector(".picbtn").addEventListener("click", function () { fin.click(); });
+    fin.addEventListener("change", function () { if (fin.files[0]) loadAvatar(fin.files[0]); });
+    box.querySelector(".pubnote").textContent = PUB.note;
     var st = box.querySelector("#pstatus"); st.value = ls("mentosStatus") || "rawr xD"; st.addEventListener("input", function () { ls("mentosStatus", st.value); });
     box.querySelector("#pvisits").textContent = ls("mentosVisits") || "1";
     box.querySelector("#pbest").textContent = best ? (best / 1000).toFixed(1) + "s" : "--";
+    var pt = calcPoints();
+    box.querySelector("#prank").textContent = pt.rank;
+    box.querySelector("#ppts").textContent = pt.pts + " pts" + (pt.next ? " • " + (pt.next[0] - pt.pts) + " 2 " + pt.next[1] : " • max rank!!");
+    box.querySelector("#prbar").style.width = (pt.next ? (pt.pts - pt.base) / (pt.next[0] - pt.base) * 100 : 100) + "%";
     var bw = box.querySelector("#pbadges");
     M.SECRETS.forEach(function (s) {
       var on = found.indexOf(s[0]) > -1, b = el("div", "badge" + (on ? " on" : ""), (on ? iconSvg(BADGE_ICONS[s[0]] || BADGE_ICONS.rawr) : "") + (on ? s[0] : "?"));
@@ -477,8 +506,88 @@
   }
   window.MENTOS_BOOTH = { open: openBooth };
 
+  /* =====================================================================
+     PUBLIC PROFILES (supabase "profiles" + rpc save_profile) and the real visitor counter.
+     a secret token in this browser proves the profile is urs, so nobody else can change it.
+     ===================================================================== */
+  var PUB = { note: "", busy: false, last: 0 };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); };
+  var AV_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
+  function token() {
+    var t = ls("mentosToken");
+    if (!t) { var a = new Uint8Array(24); crypto.getRandomValues(a); t = Array.prototype.map.call(a, function (b) { return ("0" + b.toString(16)).slice(-2); }).join(""); ls("mentosToken", t); }
+    return t;
+  }
+  function loadAvatar(file) {
+    if (!/^image\//.test(file.type)) { PUB.note = "that's not an image"; profileSig = ""; renderProfile(); return; }
+    var r = new FileReader();
+    r.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        var c = document.createElement("canvas"); c.width = c.height = 96;
+        var s = Math.min(im.width, im.height), cg = c.getContext("2d");
+        cg.drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, 96, 96);
+        ls("mentosAvatar", c.toDataURL("image/jpeg", .82)); profileSig = ""; renderProfile(); syncProfile(true); blip("on");
+      };
+      im.src = r.result;
+    };
+    r.readAsDataURL(file);
+  }
+  function syncProfile(force) {
+    var name = ls("mentosName"); if (!name || PUB.busy) return;
+    if (!force && Date.now() - PUB.last < 4000) return;
+    var pt = calcPoints(), av = ls("mentosAvatar");
+    var body = { p_name: name, p_token: token(), p_avatar: AV_RE.test(av || "") ? av : null, p_skin: SKIN_NAMES[ls("mentosSkin")] ? ls("mentosSkin") : null,
+      p_mood: (ls("mentosStatus") || "rawr xD").slice(0, 40), p_points: pt.pts, p_rank: pt.rank, p_badges: M.foundList() };
+    var sig = JSON.stringify(body);
+    if (!force && sig === ls("mentosPubSig")) return;
+    PUB.busy = true; PUB.last = Date.now();
+    fetch(M.sb.url + "/rest/v1/rpc/save_profile", { method: "POST", headers: { apikey: M.sb.key, "Content-Type": "application/json" }, body: sig })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (res) {
+        if (res === "taken") PUB.note = "some1 else already has the name \"" + name + "\", so ur profile stays private. sign the guestbook with another name 2 go public";
+        else { PUB.note = "public profile ON • people can click ur wall sticker 2 see it"; ls("mentosPubSig", sig); }
+      })
+      .catch(function () { PUB.note = "public profiles aren't set up yet"; })
+      .then(function () { PUB.busy = false; var n = document.querySelector("#profile .pubnote"); if (n) n.textContent = PUB.note; });
+  }
+  function showProfile(name) {
+    if (!name) return;
+    fetch(M.sb.url + "/rest/v1/profiles?select=name,avatar,skin,mood,points,rank,badges&name=eq." + encodeURIComponent(name), { headers: { apikey: M.sb.key } })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (rows) {
+        var p = rows[0];
+        if (!p) { M.popup({ type: "info", title: "profile.exe", html: "<b>" + esc(name) + "</b> doesn't have a public profile yet", center: true, focus: true }); return; }
+        var av = AV_RE.test(p.avatar || "") ? p.avatar : "images/gastly.webp";
+        var sk = SKIN_NAMES[p.skin] ? '<img src="images/skins/' + p.skin + '.png" alt="" style="width:32px;height:32px;image-rendering:pixelated;vertical-align:middle"> ' + SKIN_NAMES[p.skin] : "no skin yet";
+        M.popup({ type: "info", title: esc(p.name) + "_profile.exe", center: true, focus: true,
+          html: '<span class="pp"><img class="pp-av" src="' + av + '" alt=""><span><b class="k pp-nm">' + esc(p.name) + '</b><br><span class="pp-rk">' + esc(p.rank || "n00b") + "</span> &bull; " + (+p.points || 0) + " pts" +
+            "<br>mood: " + esc(p.mood || "rawr xD") + "<br>" + sk + "<br>secrets: " + ((p.badges || []).length) + "/" + M.SECRETS.length + "</span></span>" });
+      })
+      .catch(function () { M.popup({ type: "error", title: "profile.exe", html: "couldn't load that profile right now", center: true, focus: true }); });
+  }
+  window.MENTOS_PROFILE = { show: showProfile };
+  function realCounter() {
+    var h = { apikey: M.sb.key };
+    var count = function () {
+      return fetch(M.sb.url + "/rest/v1/visits?select=id", { headers: Object.assign({ Prefer: "count=exact", Range: "0-0" }, h) }).then(function (r) {
+        var total = +((r.headers.get("content-range") || "").split("/")[1]);
+        if (!total) return;
+        var c = document.getElementById("counter"); if (!c) return;
+        c.innerHTML = String(total).padStart(7, "0").split("").map(function (d) { return "<b>" + d + "</b>"; }).join("");
+        var w = c.parentNode; if (w.firstChild.nodeType === 3) w.firstChild.nodeValue = "visitor no.";
+      });
+    };
+    var counted = false; try { counted = sessionStorage.getItem("mentosCounted") === "1"; } catch (e) {}
+    (counted ? Promise.resolve() : fetch(M.sb.url + "/rest/v1/visits", { method: "POST", headers: Object.assign({ "Content-Type": "application/json", Prefer: "return=minimal" }, h), body: "{}" })
+      .then(function (r) { if (r.ok) try { sessionStorage.setItem("mentosCounted", "1"); } catch (e) {} }))
+      .then(count).catch(function () {});
+  }
+
   /* ---------------- start ---------------- */
   buildPet();
   renderProfile(); setInterval(renderProfile, 3000);
+  syncProfile(); setInterval(syncProfile, 5000); // only uploads when something changed
   buildRing();
+  realCounter();
 })();
