@@ -102,6 +102,11 @@
     });
   });
 
+  // ---- creepy fact flip cards
+  [].forEach.call(document.querySelectorAll(".fact"), function (f) {
+    f.addEventListener("click", function () { f.classList.toggle("flip"); });
+  });
+
   // ---- lightbox for the tapes
   var lb = document.getElementById("lb"), lbImg = lb.querySelector("img");
   [].forEach.call(document.querySelectorAll(".tape"), function (t) {
