@@ -174,6 +174,27 @@ main, footer, .hero { position: relative; z-index: 1; }
 .gfig figcaption { padding: 10px 14px 14px; font: 900 1.2rem/1.15 Impact, "Arial Black", sans-serif; text-transform: uppercase; color: #fff; text-shadow: 2px 2px 0 #000; }
 .memes .credit a { color: var(--pink2); }
 
+/* creepypasta library: each story is a cursed VHS tape */
+.lib { margin-bottom: 100px; }
+.lib-lead { color: var(--dim); margin: -6px 0 22px; }
+.lib-lead b { color: #ff5a6e; }
+.tapes2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+.vhs { position: relative; display: flex; flex-direction: column; gap: 8px; min-height: 250px; padding: 18px 18px 16px; text-decoration: none; color: var(--cream); border-radius: 14px; overflow: hidden;
+  background: linear-gradient(160deg, hsl(var(--h) 45% 16%), #0c0409 70%); border: 2px solid hsl(var(--h) 60% 40% / .6); box-shadow: 6px 6px 0 #000; transition: transform .25s, box-shadow .25s, border-color .25s; }
+.vhs::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 1px, transparent 1px 3px), radial-gradient(circle at 85% 15%, hsl(var(--h) 80% 60% / .35), transparent 45%); }
+.vhs::after { content: ""; position: absolute; left: 0; right: 0; height: 30%; top: -30%; background: linear-gradient(transparent, rgba(255,255,255,.07), transparent); animation: roll 5s linear infinite; pointer-events: none; }
+@keyframes roll { to { top: 130%; } }
+.vhs:hover { transform: translate(-3px, -3px) rotate(-.6deg); box-shadow: 9px 9px 0 hsl(var(--h) 70% 45%); border-color: hsl(var(--h) 80% 60%); }
+.vhs:hover h3 { animation: shiver .25s steps(2) infinite; }
+@keyframes shiver { 50% { transform: translate(1px, -1px); text-shadow: -3px 0 #ff2a6d, 3px 0 #2de2ff; } }
+.vhs .lbl { align-self: flex-start; background: #f2ead9; color: #1a0a14; padding: 0 8px; font-size: 1.05rem; transform: rotate(-2deg); box-shadow: 2px 2px 0 rgba(0,0,0,.5); }
+.vhs h3 { margin: 4px 0 0; font: 900 1.7rem "Merriweather", serif; color: #fff; }
+.vhs p { margin: 0; color: #d8c6d1; font-size: .98rem; flex: 1; }
+.vhs .warn { font-size: 1.1rem; color: #ff5a6e; }
+.vhs .more { align-self: flex-end; font-size: 1.2rem; color: hsl(var(--h) 90% 75%); text-decoration: none; }
+.vhs.blank { border-style: dashed; }
+
 /* creepy fact flip cards */
 .facts2 { margin-bottom: 100px; }
 .fact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; perspective: 1000px; }
