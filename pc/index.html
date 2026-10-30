@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MENTOXS s.r.o. — opravujem počítače, Trnava a okolie</title>
+<meta name="description" content="MENTOXS s.r.o. – PC servis na kolesách. Opravy, čistenie, upgrady, Windows a herné počítače na mieru v Trnave a okolí.">
+<meta name="theme-color" content="#0b0709">
+<meta property="og:title" content="MENTOXS s.r.o. — opravujem počítače">
+<meta property="og:description" content="PC servis na kolesách v Trnave a okolí. Napíš mi na Instagram @mentoxsxx.">
+<meta property="og:image" content="assets/setup.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pc.css?v=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0709'/%3E%3Cpath d='M7 23V9l9 9 9-9v14' fill='none' stroke='%23ff2a4a' stroke-width='3.2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+
+<!-- boot screen -->
+<div class="boot" id="boot" aria-hidden="true">
+  <pre id="bootLog"></pre>
+  <div class="boot-bar"><i id="bootBar"></i></div>
+</div>
+
+<canvas id="sparks" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="#top" aria-label="MENTOXS s.r.o.">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 25V7l11 11L27 7v18"/></svg>
+    <span>MENTOXS<b> s.r.o.</b></span>
+  </a>
+  <nav class="links" id="links">
+    <a href="#sluzby">Služby</a>
+    <a href="#postup">Ako to funguje</a>
+    <a href="#realizacie">Realizácie</a>
+    <a href="#omne">O mne</a>
+    <a href="#kontakt">Kontakt</a>
+  </nav>
+  <a class="btn btn-small" href="https://www.instagram.com/mentoxsxx/" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" class="fill"/></svg>
+    Napíš mi
+  </a>
+  <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><i></i><i></i></button>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="kicker reveal"><span class="dot"></span>PC servis na kolesách · Trnava a okolie</p>
+      <h1 class="reveal">
+        <span class="swap" id="swap" aria-live="polite">Opravujem</span><br>
+        počítače<span class="red">.</span>
+      </h1>
+      <p class="lead reveal">Nejde, seká sa, hučí ako vysávač? Prídem za tebou alebo si počítač vezmem do auta,
+        nájdem problém a vrátim ti ho rýchly, čistý a tichý.</p>
+      <div class="cta reveal">
+        <a class="btn" href="https://www.instagram.com/mentoxsxx/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" class="fill"/></svg>
+          Napíš na Instagram
+        </a>
+        <a class="btn btn-ghost" href="#sluzby">Čo všetko robím <span class="arrow">→</span></a>
+      </div>
+      <ul class="chips reveal">
+        <li>🚗 Servis na kolesách</li>
+        <li>🛠️ Opravy &amp; upgrady</li>
+        <li>🎮 Herné PC na mieru</li>
+      </ul>
+    </div>
+
+    <div class="hero-3d reveal" id="stage">
+      <canvas id="pc3d" aria-label="3D model herného počítača – chyť ho a otoč"></canvas>
+      <img class="fallback" src="assets/setup.webp" alt="Herný počítač v bielej skrinke s červeným podsvietením">
+      <div class="hud">
+        <span class="hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>chyť a otoč</span>
+        <div class="rgb" role="group" aria-label="Farba podsvietenia">
+          <button data-rgb="red" class="on" aria-label="Červená"><i style="--c:#ff2a4a"></i></button>
+          <button data-rgb="rainbow" aria-label="Dúha"><i class="rb"></i></button>
+          <button data-rgb="ice" aria-label="Ľadová"><i style="--c:#7fd8ff"></i></button>
+          <button data-rgb="off" aria-label="Vypnuté"><i style="--c:#333"></i></button>
+        </div>
+      </div>
+      <div class="spec s1">CPU <b>OK</b></div>
+      <div class="spec s2">TEPLOTA <b id="temp">38 °C</b></div>
+      <div class="spec s3">VENTILÁTORY <b id="rpm">1200 RPM</b></div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="track">
+      <span>Diagnostika</span><span>Čistenie</span><span>Nová teplovodivá pasta</span><span>Windows</span><span>SSD upgrade</span><span>RAM</span><span>Grafické karty</span><span>Herné zostavy</span><span>Záchrana dát</span><span>Ovládače</span>
+      <span>Diagnostika</span><span>Čistenie</span><span>Nová teplovodivá pasta</span><span>Windows</span><span>SSD upgrade</span><span>RAM</span><span>Grafické karty</span><span>Herné zostavy</span><span>Záchrana dát</span><span>Ovládače</span>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section class="section" id="sluzby">
+    <header class="sec-head reveal">
+      <p class="kicker"><span class="dot"></span>01 / Služby</p>
+      <h2>Čo ti spravím</h2>
+      <p class="sub">Od „nejde zapnúť“ po herný stroj na mieru. Cenu a termín vždy dohodneme vopred.</p>
+    </header>
+    <div class="grid services">
+      <article class="card reveal">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="21" cy="21" r="12"/><path d="M30 30l10 10"/><path d="M15 21h4l2-5 3 10 2-5h3"/></svg>
+        <h3>Diagnostika a oprava</h3><p>Nezapne sa, reštartuje, píska alebo modrá obrazovka? Nájdem príčinu a opravím ju.</p>
+      </article>
+      <article class="card reveal">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="14"/><path d="M24 10c4 6 4 10 0 14s-4 8 0 14M10 24c6-4 10-4 14 0s8 4 14 0"/></svg>
+        <h3>Čistenie a nová pasta</h3><p>Prach von, nová teplovodivá pasta, nižšie teploty a ventilátory zase potichu.</p>
+      </article>
+      <article class="card reveal">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 11l13-2v14H8zM24 8.5l16-2.5v17H24zM8 26h13v14L8 38zM24 26h16v17l-16-2.5z"/></svg>
+        <h3>Windows a ovládače</h3><p>Čistá inštalácia, aktualizácie, ovládače a programy. Nastavené, nech to len zapneš.</p>
+      </article>
+      <article class="card reveal">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="14" width="32" height="20" rx="3"/><path d="M14 20h6v8h-6zM26 20h8M26 24h8M26 28h5M12 34v4M20 34v4M28 34v4M36 34v4"/></svg>
+        <h3>Upgrady</h3><p>SSD, viac RAM, nová grafika alebo zdroj. Viac výkonu bez kupovania nového PC.</p>
+      </article>
+      <article class="card reveal">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 18h20a8 8 0 0 1 8 8v2a6 6 0 0 1-10.6 3.8L29 29H19l-2.4 2.8A6 6 0 0 1 6 28v-2a8 8 0 0 1 8-8z"/><path d="M14 22v6M11 25h6M32 23h.01M36 27h.01"/></svg>
+        <h3>Herné PC na mieru</h3><p>Pomôžem vybrať diely, poskladám, oživím a odladím. Aj s RGB, ak chceš svietiť.</p>
+      </article>
+      <article class="card reveal">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="12" rx="14" ry="5"/><path d="M10 12v24c0 3 6 5 14 5s14-2 14-5V12M10 24c0 3 6 5 14 5s14-2 14-5"/></svg>
+        <h3>Záchrana dát</h3><p>Fotky, dokumenty, uložené hry. Skúsim dostať tvoje súbory z disku, ktorý blbne.</p>
+      </article>
+      <article class="card reveal">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 34a16 16 0 1 1 32 0"/><path d="M24 34l9-11"/><circle cx="24" cy="34" r="2.5"/></svg>
+        <h3>Zrýchlenie systému</h3><p>Pomalý štart, plný disk, vírusy, otravné vyskakovacie okná. Vyčistím, nech zase letí.</p>
+      </article>
+      <article class="card card-red reveal">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 30V22l4-8h20l6 8h4a2 2 0 0 1 2 2v6z"/><circle cx="14" cy="32" r="4"/><circle cx="34" cy="32" r="4"/><path d="M12 22h20"/></svg>
+        <h3>Servis na kolesách</h3><p>Nemusíš nikam chodiť. Prídem po počítač alebo priamo za tebou, Trnava a okolie.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ON WHEELS -->
+  <section class="section wheels" id="kolesa">
+    <div class="wheels-copy reveal">
+      <p class="kicker"><span class="dot"></span>02 / PC servis na kolesách</p>
+      <h2>Kufor plný<br>počítačov<span class="red">.</span></h2>
+      <p class="sub">Nemáš čas ani chuť ťahať skrinku cez pol mesta? Naložím ju do auta, opravím a privezem späť.
+        Alebo prídem k tebe a spravíme to rovno na mieste.</p>
+      <div class="route">
+        <span class="pin">Ty</span><i class="road"><b class="car">🚗</b></i><span class="pin red">MENTOXS</span>
+      </div>
+    </div>
+    <div class="wheels-pics">
+      <figure class="snap tilt reveal" data-depth="18">
+        <img src="assets/servis-auto.webp" alt="Počítač v kufri auta – PC servis na kolesách" loading="lazy" width="1080" height="1920">
+      </figure>
+      <figure class="polaroid tilt reveal" data-depth="34">
+        <img src="assets/prvy-zakaznik.webp" alt="Prvý zákazník Dendo ukazuje na svoj počítač v aute" loading="lazy" width="1080" height="1919">
+        <figcaption>Prvý zákazník: Dendo 👻</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section" id="postup">
+    <header class="sec-head reveal">
+      <p class="kicker"><span class="dot"></span>03 / Ako to funguje</p>
+      <h2>Štyri kroky a je to</h2>
+    </header>
+    <ol class="steps" id="steps">
+      <li class="reveal"><span class="num">01</span><h3>Napíš mi</h3><p>Na Instagram <b>@mentoxsxx</b>. Stačí pár slov, čo počítač robí (alebo nerobí).</p></li>
+      <li class="reveal"><span class="num">02</span><h3>Dohodneme sa</h3><p>Kedy, kde a koľko. Cenu poznáš skôr, než sa niečoho dotknem.</p></li>
+      <li class="reveal"><span class="num">03</span><h3>Opravím</h3><p>U teba na mieste alebo si ho zoberiem. Vymeniť, vyčistiť, nainštalovať.</p></li>
+      <li class="reveal"><span class="num">04</span><h3>Hotovo</h3><p>Dostaneš ho späť funkčný a poviem ti, čo bolo zle, nech sa to neopakuje.</p></li>
+    </ol>
+  </section>
+
+  <!-- WORK -->
+  <section class="section" id="realizacie">
+    <header class="sec-head reveal">
+      <p class="kicker"><span class="dot"></span>04 / Realizácie</p>
+      <h2>Z dielne</h2>
+    </header>
+    <div class="bento">
+      <figure class="b-video reveal">
+        <video src="assets/hotovo.mp4" poster="assets/hotovo-poster.webp" autoplay muted loop playsinline preload="metadata"></video>
+        <figcaption><span class="rec"></span>Oživené a spustené</figcaption>
+      </figure>
+      <figure class="b-setup reveal zoom" data-full="assets/setup.webp">
+        <img src="assets/setup.webp" alt="Herný stôl s dvoma počítačmi, monitormi a červeným podsvietením" loading="lazy" width="1600" height="900">
+        <figcaption>Domáca dielňa a testovací stôl</figcaption>
+      </figure>
+      <figure class="b-car reveal zoom" data-full="assets/servis-auto.webp">
+        <img src="assets/servis-auto.webp" alt="Počítač na prevoz v kufri auta" loading="lazy" width="1080" height="1920">
+        <figcaption>Na ceste k majiteľovi</figcaption>
+      </figure>
+      <figure class="b-first reveal zoom" data-full="assets/prvy-zakaznik.webp">
+        <img src="assets/prvy-zakaznik.webp" alt="Prvý zákazník Dendo pri aute s opraveným počítačom" loading="lazy" width="1080" height="1919">
+        <figcaption>Prvý zákazník</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section about" id="omne">
+    <div class="stack" id="stack">
+      <img class="ph p1" src="assets/ja-2.webp" alt="Mentoxs v ochranných okuliaroch" loading="lazy" width="1080" height="1920">
+      <img class="ph p2" src="assets/ja-3.webp" alt="Mentoxs s halloweenskou tekvicou" loading="lazy" width="1080" height="1920">
+      <img class="ph p3" src="assets/ja-1.webp" alt="Mentoxs v čiernej mikine" loading="lazy" width="1080" height="1265">
+    </div>
+    <div class="about-copy reveal">
+      <p class="kicker"><span class="dot"></span>05 / O mne</p>
+      <h2>Ahoj, som <span class="red">Mentoxs</span>.</h2>
+      <p class="sub">Za MENTOXS stojím ja. Počítače skladám, rozoberám a opravujem, a keď práve nič neskrutkujem,
+        programujem hry a weby. Mám rád, keď veci fungujú, sú tiché a pekne svietia.</p>
+      <div class="cards-mini">
+        <a class="mini" href="../index.html">
+          <span class="mini-k">Portfólio</span><b>mentoxs.github.io</b><span class="mini-a">↗</span>
+        </a>
+        <a class="mini" href="../spectra.html">
+          <span class="mini-k">Moja hra</span><b>SPECTRA na Robloxe</b><span class="mini-a">↗</span>
+        </a>
+        <a class="mini" href="https://www.instagram.com/mentoxsxx/" target="_blank" rel="noopener">
+          <span class="mini-k">Instagram</span><b>@mentoxsxx</b><span class="mini-a">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section contact" id="kontakt">
+    <div class="radar" aria-hidden="true">
+      <i></i><i></i><i></i>
+      <span class="town">Trnava</span>
+    </div>
+    <div class="contact-copy reveal">
+      <p class="kicker"><span class="dot"></span>06 / Kontakt</p>
+      <h2>Počítač blbne?<br><span class="red">Napíš mi.</span></h2>
+      <p class="sub">Trnava a okolie. Najrýchlejšie ma zastihneš na Instagrame.</p>
+      <a class="btn btn-big magnet" href="https://www.instagram.com/mentoxsxx/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" class="fill"/></svg>
+        @mentoxsxx
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>© <span id="year">2026</span> MENTOXS s.r.o. · PC servis Trnava a okolie</span>
+  <span class="foot-links">
+    <a href="https://www.instagram.com/mentoxsxx/" target="_blank" rel="noopener">Instagram</a>
+    <a href="../index.html">Portfólio</a>
+    <a href="../spectra.html">SPECTRA</a>
+  </span>
+</footer>
+
+<div class="lightbox" id="lb" hidden><img alt=""></div>
+
+<script src="pc.js?v=1" type="module"></script>
+</body>
+</html>
