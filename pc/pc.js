@@ -1,9 +1,10 @@
 // MENTOXS s.r.o. — boot screen, scroll reveals, sparks, tilt, and the live 3D PC (three.js + Blender GLB).
-import * as THREE from 'three';
-import { GLTFLoader } from './vendor/jsm/loaders/GLTFLoader.js';
-import { RoomEnvironment } from './vendor/jsm/environments/RoomEnvironment.js';
+// three.js is only downloaded on desktop (phones get a pre-rendered video of the same PC).
+let THREE, GLTFLoader, RoomEnvironment;
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const phone = matchMedia('(max-width: 760px)').matches;
+if (phone) document.documentElement.classList.add('phone');
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 document.getElementById('year').textContent = new Date().getFullYear();
@@ -13,7 +14,7 @@ const boot = $('#boot');
 function bootScreen() {
   let seen = false;
   try { seen = sessionStorage.getItem('mx-boot') === '1'; sessionStorage.setItem('mx-boot', '1'); } catch (e) {}
-  if (seen || reduce) { boot.classList.add('done'); return Promise.resolve(); }
+  if (seen || reduce || phone) { boot.classList.add('done'); return Promise.resolve(); }
   document.body.classList.add('booting');
   const lines = [
     ['MENTOXS BIOS v2.6 · PC servis Trnava', ''],
@@ -77,9 +78,10 @@ const sparks = [];
 function sizeSparks() { SW = innerWidth; SH = innerHeight; sc.width = SW * dpr; sc.height = SH * dpr; sx.setTransform(dpr, 0, 0, dpr, 0, 0); }
 sizeSparks(); addEventListener('resize', sizeSparks);
 addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
-const N = reduce ? 0 : Math.round(Math.min(70, SW / 18));
+const N = reduce ? 0 : phone ? 14 : Math.round(Math.min(70, SW / 18));
 for (let i = 0; i < N; i++) sparks.push({ x: Math.random() * SW, y: Math.random() * SH, v: .15 + Math.random() * .5, r: .5 + Math.random() * 1.8, a: Math.random() * 6.28, h: Math.random() < .8 ? 350 : 18 });
 function drawSparks(t) {
+  if (document.hidden) { requestAnimationFrame(drawSparks); return; }
   sx.clearRect(0, 0, SW, SH);
   for (const p of sparks) {
     p.y -= p.v; p.x += Math.sin(t / 1600 + p.a) * .35;
@@ -141,10 +143,31 @@ $$('.zoom').forEach(f => f.addEventListener('click', () => { lbImg.src = f.datas
 lb.addEventListener('click', () => { lb.hidden = true; });
 addEventListener('keydown', e => { if (e.key === 'Escape') lb.hidden = true; });
 
-/* ---------------------------------------------------------------- the 3D PC */
+/* ---------------------------------------------------------------- videos: only load + play while on screen */
+function playWhenVisible(v) {
+  if (!v) return;
+  new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) {
+      if (!v.src) { v.src = v.dataset.src; v.preload = 'auto'; }
+      if (!reduce) v.play().catch(() => {});
+    } else v.pause();
+  }), { threshold: 0.25 }).observe(v);
+}
+$$('.lazy-video').forEach(playWhenVisible);
+
+/* ---------------------------------------------------------------- the 3D PC (desktop) / spinning video (phones) */
 const stage = $('#stage'), canvas = $('#pc3d');
 function webglOK() { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; } }
-if (!webglOK()) stage.classList.add('no3d'); else init3D();
+if (phone) { stage.classList.add('use-video'); playWhenVisible($('#pcVideo')); }
+else if (!webglOK()) stage.classList.add('no3d');
+else {
+  // load three.js after the page has painted
+  const go = () => Promise.all([
+    import('three'), import('./vendor/jsm/loaders/GLTFLoader.js'), import('./vendor/jsm/environments/RoomEnvironment.js'),
+  ]).then(([t, g, r]) => { THREE = t; GLTFLoader = g.GLTFLoader; RoomEnvironment = r.RoomEnvironment; init3D(); })
+    .catch(() => stage.classList.add('no3d'));
+  ('requestIdleCallback' in window) ? requestIdleCallback(go, { timeout: 1200 }) : setTimeout(go, 300);
+}
 
 function init3D() {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
