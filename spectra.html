@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<title>SPECTRA | Mentos</title>
+<meta name="description" content="SPECTRA: a Roblox story horror game by Mentosik_SK. Fail the flight test, ride the windowless carriage, and find out where the colours really come from. 1-4 players.">
+<meta property="og:title" content="SPECTRA - a Roblox story horror game">
+<meta property="og:description" content="Nopony flies alone. 6 chapters, 2 endings, 7 feathers, 1-4 players.">
+<meta property="og:image" content="images/spectra/hero.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Merriweather:wght@400;900&family=Special+Elite&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fun.css">
+<link rel="stylesheet" href="spectra.css?v=3">
+</head>
+<body class="sp">
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="crt" aria-hidden="true"></div>
+
+<nav class="topbar">
+  <div class="wrap">
+    <a href="fun.html">&larr; Fun</a>
+    <a href="index.html">Home</a>
+    <span class="title k">spectra.exe</span>
+  </div>
+</nav>
+
+<!-- HERO: security-cam feed of the factory -->
+<header class="hero" id="top">
+  <div class="hero-img" style="background-image:url(images/spectra/hero-bg.jpg)" data-par="0.25"></div>
+  <div class="hero-shade"></div>
+  <div class="hud-cam px" aria-hidden="true">
+    <span class="rec"><i></i> REC</span>
+    <span class="cam" id="camLabel">CWC SECURITY &bull; CAM 04 &bull; RAINBOW FACILITY</span>
+    <span class="clock" id="camClock">OCT 28 1010 &nbsp; 03:47:12</span>
+  </div>
+  <div class="hero-in wrap">
+    <p class="kicker">a roblox story horror game &bull; 1-4 players</p>
+    <h1 class="glitch" data-text="SPECTRA">SPECTRA</h1>
+    <p class="tagline"><span class="type" data-text="Nopony asks where the colours come from."></span></p>
+    <div class="cta">
+      <a class="pbtn" href="https://www.roblox.com/games/139919334588589" target="_blank" rel="noopener"><span>&#9654;</span> PLAY ON ROBLOX</a>
+      <a class="obtn" href="#story">read the file</a>
+    </div>
+  </div>
+  <img class="peek" src="images/spectra/pony-scene.png" alt="" aria-hidden="true">
+  <div class="scroll-hint px" aria-hidden="true">scroll &darr;</div>
+</header>
+
+<main>
+  <!-- marquee -->
+  <div class="rainbow-strip" aria-hidden="true"><div class="mq px">
+    <span>NOT A SINGLE PONY &bull; EVERYPONY BOARDS TOGETHER &bull; DON'T LOOK UP &bull; THE COLOURS HAVE TO COME FROM SOMEWHERE &bull; IT DOESN'T HURT. THEY PROMISED. &bull; </span><span>NOT A SINGLE PONY &bull; EVERYPONY BOARDS TOGETHER &bull; DON'T LOOK UP &bull; THE COLOURS HAVE TO COME FROM SOMEWHERE &bull; IT DOESN'T HURT. THEY PROMISED. &bull; </span>
+  </div></div>
+
+  <!-- intro + stickers -->
+  <section class="intro wrap reveal" id="story">
+    <div class="intro-txt">
+      <p class="kick">case file 0028 &bull; cloudsdale</p>
+      <h2 class="serif">Graduation day.</h2>
+      <p>You are Scootaloo. Today is the flight test, and everypony is watching. Pass, and you get your wings. Fail&hellip; and a kind stallion in a lab coat says there is <em>another way</em> to make you useful.</p>
+      <p>Board the windowless carriage. Walk the halls of the Weather Factory. Find the six Spectra feathers that tell the truth, hide from the pony who can smell the colours on you, and decide how your story ends.</p>
+      <ul class="facts px">
+        <li><b>6</b> chapters</li><li><b>2</b> endings</li><li><b>7</b> feathers</li><li><b>6</b> creepy plushies</li><li><b>1-4</b> players</li>
+      </ul>
+    </div>
+    <div class="stickers" aria-hidden="true">
+      <img class="st s1" src="images/spectra/pony-sad.png" alt="" data-par="-0.08">
+      <img class="st s2" src="images/spectra/pony-scootaloo.png" alt="" data-par="0.06">
+    </div>
+  </section>
+
+  <!-- chapters -->
+  <section class="chapters wrap reveal">
+    <p class="kick">the flight path</p>
+    <h2 class="serif">Six chapters. One way down.</h2>
+    <ol class="path">
+      <li style="--c:#ee4136"><span class="n">1</span><div><h3>The Flight Test</h3><p>Cloudsdale Flight School, graduation day, 1010. Fly the rings in front of the whole stadium.</p></div></li>
+      <li style="--c:#f38433"><span class="n">2</span><div><h3>The Windowless Carriage</h3><p>Somewhere above Cloudsdale. Nopony tells you where you're going.</p></div></li>
+      <li style="--c:#fdec58"><span class="n">3</span><div><h3>The Weather Factory</h3><p>The Cloudsdale Weather Corporation. Conveyors, cloud presses, lightning coils&hellip; and a door that's always locked.</p></div></li>
+      <li style="--c:#67ba4f"><span class="n">4</span><div><h3>Spectra</h3><p>The Rainbow Facility. Now you know where the colours come from.</p></div></li>
+      <li style="--c:#2896dc"><span class="n">5</span><div><h3>The Catwalks</h3><p>Stay out of the light. Don't look down at the vats.</p></div></li>
+      <li style="--c:#9646c8"><span class="n">6</span><div><h3>The Chute</h3><p>The upper corridors. She's faster than you. Run.</p></div></li>
+    </ol>
+  </section>
+
+  <!-- gallery -->
+  <section class="gallery wrap reveal">
+    <p class="kick">security footage</p>
+    <h2 class="serif">Recovered tapes</h2>
+    <div class="tapes">
+      <button class="tape" data-full="images/spectra/shot-chase.jpg"><img src="images/spectra/shot-chase.jpg" alt="Rainbow Dash chasing Scootaloo down a red corridor" loading="lazy"><span class="px">CAM 02 &bull; UPPER CORRIDOR</span></button>
+      <button class="tape" data-full="images/spectra/shot-machine.jpg"><img src="images/spectra/shot-machine.jpg" alt="The Spectra machine" loading="lazy"><span class="px">CAM 07 &bull; SPECTRA ROOM</span></button>
+      <button class="tape" data-full="images/spectra/shot-catwalks.jpg"><img src="images/spectra/shot-catwalks.jpg" alt="Catwalks over the rainbow vats" loading="lazy"><span class="px">CAM 05 &bull; CATWALKS</span></button>
+      <button class="tape" data-full="images/spectra/shot-party.jpg"><img src="images/spectra/shot-party.jpg" alt="Four ponies in the party lobby" loading="lazy"><span class="px">CLOUDSDALE &bull; NIGHT BEFORE</span></button>
+      <button class="tape wide" data-full="images/spectra/shot-cloudsdale.jpg"><img src="images/spectra/shot-cloudsdale.jpg" alt="Cloudsdale skyline with the training tower" loading="lazy"><span class="px">CLOUDSDALE &bull; SKYLINE</span></button>
+    </div>
+    <div class="video-win win">
+      <div class="bar"><span>flyover.mp4</span><span class="dots" aria-hidden="true"><i></i><i></i></span></div>
+      <video src="images/spectra/flyover.mp4" muted loop playsinline preload="metadata" poster="images/spectra/hero.jpg" id="fly"></video>
+    </div>
+  </section>
+
+  <!-- pony creator -->
+  <section class="creator reveal">
+    <div class="wrap creator-in">
+      <div class="cr-txt">
+        <p class="kick">pony creator</p>
+        <h2 class="serif">Make your own pony.</h2>
+        <p>Coat colours that tint your whole pony, 8 eye colours, 12 manes, emo hairstyles built strand by strand, 6 horns, hoodies, gothic lace, punk jackets, piercings, studded cuffs&hellip; and a sad little XII clip.</p>
+        <p class="note px">every piece made by hand in Blender</p>
+      </div>
+      <div class="cr-stage">
+        <div class="ring" aria-hidden="true"></div>
+        <img class="st big" id="crPony" src="images/spectra/pony-scene.png" alt="An emo pony with black and pink hair, piercings and studded cuffs">
+        <div class="swatches" role="group" aria-label="Pick a look">
+          <button class="on" data-img="images/spectra/pony-scene.png" data-alt="Scene Queen hair, piercings and studded cuffs" style="--a:#1d1b21;--b:#f6a9cb" aria-label="Scene Queen"></button>
+          <button data-img="images/spectra/pony-sad.png" data-alt="Sad Bangs hair with the XII clip" style="--a:#efe1cf;--b:#29252a" aria-label="Sad Bangs"></button>
+          <button data-img="images/spectra/pony-punk.png" data-alt="Punk jacket with Scene Queen hair" style="--a:#4b4458;--b:#d9dae3" aria-label="Punk"></button>
+          <button data-img="images/spectra/pony-scootaloo.png" data-alt="Classic Scootaloo with flight goggles" style="--a:#f39854;--b:#a03cc0" aria-label="Classic Scootaloo"></button>
+        </div>
+      </div>
+    </div>
+    <img class="group st" src="images/spectra/pony-group.png" alt="Four emo ponies standing together" loading="lazy">
+  </section>
+
+  <!-- guest art -->
+  <section class="guest wrap reveal">
+    <p class="kick">guest ponies</p>
+    <h2 class="serif">Emo ponies of Cloudsdale</h2>
+    <div class="guest-row">
+      <div class="gpair a" role="img" aria-label="A grey and white pegasus with cream, brown and black hair, an XII hair clip, ear piercings and a black choker"></div>
+      <div class="gpair b" role="img" aria-label="A cream pony with black and pink scene hair, one in a spiked jacket with a rose patch"></div>
+    </div>
+    <p class="credit px">art by <b>@Лапус (Lapus)</b> &bull; used with permission</p>
+  </section>
+
+  <!-- shop -->
+  <section class="shop wrap reveal">
+    <p class="kick">the shop</p>
+    <h2 class="serif">Hats, outfits &amp; bundles</h2>
+    <div class="cards">
+      <figure class="card tilt"><img src="images/spectra/card_bundle_emo.png" alt="" loading="lazy"><figcaption><b>Emo Pack</b><span>both hairstyles, beanie, piercings, cuffs, XII clip</span></figcaption></figure>
+      <figure class="card tilt"><img src="images/spectra/card_bundle_spooky.png" alt="" loading="lazy"><figcaption><b>Spooky Pack</b><span>witch hat + gothic lace</span></figcaption></figure>
+      <figure class="card tilt"><img src="images/spectra/card_bundle_fancy.png" alt="" loading="lazy"><figcaption><b>Fancy Pack</b><span>royal crown + top hat</span></figcaption></figure>
+      <figure class="card tilt"><img src="images/spectra/card_bundle_rebel.png" alt="" loading="lazy"><figcaption><b>Rebel Pack</b><span>punk jacket, headphones, neon mane</span></figcaption></figure>
+      <figure class="card tilt"><img src="images/spectra/card_hair_scene.png" alt="" loading="lazy"><figcaption><b>Scene Queen</b><span>hairstyle</span></figcaption></figure>
+      <figure class="card tilt"><img src="images/spectra/card_hair_sad.png" alt="" loading="lazy"><figcaption><b>Sad Bangs</b><span>hairstyle</span></figcaption></figure>
+      <figure class="card tilt"><img src="images/spectra/card_gothic.png" alt="" loading="lazy"><figcaption><b>Gothic Lace</b><span>outfit</span></figcaption></figure>
+      <figure class="card tilt"><img src="images/spectra/card_halo.png" alt="" loading="lazy"><figcaption><b>White Halo</b><span>earned: it takes two</span></figcaption></figure>
+    </div>
+  </section>
+
+  <!-- scrapbook -->
+  <section class="scrap reveal">
+    <div class="wrap">
+      <p class="kick">the scrapbook</p>
+      <h2 class="serif">Seven feathers. Seven truths.</h2>
+      <div class="polaroids">
+        <img src="images/spectra/scrap1.png" alt="graduation day" loading="lazy" style="--r:-6deg">
+        <img src="images/spectra/scrap2.png" alt="the front desk" loading="lazy" style="--r:4deg">
+        <img src="images/spectra/scrap3.png" alt="where the colours go" loading="lazy" style="--r:-3deg">
+        <img src="images/spectra/scrap4.png" alt="don't look up" loading="lazy" style="--r:7deg">
+        <img src="images/spectra/scrap5.png" alt="someone else was here" loading="lazy" style="--r:-5deg">
+        <img src="images/spectra/scrap6.png" alt="the way out?" loading="lazy" style="--r:3deg">
+      </div>
+      <p class="whisper hand">the seventh feather is white. it takes two.</p>
+    </div>
+  </section>
+
+  <!-- badges -->
+  <section class="badges wrap reveal">
+    <p class="kick">badges</p>
+    <div class="badge-row">
+      <figure><img src="images/spectra/badge_not_a_single_pony.jpg" alt="" loading="lazy"><figcaption>Not a Single Pony</figcaption></figure>
+      <figure><img src="images/spectra/badge_beautiful_eyes.jpg" alt="" loading="lazy"><figcaption>Beautiful Eyes</figcaption></figure>
+      <figure><img src="images/spectra/badge_broken_wings.jpg" alt="" loading="lazy"><figcaption>Broken Wings</figcaption></figure>
+      <figure><img src="images/spectra/badge_all_feathers.jpg" alt="" loading="lazy"><figcaption>All Feathers</figcaption></figure>
+      <figure><img src="images/spectra/badge_blank_flank.jpg" alt="" loading="lazy"><figcaption>Blank Flank</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- final CTA: air pass -->
+  <section class="final wrap reveal">
+    <div class="pass">
+      <span class="hole l"></span><span class="hole r"></span>
+      <div class="pass-main">
+        <p class="px small">CLOUDSDALE AIR PASS &bull; ONE WAY</p>
+        <h2 class="serif">BOARD WITH YOUR FRIENDS</h2>
+        <p class="px small">EVERYPONY BOARDS TOGETHER</p>
+      </div>
+      <div class="pass-side">
+        <a class="pbtn" href="https://www.roblox.com/games/139919334588589" target="_blank" rel="noopener"><span>&#9654;</span> PLAY</a>
+      </div>
+    </div>
+    <p class="hand bye">nopony flies alone.</p>
+  </section>
+</main>
+
+<footer class="foot px wrap">SPECTRA is a fan game by Mentosik_SK. Inspired by fan fiction; not affiliated with Hasbro. &bull; <a href="fun.html">more fun stuff</a></footer>
+
+<div class="lightbox" id="lb" hidden><img alt=""><button class="px" type="button" aria-label="Close">close [esc]</button></div>
+<div class="jump" id="jump" hidden aria-hidden="true"><img src="images/spectra/shot-chase.jpg" alt=""></div>
+
+<script src="js/spectra.js"></script>
+</body>
+</html>
