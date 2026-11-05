@@ -718,6 +718,17 @@
   .zs-z .new { top: -8px; right: -8px; }
   .zs-badge .nw { background: var(--toxic); color: #000; padding: 0 6px; margin-left: 6px; animation: blink 1s steps(2) infinite; }
 
+  /* ===== game download ===== */
+  .dl p { margin: 6px 0 16px; }
+  .dl-latest { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+  .dl-latest small { opacity: .75; }
+  .dl-notes { width: 100%; margin: 0; opacity: .85; white-space: pre-line; }
+  .dl-old { margin-top: 16px; }
+  .dl-old summary { cursor: pointer; }
+  .dl-old ul { list-style: none; padding: 0; margin: 10px 0 0; }
+  .dl-old li { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; padding: 6px 0; border-top: 1px dashed var(--chrome); }
+  .dl-old li a { font-weight: bold; }
+
   /* ===== discord widget ===== */
   .dw { margin-top: 18px; border: 2px solid var(--chrome); background: #0a0a0a; padding: 10px 12px; }
   .dw[hidden] { display: none; }
@@ -884,6 +895,7 @@
     <a href="#videos">Videos<span class="new" aria-hidden="true">NEW!</span></a>
     <a href="#games">Games</a>
     <a href="#discord">Discord</a>
+    <a href="#download">Download</a>
     <a href="#guestbook">Guestbook</a>
     <a href="fun.html">Fun<span class="new" aria-hidden="true">NEW!</span></a>
     <a href="pc/">PC servis<span class="new" aria-hidden="true">NEW!</span></a>
@@ -1030,6 +1042,19 @@
             <a class="btn" href="https://discord.com/invite/yzvYu7mH" target="_blank" rel="noopener">Join the server</a>
             <div class="dw px" id="dwidget" hidden><div class="dw-h"><span>who&#39;s online rn</span><span class="dw-n"></span></div><ul></ul></div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="download">
+    <div class="wrap">
+      <div class="win">
+        <div class="bar"><span>chata_setup.exe</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="body dl">
+          <h2 class="k" style="margin-bottom:0">CHATA: The Cabin Near Trenčín</h2>
+          <p>My first-person horror game (based on a true story). Six friends, a wooden cabin above Trenčín, way too much borovička and a drive nobody should have taken. English + Slovak. Windows 64-bit: unzip and run <b>CHATA.exe</b>.</p>
+          <div id="dlLatest" class="px dl-latest">loading versions...</div>
+          <details class="dl-old" id="dlOld" hidden><summary class="px">older versions</summary><ul></ul></details>
         </div>
       </div>
     </div>
@@ -2684,6 +2709,33 @@
     }).catch(function () {});
   }
   discordWidget();
+
+  /* ---------- CHATA downloads (GitHub releases tagged chata-vN) ---------- */
+  function chataDownloads() {
+    var box = $("#dlLatest"), old = $("#dlOld");
+    if (!box || !window.fetch) return;
+    function esc(s) { var d = document.createElement("div"); d.textContent = s || ""; return d.innerHTML; }
+    function mb(b) { return (b / 1048576).toFixed(0) + " MB"; }
+    function day(s) { return new Date(s).toLocaleDateString(); }
+    fetch("https://api.github.com/repos/Mentoxs/Mentoxs.github.io/releases?per_page=100").then(function (r) { return r.json(); }).then(function (list) {
+      var rel = (list || []).filter(function (x) { return /^chata-v\d+$/.test(x.tag_name) && !x.draft && x.assets && x.assets.length; })
+        .sort(function (a, b) { return parseInt(b.tag_name.slice(7), 10) - parseInt(a.tag_name.slice(7), 10); });
+      if (!rel.length) { box.textContent = "no download yet, check back soon"; return; }
+      var r0 = rel[0], a0 = r0.assets[0];
+      box.innerHTML = '<a class="btn" href="' + a0.browser_download_url + '">Download ' + esc(r0.name || r0.tag_name) + '</a>' +
+        '<small>latest &bull; ' + day(r0.published_at) + ' &bull; ' + mb(a0.size) + '</small>' +
+        '<p class="dl-notes">' + esc(r0.body) + '</p>';
+      var ul = $("ul", old); ul.innerHTML = "";
+      rel.slice(1).forEach(function (r) {
+        var a = r.assets[0];
+        var li = el("li", null, '<a href="' + a.browser_download_url + '">' + esc(r.name || r.tag_name) + '</a><small>' + day(r.published_at) + ' &bull; ' + mb(a.size) + '</small><span></span>');
+        $("span", li).textContent = r.body || "";
+        ul.appendChild(li);
+      });
+      old.hidden = rel.length < 2;
+    }).catch(function () { box.innerHTML = '<a class="btn" href="https://github.com/Mentoxs/Mentoxs.github.io/releases">See downloads on GitHub</a>'; });
+  }
+  chataDownloads();
 
   /* ---------- guestbook (supabase) ---------- */
   // the publishable key is meant to be public; row level security only allows reading and adding rows
