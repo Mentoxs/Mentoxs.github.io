@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CHATA: The Cabin Near Trenčín</title>
+<meta name="description" content="CHATA - a first-person horror game based on a true story. Six friends, a wooden cabin above Trenčín, way too much borovička and a drive nobody should have taken.">
+<meta name="theme-color" content="#07080a">
+<meta property="og:title" content="CHATA: The Cabin Near Trenčín">
+<meta property="og:description" content="A first-person horror game based on a true story. Free download for Windows.">
+<meta property="og:image" content="../images/chata/mirror.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2307080a'/%3E%3Cpath d='M6 16 16 7l10 9v10H6z' fill='none' stroke='%23e8e2d6' stroke-width='2.4'/%3E%3Ccircle cx='16' cy='19' r='2.4' fill='%23d4202c'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #07080a; --bg2: #0d0f12; --ink: #e8e2d6; --dim: #9a958c; --red: #d4202c; --snow: #cfd8e3; --line: #24272c;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.65 Inter, system-ui, sans-serif; overflow-x: hidden; }
+  a { color: inherit; }
+  img { display: block; max-width: 100%; }
+  .wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
+  .vhs { font-family: VT323, monospace; letter-spacing: .04em; }
+  .type { font-family: "Special Elite", monospace; }
+
+  /* film grain + scanlines over everything */
+  .grain, .scan { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+  .grain { inset: -10%; will-change: transform; }
+  .scan { background: repeating-linear-gradient(to bottom, rgba(0,0,0,.18) 0 1px, transparent 1px 3px); }
+  .grain { opacity: .09; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); animation: grain .4s steps(3) infinite; }
+  @keyframes grain { 0% { transform: translate(0,0) } 33% { transform: translate(-3%,2%) } 66% { transform: translate(2%,-3%) } }
+
+  /* top bar */
+  .top { position: fixed; top: 0; left: 0; right: 0; z-index: 40; display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: linear-gradient(rgba(7,8,10,.9), transparent); }
+  .top a { text-decoration: none; }
+  .top .home { font-size: 22px; color: var(--dim); }
+  .top .home:hover { color: var(--ink); }
+  .top nav { display: flex; gap: 18px; font-size: 22px; }
+  .top nav a { color: var(--dim); } .top nav a:hover { color: var(--ink); }
+  @media (max-width: 720px) { .top nav { display: none; } }
+
+  /* hero */
+  .hero { position: relative; min-height: 100svh; display: grid; place-items: end start; padding: 0 0 9vh; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; overflow: hidden; }
+  .hero-bg i { position: absolute; inset: -4%; background: center/cover no-repeat; filter: saturate(.75) contrast(1.08) brightness(.78); opacity: 0; animation: slide 28s linear infinite; }
+  .hero-bg i:nth-child(1) { background-image: url("../images/chata/road.jpg"); animation-delay: 0s; opacity: 1; }
+  .hero-bg i:nth-child(2) { background-image: url("../images/chata/mirror.jpg"); background-position: center 35%; animation-delay: 7s; }
+  .hero-bg i:nth-child(3) { background-image: url("../images/chata/knock.jpg"); animation-delay: 14s; }
+  .hero-bg i:nth-child(4) { background-image: url("../images/chata/forest.jpg"); animation-delay: 21s; }
+  @keyframes slide {
+    0% { opacity: 0; transform: scale(1.04) translateX(0); }
+    1% { opacity: .9; transform: scale(1.04) translateX(14px) skewX(-4deg); filter: saturate(0) contrast(1.6) brightness(1.1); }
+    2% { opacity: 1; transform: scale(1.04) translateX(-8px); }
+    3.5% { transform: scale(1.04); filter: saturate(.75) contrast(1.08) brightness(.78); }
+    25% { opacity: 1; }
+    28% { opacity: 0; transform: scale(1.12) translate(-1.5%, 1%); }
+    100% { opacity: 0; transform: scale(1.12) translate(-1.5%, 1%); }
+  }
+  @keyframes drift { to { transform: scale(1.14) translate(-1.5%, 1%); } }
+  .hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 60%, transparent 0 30%, rgba(7,8,10,.75) 75%), linear-gradient(to top, var(--bg) 2%, transparent 45%); }
+  .osd { position: absolute; z-index: 2; font-size: clamp(20px, 2.4vw, 30px); color: #fff; text-shadow: 0 0 6px rgba(255,255,255,.35); }
+  .osd.tl { top: 68px; left: 22px; } .osd.tr { top: 68px; right: 22px; text-align: right; } .osd.bl { bottom: 22px; left: 22px; color: var(--dim); }
+  .rec::before { content: "\25CF"; color: var(--red); margin-right: 8px; animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hero .wrap { position: relative; z-index: 3; }
+  h1 { margin: 0; font: 400 clamp(84px, 17vw, 210px)/.85 VT323, monospace; letter-spacing: .02em; color: #f3eee4; text-shadow: 3px 0 rgba(212,32,44,.55), -3px 0 rgba(80,160,255,.35); animation: jitter 5s infinite; }
+  @keyframes jitter { 0%, 96%, 100% { transform: none; } 97% { transform: translate(4px, -2px) skewX(6deg); } 98% { transform: translate(-3px, 1px); } }
+  .sub { margin: 10px 0 0; font: 400 clamp(22px, 3vw, 34px)/1.2 "Special Elite", monospace; color: var(--snow); }
+  .tag { max-width: 640px; margin: 18px 0 26px; color: #cfc9be; font-size: clamp(16px, 1.6vw, 19px); }
+  .cta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; background: var(--red); color: #fff; text-decoration: none; font: 400 26px/1 VT323, monospace; letter-spacing: .06em; border: 0; box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset, 0 8px 30px rgba(212,32,44,.35); transition: transform .15s, box-shadow .15s; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(255,255,255,.2) inset, 0 12px 40px rgba(212,32,44,.5); }
+  .btn.ghost { background: transparent; color: var(--ink); box-shadow: 0 0 0 1px var(--line) inset; }
+  .meta { font: 400 21px/1.2 VT323, monospace; color: var(--dim); }
+  .true { margin-top: 26px; font: 400 18px/1 "Special Elite", monospace; color: var(--dim); letter-spacing: .08em; }
+
+  /* sections */
+  section { padding: clamp(70px, 10vw, 130px) 0; scroll-margin-top: 40px; }
+  .kicker { font: 400 24px/1 VT323, monospace; color: var(--red); letter-spacing: .1em; }
+  h2 { margin: 8px 0 22px; font: 400 clamp(34px, 5vw, 58px)/1.05 "Special Elite", monospace; color: #f1ebdf; }
+  .story h2 { font-size: clamp(30px, 3.6vw, 50px); }
+  .lead { max-width: 760px; color: #cfc9be; font-size: clamp(17px, 1.7vw, 20px); }
+  .story { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(28px, 5vw, 70px); align-items: center; }
+  .story p { color: #cfc9be; margin: 0 0 16px; }
+  .story blockquote { margin: 26px 0 0; padding-left: 18px; border-left: 3px solid var(--red); font: 400 21px/1.45 "Special Elite", monospace; color: var(--snow); }
+  .polaroid { background: #e9e4da; padding: 12px 12px 46px; transform: rotate(-2.5deg); box-shadow: 0 30px 60px rgba(0,0,0,.6); position: relative; }
+  .polaroid img { filter: saturate(.8) contrast(1.05); }
+  .polaroid span { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font: 400 20px/1 "Special Elite", monospace; color: #2a2620; }
+  @media (max-width: 860px) { .story { grid-template-columns: 1fr; } .polaroid { max-width: 520px; } }
+
+  /* gallery */
+  .gal { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-flow: dense; gap: 12px; }
+  .shot { position: relative; overflow: hidden; background: #000; cursor: zoom-in; border: 0; padding: 0; grid-column: span 4; aspect-ratio: 16/9; }
+  .shot.wide { grid-column: span 8; grid-row: span 2; aspect-ratio: auto; } .shot.wide.r { grid-column: 5 / span 8; } .shot.half { grid-column: span 6; }
+  .shot img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.85) brightness(.9); transition: transform .5s, filter .3s; }
+  .shot:hover img { transform: scale(1.04); filter: saturate(1) brightness(1); }
+  .shot figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 10px; background: linear-gradient(transparent, rgba(0,0,0,.85)); font: 400 20px/1.15 VT323, monospace; color: #eee; text-align: left; }
+  @media (max-width: 860px) { .shot, .shot.wide, .shot.wide.r, .shot.half { grid-column: span 12; grid-row: auto; aspect-ratio: 16/9; } }
+
+  /* lightbox */
+  .lb { position: fixed; inset: 0; z-index: 60; display: none; place-items: center; background: rgba(0,0,0,.92); padding: 20px; }
+  .lb.on { display: grid; }
+  .lb img { max-height: 84vh; width: auto; box-shadow: 0 0 80px rgba(0,0,0,.8); }
+  .lb p { margin: 12px 0 0; text-align: center; font: 400 24px/1.2 VT323, monospace; color: #ddd; }
+  .lb button { position: absolute; top: 14px; right: 18px; background: none; border: 0; color: #fff; font: 400 40px/1 VT323, monospace; cursor: pointer; }
+
+  /* cast */
+  .cast { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .who { padding: 20px 20px 18px; background: var(--bg2); border: 1px solid var(--line); }
+  .who b { display: block; font: 400 30px/1 VT323, monospace; color: #f1ebdf; letter-spacing: .04em; }
+  .who i { display: block; margin: 2px 0 10px; font: 400 19px/1 VT323, monospace; color: var(--red); font-style: normal; }
+  .who p { margin: 0; color: var(--dim); font-size: 15.5px; }
+  @media (max-width: 860px) { .cast { grid-template-columns: 1fr 1fr; } } @media (max-width: 520px) { .cast { grid-template-columns: 1fr; } }
+
+  /* features */
+  .feat { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 40px; margin-top: 10px; }
+  .feat div { padding: 18px 0; border-top: 1px solid var(--line); }
+  .feat b { font: 400 26px/1.1 VT323, monospace; color: #f1ebdf; letter-spacing: .03em; }
+  .feat p { margin: 4px 0 0; color: var(--dim); font-size: 15.5px; }
+  @media (max-width: 720px) { .feat { grid-template-columns: 1fr; } }
+
+  /* controls + download */
+  .dlbox { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; align-items: start; }
+  .card { background: var(--bg2); border: 1px solid var(--line); padding: 26px; }
+  .keys { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 15.5px; color: var(--dim); }
+  .keys kbd { font: 400 21px/1 VT323, monospace; color: var(--ink); background: #1a1d22; border: 1px solid #30343b; padding: 3px 8px; text-align: center; min-width: 48px; }
+  .notes { margin: 14px 0 0; color: var(--dim); font-size: 15px; }
+  .vers { list-style: none; margin: 0; padding: 0; max-height: 440px; overflow: auto; }
+  .vers li { padding: 12px 0; border-top: 1px solid var(--line); font-size: 14.5px; color: var(--dim); }
+  .vers li a { font: 400 22px/1 VT323, monospace; color: var(--ink); text-decoration: none; }
+  .vers li a:hover { color: var(--red); }
+  .vers li small { margin-left: 8px; font: 400 18px/1 VT323, monospace; color: #6f6a62; }
+  .vers li span { display: block; margin-top: 4px; }
+  @media (max-width: 860px) { .dlbox { grid-template-columns: 1fr; } }
+
+  footer { padding: 70px 0 90px; border-top: 1px solid var(--line); text-align: center; color: var(--dim); }
+  footer .warn { font: 400 22px/1.4 "Special Elite", monospace; color: var(--snow); margin: 0 0 18px; }
+  footer p { margin: 6px 0; font-size: 14.5px; }
+  footer a { color: var(--ink); }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s, transform .9s; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .hero-bg i, h1, .grain, .rec::before { animation: none; } .hero-bg i:not(:first-child) { display: none; } .reveal { opacity: 1; transform: none; transition: none; } }
+</style>
+</head>
+<body>
+<div class="scan" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="home vhs" href="../">&larr; mentoxs.github.io</a>
+  <nav class="vhs"><a href="#story">story</a><a href="#footage">footage</a><a href="#friends">the six</a><a href="#download">download</a></nav>
+</header>
+
+<section class="hero" id="top" style="padding-top:0">
+  <div class="hero-bg" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="osd tl vhs rec">REC</div>
+  <div class="osd tr vhs">SAT 18 JAN 2020<br>03:01</div>
+  <div class="osd bl vhs">&#9654; PLAY &nbsp;SP</div>
+  <div class="wrap">
+    <h1>CHATA</h1>
+    <p class="sub">The Cabin Near Trenčín</p>
+    <p class="tag">A first-person horror game. Six friends, a wooden cabin in the mountains above Trenčín, way too much borovička, and a drive nobody should have taken.</p>
+    <div class="cta">
+      <span id="heroDl"><a class="btn" href="#download">&#8595; Download for Windows</a></span>
+      <a class="btn ghost" href="#footage">See the footage</a>
+      <span class="meta" id="heroMeta">free &bull; English + Slovak</span>
+    </div>
+    <p class="true">BASED ON A TRUE STORY.</p>
+  </div>
+</section>
+
+<section id="story">
+  <div class="wrap story">
+    <div class="reveal">
+      <div class="kicker">// january 2020</div>
+      <h2>Three days.<br>No school. No work.<br>Just chill.</h2>
+      <p>Thomas, Damian, Christian, Igor, Ema and Veronica rent a wooden cabin in a small settlement above Trenčín for the weekend. A PS5 that won't take the second controller, a toilet disaster nobody will forget, halušky, and Igor's borovička.</p>
+      <p>Small things are wrong from the start. Footprints in the snow that come from nowhere. A door that opens by itself. Something standing at the edge of the forest.</p>
+      <p>And at half past two in the morning, Igor has an idea.</p>
+      <blockquote>"I drive better drunk. I'm more focused."<br><small style="color:var(--dim)">Igor, 02:34</small></blockquote>
+    </div>
+    <figure class="polaroid reveal" style="margin:0">
+      <img src="../images/chata/toast.jpg" alt="The six friends raising their drinks at the cabin table" loading="lazy">
+      <span>na zdravie! &mdash; 17.1.2020</span>
+    </figure>
+  </div>
+</section>
+
+<section id="footage" style="padding-top:0">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// recovered footage</div>
+      <h2>From inside the game</h2>
+    </div>
+    <div class="gal reveal" id="gal">
+      <figure class="shot wide" style="margin:0" data-cap="The mirror at 2 AM. Don't look behind you."><img src="../images/chata/mirror.jpg" alt="A black figure standing behind Thomas in the bathroom mirror" loading="lazy"><figcaption>01:52 &mdash; the mirror</figcaption></figure>
+      <figure class="shot" style="margin:0" data-cap="Arriving at the cabin. Grab your bag from the trunk."><img src="../images/chata/arrive.jpg" alt="Arriving at the wooden cabin in the snow" loading="lazy"><figcaption>15:42 &mdash; arrival</figcaption></figure>
+      <figure class="shot" style="margin:0" data-cap="Getting firewood before it gets dark. You play as Christian."><img src="../images/chata/forest.jpg" alt="A snowy lane leading up into a pine forest at dusk" loading="lazy"><figcaption>16:35 &mdash; firewood</figcaption></figure>
+      <figure class="shot" style="margin:0" data-cap="The video froze for a second. Nobody noticed."><img src="../images/chata/tv.jpg" alt="The cabin TV frozen on a figure standing in a snowy field" loading="lazy"><figcaption>17:10 &mdash; the TV</figcaption></figure>
+      <figure class="shot" style="margin:0" data-cap="Igor drank borovička like it was water."><img src="../images/chata/drink.jpg" alt="Everyone at the table watching Igor drink" loading="lazy"><figcaption>22:15 &mdash; dinner</figcaption></figure>
+      <figure class="shot half" style="margin:0" data-cap="Everyone passed out wherever they were sitting."><img src="../images/chata/sofa.jpg" alt="Igor asleep on the sofa at night" loading="lazy"><figcaption>01:52 &mdash; everyone asleep</figcaption></figure>
+      <figure class="shot half" style="margin:0" data-cap="Three knocks. Footprints leading up to the door. None leading away."><img src="../images/chata/knock.jpg" alt="The front door open at night with footprints in the snow" loading="lazy"><figcaption>01:58 &mdash; someone knocked</figcaption></figure>
+      <figure class="shot" style="margin:0" data-cap="Wash your hands. Then look up."><img src="../images/chata/wash.jpg" alt="First-person hands washing under the tap" loading="lazy"><figcaption>02:00 &mdash; the sink</figcaption></figure>
+      <figure class="shot wide r" style="margin:0" data-cap="The road wasn't covered in snow. It was white and smooth. Like glass."><img src="../images/chata/road.jpg" alt="View from the passenger seat on an icy night road" loading="lazy"><figcaption>02:47 &mdash; the drive</figcaption></figure>
+      <figure class="shot" style="margin:0" data-cap="The morning after. Everyone swore they hadn't written it."><img src="../images/chata/fog.jpg" alt="A steamed-up mirror with a handprint and 03:01 written in it" loading="lazy"><figcaption>08:40 &mdash; the morning after</figcaption></figure>
+      <figure class="shot" style="margin:0" data-cap="Everyone at the table. Look behind them."><img src="../images/chata/toast.jpg" alt="The six friends raising their drinks" loading="lazy"><figcaption>22:16 &mdash; na zdravie</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="friends" style="padding-top:0">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// the six</div>
+      <h2>Real friends. Real cabin. Real road.</h2>
+      <p class="lead">Everyone in CHATA is based on a real person, and the cabin, the settlement and the drive to Medvedice were rebuilt from photos and a video of the real route.</p>
+    </div>
+    <div class="cast reveal">
+      <div class="who"><b>Thomas</b><i>you</i><p>Nineteen. Holds the phone. Knew it was a stupid idea and went anyway.</p></div>
+      <div class="who"><b>Damian</b><i>called the bottom bunk</i><p>Glasses, beard, black hoodie. The hot dog was a mistake. His grandpa had rules about the woods.</p></div>
+      <div class="who"><b>Christian</b><i>best friend</i><p>Puts on YouTube nobody watches. Brought the good snacks. Swears there was someone standing between the trees.</p></div>
+      <div class="who"><b>Igor</b><i>the driver</i><p>"Ninety horses of pure power." Opened his first beer at four in the afternoon.</p></div>
+      <div class="who"><b>Ema</b><i>the worried one</i><p>"Igor, slow down. That's your fifth." Begged Thomas not to let him drive.</p></div>
+      <div class="who"><b>Veronica</b><i>sledding tomorrow, promise</i><p>Wants a photo of everyone before Igor falls asleep in his plate.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// what's inside</div>
+      <h2>Small things. Wrong things.</h2>
+    </div>
+    <div class="feat reveal">
+      <div><b>Your own body</b><p>Look down and you see Thomas's hands and shoes. Wash your hands, hold the controller, see yourself in the mirror.</p></div>
+      <div><b>Your phone, any time</b><p>TAB: take photos and selfies, read texts from Mom and the group chat... and from an unknown number.</p></div>
+      <div><b>Three people to play</b><p>Thomas for most of it, Damian on the toilet, and Christian on the walk into the forest.</p></div>
+      <div><b>Chilla's Art style</b><p>Low-res VHS look, slow tension, scares that are never explained and never mentioned again.</p></div>
+      <div><b>A living cabin</b><p>Mortal Kombat on a PS5 that rejects your controller, YouTube on the TV, toasts, drunk Igor, everyone asleep at 2 AM.</p></div>
+      <div><b>English + Slovak</b><p>Every line in both languages. Na zdravie.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="download" style="padding-top:0">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">// download</div>
+      <h2>Play it</h2>
+    </div>
+    <div class="dlbox reveal">
+      <div class="card">
+        <div id="dlLatest" class="meta">loading the latest version...</div>
+        <p class="notes">Windows 64-bit. Unzip and run <b>CHATA.exe</b>. Free. Best with headphones, at night, alone.</p>
+        <div class="keys" style="margin-top:22px">
+          <kbd>WASD</kbd><span>walk</span>
+          <kbd>Mouse</kbd><span>look around</span>
+          <kbd>E</kbd><span>use, open, pick up (tap to slam a door, hold to open it slowly)</span>
+          <kbd>TAB</kbd><span>your phone: 1 camera, 2 photos, 3 messages</span>
+          <kbd>F</kbd><span>flashlight (when you have one)</span>
+          <kbd>Esc</kbd><span>pause, settings, unstuck</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="kicker" style="font-size:22px">// every version</div>
+        <ul class="vers" id="vers"><li>loading...</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="warn">Based on a true story. Please don't drink and drive.</p>
+    <p>Made by <a href="../">Mentoxs</a> in Unity. Characters made with MakeHuman / MPFB, models &amp; textures from Poly Haven, sounds from BigSoundBank (all CC0).</p>
+    <p>TikToks on Damian's phone by their creators (credited in the game). YouTube on the cabin TV: FattyPillowTV. Car music: ZYZZ Mqx - Not Our Time.</p>
+    <p style="margin-top:18px"><a href="../">&larr; back to mentoxs.github.io</a></p>
+  </div>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Screenshot">
+  <button type="button" aria-label="Close" id="lbClose">&times;</button>
+  <figure style="margin:0"><img id="lbImg" alt=""><p id="lbCap"></p></figure>
+</div>
+
+<script>
+(function () {
+  // fade sections in as you scroll
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: 0.12 }) : null;
+  document.querySelectorAll(".reveal").forEach(function (el) { io ? io.observe(el) : el.classList.add("in"); });
+
+  // screenshot lightbox
+  var lb = document.getElementById("lb"), lbImg = document.getElementById("lbImg"), lbCap = document.getElementById("lbCap");
+  document.querySelectorAll(".shot").forEach(function (s) {
+    s.tabIndex = 0;
+    function open() { var i = s.querySelector("img"); lbImg.src = i.src; lbImg.alt = i.alt; lbCap.textContent = s.getAttribute("data-cap") || ""; lb.classList.add("on"); }
+    s.addEventListener("click", open);
+    s.addEventListener("keydown", function (e) { if (e.key === "Enter") open(); });
+  });
+  function close() { lb.classList.remove("on"); }
+  lb.addEventListener("click", function (e) { if (e.target === lb || e.target.id === "lbClose") close(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+
+  // downloads from the GitHub releases (chata-vN)
+  function esc(s) { var d = document.createElement("div"); d.textContent = s || ""; return d.innerHTML; }
+  function mb(b) { return (b / 1048576).toFixed(0) + " MB"; }
+  function day(s) { return new Date(s).toLocaleDateString(); }
+  var box = document.getElementById("dlLatest"), vers = document.getElementById("vers");
+  fetch("https://api.github.com/repos/Mentoxs/Mentoxs.github.io/releases?per_page=100").then(function (r) { return r.json(); }).then(function (list) {
+    var rel = (list || []).filter(function (x) { return /^chata-v\d+$/.test(x.tag_name) && !x.draft && x.assets && x.assets.length; })
+      .sort(function (a, b) { return parseInt(b.tag_name.slice(7), 10) - parseInt(a.tag_name.slice(7), 10); });
+    if (!rel.length) { box.textContent = "no download yet, check back soon"; vers.innerHTML = ""; return; }
+    var r0 = rel[0], a0 = r0.assets[0];
+    box.innerHTML = '<a class="btn" href="' + a0.browser_download_url + '">&#8595; Download ' + esc(r0.name || r0.tag_name) + '</a>' +
+      '<div style="margin-top:10px">latest &bull; ' + day(r0.published_at) + ' &bull; ' + mb(a0.size) + '</div>';
+    document.getElementById("heroDl").innerHTML = '<a class="btn" href="' + a0.browser_download_url + '">&#8595; Download ' + esc(r0.name || r0.tag_name) + '</a>';
+    document.getElementById("heroMeta").innerHTML = 'free &bull; Windows &bull; ' + mb(a0.size) + ' &bull; English + Slovak';
+    vers.innerHTML = "";
+    rel.forEach(function (r) {
+      var li = document.createElement("li");
+      li.innerHTML = '<a href="' + r.assets[0].browser_download_url + '">' + esc(r.name || r.tag_name) + '</a><small>' + day(r.published_at) + '</small><span></span>';
+      li.querySelector("span").textContent = r.body || "";
+      vers.appendChild(li);
+    });
+  }).catch(function () {
+    box.innerHTML = '<a class="btn" href="https://github.com/Mentoxs/Mentoxs.github.io/releases">See downloads on GitHub</a>';
+    vers.innerHTML = "";
+  });
+})();
+</script>
+</body>
+</html>

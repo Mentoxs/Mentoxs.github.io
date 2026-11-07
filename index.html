@@ -728,6 +728,25 @@
   .dl-old ul { list-style: none; padding: 0; margin: 10px 0 0; }
   .dl-old li { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; padding: 6px 0; border-top: 1px dashed var(--chrome); }
   .dl-old li a { font-weight: bold; }
+  .chata-poster { position: relative; display: block; aspect-ratio: 21/9; min-height: 190px; margin: 0 0 14px; overflow: hidden; background: #000; border: 2px solid var(--chrome); color: #fff; text-decoration: none; isolation: isolate; transition: border-color .2s, box-shadow .2s, transform .2s; }
+  .chata-poster .cp-img { position: absolute; inset: 0; z-index: -2; background: url("images/chata/mirror.jpg") center 40%/cover no-repeat; filter: saturate(.7) brightness(.62) contrast(1.1); transition: transform 1.2s ease, filter .4s; }
+  .chata-poster::before { content: ""; position: absolute; inset: 0; z-index: -1; background: repeating-linear-gradient(to bottom, rgba(0,0,0,.28) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 70% 45%, transparent 20%, rgba(0,0,0,.85) 80%), linear-gradient(90deg, rgba(0,0,0,.8), transparent 65%); }
+  .chata-poster::after { content: ""; position: absolute; left: 0; right: 0; top: -20%; height: 18%; background: linear-gradient(transparent, rgba(255,255,255,.07), transparent); animation: cpRoll 5s linear infinite; pointer-events: none; }
+  @keyframes cpRoll { to { top: 110%; } }
+  .chata-poster .cp-osd { position: absolute; top: 10px; font: 400 clamp(16px, 2.2vw, 22px)/1 VT323, "Courier New", monospace; letter-spacing: .06em; text-shadow: 0 0 6px rgba(255,255,255,.4); }
+  .chata-poster .cp-rec { left: 14px; } .chata-poster .cp-time { right: 14px; }
+  .chata-poster .cp-rec::before { content: "\25CF"; color: #e5242f; margin-right: 6px; animation: cpBlink 1.1s steps(1) infinite; }
+  @keyframes cpBlink { 50% { opacity: 0; } }
+  .chata-poster .cp-txt { position: absolute; left: clamp(14px, 3vw, 30px); bottom: clamp(14px, 3vw, 26px); display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .chata-poster .cp-title { font: 400 clamp(54px, 10vw, 112px)/.8 VT323, "Courier New", monospace; letter-spacing: .04em; color: #f3eee4; text-shadow: 3px 0 rgba(229,36,47,.6), -3px 0 rgba(80,160,255,.4); }
+  .chata-poster .cp-sub { font: 400 clamp(17px, 2.2vw, 24px)/1.1 "Courier New", monospace; color: #cfd8e3; }
+  .chata-poster .cp-go { margin-top: 10px; padding: 7px 14px; background: #d4202c; font: 400 clamp(17px, 2vw, 22px)/1 VT323, "Courier New", monospace; letter-spacing: .08em; text-transform: uppercase; box-shadow: 0 6px 24px rgba(212,32,44,.45); transition: padding .2s, background .2s; }
+  .chata-poster:hover, .chata-poster:focus-visible { border-color: #d4202c; box-shadow: 0 0 0 1px #d4202c, 0 0 34px rgba(212,32,44,.45); transform: translateY(-2px); }
+  .chata-poster:hover .cp-img, .chata-poster:focus-visible .cp-img { transform: scale(1.06); filter: saturate(.9) brightness(.75) contrast(1.1); }
+  .chata-poster:hover .cp-title { animation: cpGlitch .35s steps(2) 2; }
+  .chata-poster:hover .cp-go { padding-right: 22px; background: #ef2b38; }
+  @keyframes cpGlitch { 0% { transform: translate(3px,-1px) skewX(8deg); } 50% { transform: translate(-3px,1px); } 100% { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .chata-poster::after, .chata-poster .cp-rec::before, .chata-poster:hover .cp-title { animation: none; } }
 
   /* ===== discord widget ===== */
   .dw { margin-top: 18px; border: 2px solid var(--chrome); background: #0a0a0a; padding: 10px 12px; }
@@ -1051,8 +1070,17 @@
       <div class="win">
         <div class="bar"><span>chata_setup.exe</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
         <div class="body dl">
-          <h2 class="k" style="margin-bottom:0">CHATA: The Cabin Near Trenčín</h2>
-          <p>My first-person horror game (based on a true story). Six friends, a wooden cabin above Trenčín, way too much borovička and a drive nobody should have taken. English + Slovak. Windows 64-bit: unzip and run <b>CHATA.exe</b>.</p>
+          <a class="chata-poster" href="chata/" aria-label="Open the CHATA game site">
+            <span class="cp-img" aria-hidden="true"></span>
+            <span class="cp-osd cp-rec">REC</span>
+            <span class="cp-osd cp-time">03:01</span>
+            <span class="cp-txt">
+              <b class="cp-title">CHATA</b>
+              <span class="cp-sub">The Cabin Near Trenčín</span>
+              <span class="cp-go">Enter the cabin &#9654;</span>
+            </span>
+          </a>
+          <p>My first-person horror game (based on a true story). Six friends, a wooden cabin above Trenčín, way too much borovička and a drive nobody should have taken. English + Slovak. Windows 64-bit: unzip and run <b>CHATA.exe</b>. <a href="chata/">Screenshots, story &amp; the six on the CHATA site &rarr;</a></p>
           <div id="dlLatest" class="px dl-latest">loading versions...</div>
           <details class="dl-old" id="dlOld" hidden><summary class="px">older versions</summary><ul></ul></details>
         </div>
