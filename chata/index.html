@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Thomas, if you are reading this: don't get in the car. (He is in the console too. Type look() if you're sure.) -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -11,8 +12,8 @@
 <meta property="og:image" content="../images/chata/mirror.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2307080a'/%3E%3Cpath d='M6 16 16 7l10 9v10H6z' fill='none' stroke='%23e8e2d6' stroke-width='2.4'/%3E%3Ccircle cx='16' cy='19' r='2.4' fill='%23d4202c'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&family=Inter:wght@400;500;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<link rel="icon" id="fav" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2307080a'/%3E%3Cpath d='M6 16 16 7l10 9v10H6z' fill='none' stroke='%23e8e2d6' stroke-width='2.4'/%3E%3Ccircle cx='16' cy='19' r='2.4' fill='%23d4202c'/%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #07080a; --bg2: #0d0f12; --ink: #e8e2d6; --dim: #9a958c; --red: #d4202c; --snow: #cfd8e3; --line: #24272c;
@@ -78,7 +79,7 @@
   .true { margin-top: 26px; font: 400 18px/1 "Special Elite", monospace; color: var(--dim); letter-spacing: .08em; }
 
   /* sections */
-  section { padding: clamp(70px, 10vw, 130px) 0; scroll-margin-top: 40px; }
+  section { position: relative; padding: clamp(70px, 10vw, 130px) 0; scroll-margin-top: 40px; }
   .kicker { font: 400 24px/1 VT323, monospace; color: var(--red); letter-spacing: .1em; }
   h2 { margin: 8px 0 22px; font: 400 clamp(34px, 5vw, 58px)/1.05 "Special Elite", monospace; color: #f1ebdf; }
   .story h2 { font-size: clamp(30px, 3.6vw, 50px); }
@@ -86,9 +87,6 @@
   .story { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(28px, 5vw, 70px); align-items: center; }
   .story p { color: #cfc9be; margin: 0 0 16px; }
   .story blockquote { margin: 26px 0 0; padding-left: 18px; border-left: 3px solid var(--red); font: 400 21px/1.45 "Special Elite", monospace; color: var(--snow); }
-  .polaroid { background: #e9e4da; padding: 12px 12px 46px; transform: rotate(-2.5deg); box-shadow: 0 30px 60px rgba(0,0,0,.6); position: relative; }
-  .polaroid img { filter: saturate(.8) contrast(1.05); }
-  .polaroid span { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font: 400 20px/1 "Special Elite", monospace; color: #2a2620; }
   @media (max-width: 860px) { .story { grid-template-columns: 1fr; } .polaroid { max-width: 520px; } }
 
   /* gallery */
@@ -145,6 +143,7 @@
   .reveal.in { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) { .hero-bg i, h1, .grain, .rec::before { animation: none; } .hero-bg i:not(:first-child) { display: none; } .reveal { opacity: 1; transform: none; transition: none; } }
 </style>
+<link rel="stylesheet" href="secrets.css">
 </head>
 <body>
 <div class="scan" aria-hidden="true"></div>
@@ -155,15 +154,18 @@
   <nav class="vhs"><a href="#story">story</a><a href="#footage">footage</a><a href="#friends">the six</a><a href="#download">download</a></nav>
 </header>
 
+<main id="main">
 <section class="hero" id="top" style="padding-top:0">
   <div class="hero-bg" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-  <div class="osd tl vhs rec">REC</div>
-  <div class="osd tr vhs">SAT 18 JAN 2020<br>03:01</div>
-  <div class="osd bl vhs">&#9654; PLAY &nbsp;SP</div>
+  <div class="hero-ghost" aria-hidden="true"></div>
+  <div class="tracking" aria-hidden="true"></div>
+  <div class="osd tl vhs rec" id="osdRec">REC</div>
+  <div class="osd tr vhs" id="osdTime">SAT 18 JAN 2020<br>03:01</div>
+  <div class="osd bl vhs" id="vcr" role="button" tabindex="0">&#9654; PLAY &nbsp;SP</div>
   <div class="wrap">
-    <h1>CHATA</h1>
+    <h1 id="title">CHATA</h1>
     <p class="sub">The Cabin Near Trenčín</p>
-    <p class="tag">A first-person horror game. Six friends, a wooden cabin in the mountains above Trenčín, way too much borovička, and a drive nobody should have taken.</p>
+    <p class="tag" id="heroTag">A first-person horror game. Six friends, a wooden cabin in the mountains above Trenčín, way too much <span class="w-boro">borovička</span>, and a drive nobody should have taken.</p>
     <div class="cta">
       <span id="heroDl"><a class="btn" href="#download">&#8595; Download for Windows</a></span>
       <a class="btn ghost" href="#footage">See the footage</a>
@@ -174,23 +176,33 @@
 </section>
 
 <section id="story">
+  <span class="scrawl" style="top:9%;right:6%;transform:rotate(-7deg)">HE WAS AT THE TABLE</span>
   <div class="wrap story">
     <div class="reveal">
       <div class="kicker">// january 2020</div>
       <h2>Three days.<br>No school. No work.<br>Just chill.</h2>
-      <p>Thomas, Damian, Christian, Igor, Ema and Veronica rent a wooden cabin in a small settlement above Trenčín for the weekend. A PS5 that won't take the second controller, a toilet disaster nobody will forget, halušky, and Igor's borovička.</p>
+      <p>Thomas, Damian, Christian, Igor, Ema and Veronica rent a wooden cabin in a small settlement above Trenčín for the weekend. A PS5 that won't take the second controller, a toilet disaster nobody will forget, halušky, and Igor's <span class="w-boro">borovička</span>.</p>
       <p>Small things are wrong from the start. Footprints in the snow that come from nowhere. A door that opens by itself. Something standing at the edge of the forest.</p>
       <p>And at half past two in the morning, Igor has an idea.</p>
       <blockquote>"I drive better drunk. I'm more focused."<br><small style="color:var(--dim)">Igor, 02:34</small></blockquote>
     </div>
-    <figure class="polaroid reveal" style="margin:0">
-      <img src="../images/chata/toast.jpg" alt="The six friends raising their drinks at the cabin table" loading="lazy">
-      <span>na zdravie! &mdash; 17.1.2020</span>
+    <figure class="polaroid reveal" id="polaroid" style="margin:0" tabindex="0" role="button" aria-label="Photo from the cabin. Turn it over.">
+      <div class="pol-in">
+        <div class="pol-front">
+          <img src="../images/chata/toast.jpg" alt="The friends raising their drinks at the cabin table" loading="lazy">
+          <span>na zdravie! &mdash; 17.1.2020</span>
+        </div>
+        <div class="pol-back" aria-hidden="true">
+          <p>chata, 17.1.2020<br>Igor, Damian, Christian,<br>Ema, Veronica<br><small>(+ me behind the camera)</small></p>
+          <p class="pol-q">there were only five of them at that table.<br>so who is the sixth?</p>
+        </div>
+      </div>
     </figure>
   </div>
 </section>
 
 <section id="footage" style="padding-top:0">
+  <span class="scrawl" style="top:-2%;right:4%;transform:rotate(4deg)">COUNT THEM AGAIN</span>
   <div class="wrap">
     <div class="reveal">
       <div class="kicker">// recovered footage</div>
@@ -213,24 +225,27 @@
 </section>
 
 <section id="friends" style="padding-top:0">
+  <span class="scrawl" style="bottom:-3%;left:5%;transform:rotate(-3deg)">THERE WERE SEVEN OF US</span>
   <div class="wrap">
     <div class="reveal">
-      <div class="kicker">// the six</div>
+      <div class="kicker" id="sixKick">// the six</div>
       <h2>Real friends. Real cabin. Real road.</h2>
       <p class="lead">Everyone in CHATA is based on a real person, and the cabin, the settlement and the drive to Medvedice were rebuilt from photos and a video of the real route.</p>
     </div>
     <div class="cast reveal">
-      <div class="who"><b>Thomas</b><i>you</i><p>Nineteen. Holds the phone. Knew it was a stupid idea and went anyway.</p></div>
+      <div class="who"><b class="w-thomas">Thomas</b><i>you</i><p>Nineteen. Holds the phone. Knew it was a stupid idea and went anyway.</p></div>
       <div class="who"><b>Damian</b><i>called the bottom bunk</i><p>Glasses, beard, black hoodie. The hot dog was a mistake. His grandpa had rules about the woods.</p></div>
       <div class="who"><b>Christian</b><i>best friend</i><p>Puts on YouTube nobody watches. Brought the good snacks. Swears there was someone standing between the trees.</p></div>
       <div class="who"><b>Igor</b><i>the driver</i><p>"Ninety horses of pure power." Opened his first beer at four in the afternoon.</p></div>
       <div class="who"><b>Ema</b><i>the worried one</i><p>"Igor, slow down. That's your fifth." Begged Thomas not to let him drive.</p></div>
       <div class="who"><b>Veronica</b><i>sledding tomorrow, promise</i><p>Wants a photo of everyone before Igor falls asleep in his plate.</p></div>
+      <div class="who seventh" id="seventh" aria-hidden="true"><b>???</b><i>was in the photo</i><p>At the table the whole weekend. Nobody remembers inviting him. Nobody remembers his face.</p></div>
     </div>
   </div>
 </section>
 
 <section style="padding-top:0">
+  <span class="scrawl" style="top:4%;right:8%;transform:rotate(-5deg)">DON'T TURN AROUND</span>
   <div class="wrap">
     <div class="reveal">
       <div class="kicker">// what's inside</div>
@@ -248,6 +263,7 @@
 </section>
 
 <section id="download" style="padding-top:0">
+  <span class="scrawl" style="bottom:2%;right:5%;transform:rotate(3deg)">DON'T GET IN THE CAR</span>
   <div class="wrap">
     <div class="reveal">
       <div class="kicker">// download</div>
@@ -261,8 +277,8 @@
           <kbd>WASD</kbd><span>walk</span>
           <kbd>Mouse</kbd><span>look around</span>
           <kbd>E</kbd><span>use, open, pick up (tap to slam a door, hold to open it slowly)</span>
-          <kbd>TAB</kbd><span>your phone: 1 camera, 2 photos, 3 messages</span>
-          <kbd>F</kbd><span>flashlight (when you have one)</span>
+          <kbd data-egg="phone" tabindex="0" role="button">TAB</kbd><span>your phone: 1 camera, 2 photos, 3 messages</span>
+          <kbd data-egg="flash" tabindex="0" role="button">F</kbd><span>flashlight (when you have one)</span>
           <kbd>Esc</kbd><span>pause, settings, unstuck</span>
         </div>
       </div>
@@ -274,6 +290,16 @@
   </div>
 </section>
 
+<section id="mirror" style="padding-top:0">
+  <div class="wrap">
+    <div class="fogglass" id="fogglass">
+      <div class="fog-under" aria-hidden="true"><span class="fog-msg">don't turn around</span><span class="fog-time">03:01</span></div>
+      <canvas id="fog" aria-label="A steamed-up bathroom mirror"></canvas>
+    </div>
+    <p class="fog-cap vhs">08:40 &mdash; the bathroom mirror is all steamed up</p>
+  </div>
+</section>
+
 <footer>
   <div class="wrap">
     <p class="warn">Based on a true story. Please don't drink and drive.</p>
@@ -282,12 +308,53 @@
     <p style="margin-top:18px"><a href="../">&larr; back to mentoxs.github.io</a></p>
   </div>
 </footer>
+</main>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Screenshot">
   <button type="button" aria-label="Close" id="lbClose">&times;</button>
   <figure style="margin:0"><img id="lbImg" alt=""><p id="lbCap"></p></figure>
 </div>
 
+<div id="shadowman" aria-hidden="true"></div>
+<div id="dark" aria-hidden="true"></div>
+<div id="steps" aria-hidden="true"></div>
+<div id="jump" aria-hidden="true"></div>
+<pre id="dbg" aria-hidden="true"></pre>
+<div id="subs" aria-live="polite"></div>
+<div id="tapeNote" aria-live="polite"></div>
+<button type="button" id="tapes" aria-haspopup="dialog" aria-label="Recovered tapes">&#9635; TAPES <span id="tapeN">0</span>/13</button>
+
+<div class="ov" id="tapeLog" role="dialog" aria-modal="true" aria-labelledby="tapeTitle">
+  <div class="ov-box log">
+    <button type="button" class="ov-x" aria-label="Close">&times;</button>
+    <div class="kicker">// evidence</div>
+    <h3 id="tapeTitle">Recovered tapes</h3>
+    <p class="log-sum" id="tapeSum"></p>
+    <ol id="tapeList"></ol>
+    <button type="button" class="log-reset" id="tapeReset">erase all tapes</button>
+  </div>
+</div>
+
+<div class="ov" id="phone" role="dialog" aria-modal="true" aria-label="Thomas's phone">
+  <div class="ph">
+    <div class="ph-bar"><span id="phClock">03:01</span><span>&#9679;&#9679;&#9675; &nbsp;3%</span></div>
+    <div class="ph-head"><button type="button" class="ph-back" id="phBack" aria-label="Back">&lsaquo;</button><b id="phTitle">Messages</b><button type="button" class="ov-x" aria-label="Put the phone away">&times;</button></div>
+    <div class="ph-body" id="phBody"></div>
+    <div class="ph-foot">Thomas's phone</div>
+  </div>
+</div>
+
+<div class="ov" id="finale" role="dialog" aria-modal="true" aria-label="All tapes recovered">
+  <div class="fin">
+    <div class="vhs fin-rec">&#9679; REC &nbsp;03:01</div>
+    <h3>ALL 13 TAPES RECOVERED</h3>
+    <p>You saw everything he wanted you to see.</p>
+    <p class="fin-big">Now play it. At night. Alone. With headphones.</p>
+    <div class="fin-cta"><a class="btn" id="finDl" href="#download">&#8595; Download CHATA</a><button type="button" class="btn ghost ov-x">close the tape</button></div>
+  </div>
+</div>
+
+<script src="secrets.js" defer></script>
 <script>
 (function () {
   // fade sections in as you scroll
