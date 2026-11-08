@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Players · Mentoxs</title>
+<meta name="description" content="Everyone on the Mentoxs Launcher: browse players and see the leaderboards for levels and Kiko photos.">
+<meta name="theme-color" content="#050506">
+<link rel="icon" href="../images/launcher/icon.png">
+<style>
+  :root { --bg: #070708; --line: #26262c; --line2: #34343c; --ink: #f2f2f4; --dim: #8b8b94; --ease: cubic-bezier(.2,.8,.2,1);
+    --font: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; --display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .sigil { width: 100%; height: 100%; overflow: visible; }
+  .chrome { background: linear-gradient(176deg, #fff 0%, #c9ccd4 38%, #fff 48%, #6c6f78 55%, #e7e9ee 72%, #9da1ab 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+  .wrap { width: min(980px, 100% - 32px); margin: 0 auto; }
+  .top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 15px var(--display); letter-spacing: .3em; }
+  .brand i { width: 28px; height: 28px; }
+  .get { padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; color: #000; background: linear-gradient(180deg, #fff, #d9dbe1 48%, #b9bcc5 52%, #f3f4f7); }
+  .hero { position: relative; text-align: center; padding: 50px 0 30px; }
+  .hero .s { position: absolute; left: 50%; top: 0; width: 300px; height: 300px; margin-left: -150px; opacity: .14; animation: spin 90s linear infinite; z-index: -1; }
+  h1 { font: 700 46px var(--display); letter-spacing: .14em; margin: 0; }
+  .tabs { display: flex; justify-content: center; gap: 8px; margin: 20px 0; flex-wrap: wrap; }
+  .tabs button { padding: 8px 18px; border-radius: 20px; background: none; border: 1px solid var(--line2); color: var(--dim); font-weight: 600; transition: all .2s; }
+  .tabs button.on { background: #fff; color: #000; border-color: #fff; }
+  .search { display: block; width: min(420px, 100%); margin: 0 auto 18px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line2); background: #0d0d10; color: var(--ink); font: inherit; outline: none; }
+  .search:focus { border-color: #fff; }
+  .list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 60px; }
+  .p { display: grid; grid-template-columns: 44px 48px 1fr auto; gap: 14px; align-items: center; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,.025); border: 1px solid var(--line); animation: rise .45s var(--ease) both; transition: transform .2s var(--ease), border-color .2s, background .2s; }
+  .p:hover { transform: translateX(4px); border-color: #fff8; background: rgba(255,255,255,.05); }
+  .rank { font: 700 18px var(--display); color: var(--dim); text-align: center; }
+  .p.r1 .rank, .p.r2 .rank, .p.r3 .rank { color: #fff; text-shadow: 0 0 12px rgba(255,255,255,.6); }
+  .p.r1 { border-color: #fff; box-shadow: 0 0 24px rgba(255,255,255,.12); }
+  .p img { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; background: #1a1a1f; }
+  .p b { display: block; font-size: 16px; }
+  .p small { color: var(--dim); font-size: 12px; }
+  .stat { text-align: right; font: 700 20px var(--display); }
+  .stat small { display: block; font: 400 11px var(--font); letter-spacing: .12em; color: var(--dim); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #44444c; margin-left: 6px; vertical-align: middle; }
+  .dot.on { background: #fff; box-shadow: 0 0 8px #fff; }
+  .empty { text-align: center; color: var(--dim); padding: 40px 0; }
+  @media (max-width: 560px) { .p { grid-template-columns: 30px 40px 1fr auto; gap: 10px; } .p img { width: 40px; height: 40px; } h1 { font-size: 32px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="brand" href="../launcher/"><i id="brandSig"></i><span class="chrome">MENTOXS</span></a><a class="get" href="../launcher/">Get the launcher</a></header>
+  <section class="hero"><div class="s" id="heroSig"></div><h1 class="chrome">PLAYERS</h1><p style="color:var(--dim);margin:6px 0 0">Everyone on the Mentoxs Launcher</p></section>
+  <div class="tabs"><button data-t="all" class="on">All players</button><button data-t="level">Top levels</button><button data-t="kiko">Kiko hunters</button><button data-t="time">Most played</button></div>
+  <input class="search" id="q" placeholder="Search players" spellcheck="false">
+  <div class="list" id="list"><div class="empty">Loading players...</div></div>
+</div>
+<script src="../launcher/sigils.js"></script>
+<script>
+(function () {
+  'use strict';
+  var KEY = 'AIzaSyDhbW5P_c3ndEcHsnaJAG9f-XW05Gn4GSQ';
+  var DB = 'https://firestore.googleapis.com/v1/projects/mentoxs-launcher/databases/(default)/documents/users';
+  var AVA = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#141418"/><circle cx="32" cy="25" r="11" fill="#d9dbe1"/><path d="M12 60c2-14 11-20 20-20s18 6 20 20z" fill="#d9dbe1"/></svg>');
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  $('#brandSig').innerHTML = Sigils.svg({ seed: 3 });
+  $('#heroSig').innerHTML = Sigils.svg({ seed: 5, glow: true });
+  function val(v) {
+    if (!v) return null;
+    if ('stringValue' in v) return v.stringValue;
+    if ('integerValue' in v) return +v.integerValue;
+    if ('doubleValue' in v) return v.doubleValue;
+    if ('timestampValue' in v) return Date.parse(v.timestampValue);
+    return null;
+  }
+  // only the small fields: no avatars-of-everyone-at-full-size, no backgrounds
+  var FIELDS = ['name', 'nameLower', 'avatar', 'level', 'xp', 'kiko', 'playSeconds', 'status', 'lastSeen'].map(function (f) { return 'mask.fieldPaths=' + f; }).join('&');
+  var all = [];
+  function load(token) {
+    return fetch(DB + '?pageSize=300&' + FIELDS + '&key=' + KEY + (token ? '&pageToken=' + encodeURIComponent(token) : '')).then(function (r) {
+      if (r.status === 403) throw new Error('private');
+      return r.json();
+    }).then(function (j) {
+      (j.documents || []).forEach(function (d) { var o = {}; for (var k in d.fields || {}) o[k] = val(d.fields[k]); if (o.name) all.push(o); });
+      if (j.nextPageToken && all.length < 3000) return load(j.nextPageToken);
+    });
+  }
+  var tab = 'all';
+  function hours(s) { var h = (s || 0) / 3600; return h < 1 ? Math.round((s || 0) / 60) + ' min' : h.toFixed(1) + ' h'; }
+  function render() {
+    var q = $('#q').value.trim().toLowerCase();
+    var key = { all: null, level: 'xp', kiko: 'kiko', time: 'playSeconds' }[tab];
+    var l = all.filter(function (p) { return !q || (p.nameLower || '').indexOf(q) >= 0; });
+    if (key) l = l.filter(function (p) { return (p[key] || 0) > 0; }).sort(function (a, b) { return (b[key] || 0) - (a[key] || 0) || (b.level || 0) - (a.level || 0); }).slice(0, 100);
+    else l.sort(function (a, b) { return (a.nameLower || '').localeCompare(b.nameLower || ''); });
+    if (!l.length) { $('#list').innerHTML = '<div class="empty">' + (all.length ? 'Nobody here yet.' : 'No players yet.') + '</div>'; return; }
+    $('#list').innerHTML = l.map(function (p, i) {
+      var on = p.status !== 'offline' && p.lastSeen && Date.now() - p.lastSeen < 180000;
+      var stat = tab === 'kiko' ? [p.kiko || 0, 'OF 7 KIKO'] : tab === 'time' ? [hours(p.playSeconds), 'PLAYED'] : [p.level || 1, 'LEVEL'];
+      return '<a class="p' + (key && i < 3 ? ' r' + (i + 1) : '') + '" style="animation-delay:' + Math.min(i, 20) * .025 + 's" href="../u/?' + encodeURIComponent(p.nameLower || '') + '">' +
+        '<span class="rank">' + (key ? '#' + (i + 1) : '') + '</span><img alt="" loading="lazy" src="' + esc(p.avatar || AVA) + '">' +
+        '<span><b>' + esc(p.name) + '<span class="dot ' + (on ? 'on' : '') + '"></span></b><small>' + (p.xp || 0) + ' XP · ' + hours(p.playSeconds) + ' played</small></span>' +
+        '<span class="stat">' + esc(stat[0]) + '<small>' + stat[1] + '</small></span></a>';
+    }).join('');
+  }
+  document.querySelectorAll('.tabs button').forEach(function (b) {
+    b.onclick = function () { tab = b.dataset.t; document.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); }); render(); };
+  });
+  $('#q').oninput = render;
+  load().then(render).catch(function (e) {
+    $('#list').innerHTML = '<div class="empty">' + (e.message === 'private' ? 'The player list is not public yet. Check back soon.' : 'Could not load players. Check your connection.') + '</div>';
+  });
+})();
+</script>
+</body>
+</html>

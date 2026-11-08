@@ -118,7 +118,7 @@
 <div class="bg" id="bg"><div class="bg-img" id="bgImg"></div><div class="bg-sig" id="bgSig"></div></div>
 <header class="top">
   <a class="brand" href="../launcher/"><i id="brandSig"></i><span class="chrome">MENTOXS</span></a>
-  <a class="get" href="../launcher/">Get the launcher</a>
+  <span><a class="get" href="../players/" style="background:none;color:#fff;border:1px solid #fff5;margin-right:8px">All players</a><a class="get" href="../launcher/">Get the launcher</a></span>
 </header>
 <main id="app"><div class="msg"><div class="s" id="loadSig"></div><p class="dim">Loading profile...</p></div></main>
 
@@ -171,6 +171,13 @@
       return ((j && j.documents) || []).map(function (d) { var o = fields(d.fields || {}); o.id = d.name.split('/').pop(); return o; });
     }).catch(function () { return []; });
   }
+  function musicEmbed(u) {
+    u = String(u || '').trim(); var m;
+    if ((m = u.match(/open\.spotify\.com\/(?:intl-\w+\/)?(track|album|playlist|episode|artist)\/([A-Za-z0-9]+)/))) return { src: 'https://open.spotify.com/embed/' + m[1] + '/' + m[2] + '?theme=0', h: 152 };
+    if ((m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|music\.youtube\.com\/watch\?v=)([\w-]{11})/))) return { src: 'https://www.youtube-nocookie.com/embed/' + m[1], h: 300 };
+    if (/^https:\/\/(on\.|www\.|m\.)?soundcloud\.com\//.test(u)) return { src: 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(u) + '&color=%23ffffff&visual=true', h: 166 };
+    return null;
+  }
   function levelOf(xp) { var level = 1, base = 0, need = 100; while (xp >= base + need) { base += need; level++; need = 100 * Math.ceil(level / 10); } return { level: level, into: xp - base, need: need }; }
   function hours(s) { s = s || 0; var h = Math.floor(s / 3600), m = Math.round(s % 3600 / 60); return h ? h + ' h ' + m + ' min' : m + ' min'; }
   function ago(t) { if (!t) return ''; var d = (Date.now() - t) / 1000; if (d < 3600) return Math.max(1, Math.round(d / 60)) + ' min ago'; if (d < 86400) return Math.round(d / 3600) + ' h ago'; return new Date(t).toLocaleDateString(); }
@@ -219,6 +226,8 @@
       '<div class="side"><div class="level">Level <i>' + (p.level || L.level) + '</i></div><div class="lvbar"><i id="lv"></i></div><span class="dim" style="font-size:12px">' + (p.xp || 0) + ' XP</span>' +
       (feat ? '<div class="feat"><div class="bic">' + badgeIcon(feat, true) + '</div><div><b>' + esc(BADGES[feat].n) + '</b><span>' + esc(BADGES[feat].d) + '</span></div></div>' : '') + '</div></div>' +
       '<div class="cols"><div class="main">';
+    var mus = musicEmbed(p.music);
+    if (mus) h += '<div class="sc"><div class="sc-h">Currently obsessed with:</div><iframe style="display:block;width:100%;border:0" src="' + esc(mus.src) + '" height="' + mus.h + '" allow="autoplay; clipboard-write; encrypted-media; fullscreen" loading="lazy"></iframe></div>';
     if (badges.length) h += '<div class="sc"><div class="sc-h">Badges<small>' + badges.length + '</small></div><div class="badges">' + badges.map(function (b) { return '<div class="bd" title="' + esc(BADGES[b].d) + '"><div class="bic">' + badgeIcon(b, true) + '</div><b>' + esc(BADGES[b].n) + '</b></div>'; }).join('') + '</div></div>';
     h += '<div class="sc"><div class="sc-h">Inventory<small>' + inv.length + ' items</small></div>' + (inv.length ? '<div class="grid" id="inv"></div>' : '<div class="empty">Nothing in here yet.</div>') + '</div>';
     h += '<div class="sc"><div class="sc-h">Screenshots<small>' + scr.length + '</small></div>' + (scr.length ? '<div class="grid wide" id="scr"></div>' : '<div class="empty">No screenshots yet.</div>') + '</div>';
