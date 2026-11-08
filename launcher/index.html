@@ -70,7 +70,8 @@
   .hero .tag { max-width: 560px; margin: 24px auto 32px; color: #c9cad0; font-size: 18px; }
   .meta { margin-top: 14px; font-size: 13px; color: var(--dim); letter-spacing: .04em; }
   .shot3d { margin: 64px auto 0; width: min(1000px, 100%); perspective: 1600px; }
-  .shot3d .frame { border-radius: 12px; overflow: hidden; border: 1px solid #ffffff2a; box-shadow: 0 40px 120px rgba(0,0,0,.8), 0 0 80px rgba(255,255,255,.07); transform: rotateX(14deg) scale(.96); transition: transform .25s ease-out; }
+  .shot3d .frame { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #ffffff2a; box-shadow: 0 40px 120px rgba(0,0,0,.8), 0 0 80px rgba(255,255,255,.07); transform: rotateX(14deg) scale(.96); will-change: transform; }
+  .shot3d .glare { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; }
   .scroll-hint { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); font: 600 11px var(--display); letter-spacing: .3em; color: var(--dim); animation: bob 2s ease-in-out infinite; }
   @keyframes bob { 50% { transform: translate(-50%, 6px); } }
 
@@ -132,7 +133,6 @@
   /* reveal on scroll */
   .rv { opacity: 0; transform: translateY(40px); transition: opacity 1s var(--ease), transform 1s var(--ease); }
   .rv.in { opacity: 1; transform: none; }
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .rv { opacity: 1; transform: none; } .hero h1 span { opacity: 1; transform: none; filter: none; } }
 </style>
 </head>
 <body>
@@ -155,7 +155,7 @@
       <p class="tag">Install my games with one click, get every update the second it drops, and make the profile yours. Free, for Windows.</p>
       <a class="dl dlbtn" href="https://github.com/Mentoxs/Mentoxs.github.io/releases/download/launcher-v2/MentoxsLauncher-Setup.exe"><i><svg viewBox="0 0 12 12"><path d="M6 1v8M2.5 6 6 9.5 9.5 6"/></svg></i>DOWNLOAD FOR WINDOWS</a>
       <div class="meta" id="dlMeta">Windows 10 / 11 &middot; 64-bit</div>
-      <div class="shot3d"><div class="frame" id="heroFrame"><img src="../images/launcher/library.jpg" alt="Mentoxs Launcher library"></div></div>
+      <div class="shot3d"><div class="frame" id="heroFrame"><img src="../images/launcher/library.jpg" alt="Mentoxs Launcher library"><div class="glare" id="heroGlare"></div></div></div>
     </div>
     <div class="scroll-hint">SCROLL</div>
   </section>
@@ -220,7 +220,7 @@
 <script>
 (function () {
   var SG = function (seed, o) { var x = { seed: seed }; for (var k in o) x[k] = o[k]; return Sigils.svg(x); };
-  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reduce = false;   // the animations are the point of this page, so they always run
 
   // intro
   document.getElementById("introSig").innerHTML = SG(3, { glow: true });
@@ -269,18 +269,30 @@
   });
 
   // hero: the screenshot leans with the mouse, the big sigil drifts
-  var frame = document.getElementById("heroFrame"), hs = document.getElementById("heroSig");
-  addEventListener("mousemove", function (e) {
-    if (reduce) return;
-    var x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
-    frame.style.transform = "rotateX(" + (14 - y * 10) + "deg) rotateY(" + x * 10 + "deg) scale(.96)";
-    hs.style.transform = "translate(calc(-50% + " + x * -40 + "px), calc(-50% + " + y * -30 + "px))";
-  });
-  // nav turns solid after the hero; the screenshot straightens as you scroll
-  addEventListener("scroll", function () {
-    document.getElementById("nav").classList.toggle("solid", scrollY > 40);
-    if (!reduce) { var k = Math.min(1, scrollY / 500); frame.style.transform = "rotateX(" + 14 * (1 - k) + "deg) scale(" + (.96 + .04 * k) + ")"; }
-  }, { passive: true });
+  // the screenshot turns to look at the cursor (smoothly, every frame), with a light glare where the cursor is
+  var frame = document.getElementById("heroFrame"), hs = document.getElementById("heroSig"), glare = document.getElementById("heroGlare");
+  var mx = innerWidth / 2, my = innerHeight / 2, rx = 14, ry = 0, gx = 50, gy = 30, gl = 0;
+  addEventListener("mousemove", function (e) { mx = e.clientX; my = e.clientY; }, { passive: true });
+  document.addEventListener("mouseleave", function () { mx = innerWidth / 2; my = innerHeight * .35; });
+  (function look() {
+    if (!reduce) {
+      var r = frame.getBoundingClientRect();
+      var dx = Math.max(-1.4, Math.min(1.4, (mx - (r.left + r.width / 2)) / (r.width / 2)));
+      var dy = Math.max(-1.4, Math.min(1.4, (my - (r.top + r.height / 2)) / (r.height / 2)));
+      var k = Math.min(1, scrollY / 500);                         // straightens out as you scroll down to it
+      var tx = (14 * (1 - k)) - dy * 11, ty = dx * 17;
+      rx += (tx - rx) * .09; ry += (ty - ry) * .09;               // ease towards the cursor
+      frame.style.transform = "rotateX(" + rx.toFixed(2) + "deg) rotateY(" + ry.toFixed(2) + "deg) scale(" + (.96 + .04 * k).toFixed(3) + ")";
+      frame.style.boxShadow = (-ry * 2.2).toFixed(1) + "px " + (40 + rx * 1.5).toFixed(1) + "px 120px rgba(0,0,0,.8), 0 0 80px rgba(255,255,255,.07)";
+      var inside = Math.abs(dx) < 1.05 && Math.abs(dy) < 1.05;
+      gx += (((dx + 1) / 2) * 100 - gx) * .15; gy += (((dy + 1) / 2) * 100 - gy) * .15; gl += ((inside ? 1 : .35) - gl) * .1;
+      glare.style.background = "radial-gradient(circle at " + gx.toFixed(1) + "% " + gy.toFixed(1) + "%, rgba(255,255,255," + (.22 * gl).toFixed(3) + "), transparent 45%)";
+      hs.style.transform = "translate(calc(-50% + " + ((mx / innerWidth - .5) * -40).toFixed(1) + "px), calc(-50% + " + ((my / innerHeight - .5) * -30).toFixed(1) + "px))";
+    }
+    requestAnimationFrame(look);
+  })();
+  // nav turns solid after the hero
+  addEventListener("scroll", function () { document.getElementById("nav").classList.toggle("solid", scrollY > 40); }, { passive: true });
 
   // dust
   (function () {
