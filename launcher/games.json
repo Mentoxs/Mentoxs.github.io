@@ -1,0 +1,22 @@
+[
+  {
+    "id": "chata",
+    "name": "CHATA",
+    "subtitle": "The Cabin Near Trenčín",
+    "genre": "First-person horror",
+    "repo": "Mentoxs/Mentoxs.github.io",
+    "tagPrefix": "chata-v",
+    "exe": "CHATA.exe",
+    "cover": "https://mentoxs.github.io/images/chata/mirror.jpg",
+    "hero": "https://mentoxs.github.io/images/chata/road.jpg",
+    "page": "https://mentoxs.github.io/chata/",
+    "description": "Six friends, a wooden cabin in the mountains above Trenčín, way too much borovička, and a drive nobody should have taken. Based on a true story. English + Slovak.",
+    "screenshots": [
+      "https://mentoxs.github.io/images/chata/arrive.jpg",
+      "https://mentoxs.github.io/images/chata/toast.jpg",
+      "https://mentoxs.github.io/images/chata/forest.jpg",
+      "https://mentoxs.github.io/images/chata/knock.jpg",
+      "https://mentoxs.github.io/images/chata/fog.jpg"
+    ]
+  }
+]
