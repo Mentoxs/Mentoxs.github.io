@@ -4,172 +4,309 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mentoxs Launcher</title>
-<meta name="description" content="Mentoxs Launcher: install, play and update Mentoxs games like CHATA. Y2K style. Free for Windows.">
-<meta name="theme-color" content="#1a0b33">
+<meta name="description" content="Mentoxs Launcher: install, play and update Mentoxs games like CHATA. Free for Windows.">
+<meta name="theme-color" content="#050506">
 <meta property="og:title" content="Mentoxs Launcher">
-<meta property="og:description" content="Install, play and update Mentoxs games. Profiles, playtime and achievements. Free for Windows.">
+<meta property="og:description" content="Install, play and update Mentoxs games. Profiles, play time and achievements. Free for Windows.">
 <meta property="og:image" content="../images/launcher/library.jpg">
 <link rel="icon" href="../images/launcher/icon.png">
 <style>
-  :root { --a: #ff7ad9; --b: #7ae8ff; --c: #b98cff; --deep: #1a0b33; --deep2: #2a1056; --ink: #f5f3ff; --dim: #c3b8e6; --font: "Trebuchet MS", Verdana, Tahoma, sans-serif; }
+  :root { --bg: #050506; --panel: #0f0f12; --line: #222228; --ink: #f2f2f4; --dim: #8b8b94; --ease: cubic-bezier(.2,.8,.2,1);
+    --font: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; --display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif; }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body { margin: 0; font: 16px/1.55 var(--font); color: var(--ink); background: var(--deep); overflow-x: hidden; }
-  a { color: var(--b); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--font); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
   img { display: block; max-width: 100%; }
-  .wrap { width: min(1100px, 100% - 32px); margin: 0 auto; }
+  .wrap { width: min(1160px, 100% - 32px); margin: 0 auto; }
+  .sigil { width: 100%; height: 100%; overflow: visible; }
+  .chrome { background: linear-gradient(176deg, #fff 0%, #c9ccd4 38%, #fff 48%, #6c6f78 55%, #e7e9ee 72%, #9da1ab 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .dim { color: var(--dim); }
+  .dust { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  main, header, footer { position: relative; z-index: 1; }
 
-  /* sky */
-  .sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: radial-gradient(ellipse at 20% 0%, var(--deep2), var(--deep) 70%); }
-  .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .45; animation: float 18s ease-in-out infinite alternate; }
-  .b1 { width: 560px; height: 440px; left: -140px; top: 60px; background: var(--a); }
-  .b2 { width: 520px; height: 520px; right: -160px; top: -140px; background: var(--b); opacity: .33; animation-delay: -6s; }
-  .b3 { width: 640px; height: 380px; left: 30%; bottom: -220px; background: var(--c); animation-delay: -11s; }
-  @keyframes float { to { transform: translate(60px, -40px) scale(1.15); } }
-  .stars i { position: absolute; color: #fff; font-style: normal; text-shadow: 0 0 6px #fff, 0 0 14px var(--b); animation: tw 3s ease-in-out infinite; }
-  @keyframes tw { 0%, 100% { opacity: .15; transform: scale(.6); } 50% { opacity: 1; transform: scale(1) rotate(25deg); } }
-  .grid { position: absolute; left: -50%; right: -50%; bottom: -10%; height: 40%; transform: perspective(500px) rotateX(70deg);
-    background-image: linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px);
-    background-size: 48px 48px; -webkit-mask-image: linear-gradient(transparent, #000 60%); mask-image: linear-gradient(transparent, #000 60%); animation: gm 6s linear infinite; }
-  @keyframes gm { to { background-position: 0 48px; } }
+  /* intro */
+  .intro { position: fixed; inset: 0; z-index: 99; background: #000; display: grid; place-items: center; transition: opacity .8s var(--ease), visibility .8s; }
+  .intro.gone { opacity: 0; visibility: hidden; }
+  .intro div { width: 180px; height: 180px; animation: introSig 1.3s var(--ease) both; filter: drop-shadow(0 0 26px rgba(255,255,255,.5)); }
+  @keyframes introSig { from { opacity: 0; transform: scale(.4) rotate(-50deg); filter: blur(14px); } }
 
-  /* chrome text + bubbles */
-  .chrome { background: linear-gradient(180deg, #fff 0%, #c9d3e6 45%, #6f7d99 50%, #e9eef8 75%, #fff 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
-    font-style: italic; font-weight: 900; filter: drop-shadow(0 2px 0 rgba(0,0,0,.35)) drop-shadow(0 0 14px rgba(255,122,217,.6)); }
-  .bubble { position: relative; display: inline-flex; align-items: center; gap: 10px; padding: 14px 34px; border-radius: 999px; border: 1px solid rgba(0,0,0,.35); color: #fff; text-decoration: none;
-    font: italic 800 20px var(--font); letter-spacing: .03em; text-shadow: 0 1px 2px rgba(0,0,0,.5); overflow: hidden;
-    background: linear-gradient(#c9ffb0, #47d12e 50%, #2fae18 51%, #8cf06a); box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 -3px 6px rgba(0,0,0,.18), 0 8px 22px rgba(0,0,0,.4); transition: transform .15s, filter .15s; }
-  .bubble::before { content: ""; position: absolute; left: 10%; right: 10%; top: 2px; height: 42%; border-radius: 999px; background: linear-gradient(rgba(255,255,255,.75), rgba(255,255,255,.08)); }
-  .bubble:hover { transform: translateY(-2px); filter: brightness(1.1); }
-  .bubble.blue { background: linear-gradient(#a9d8ff, #3f8ff0 50%, #2470d6 51%, #6fb7ff); font-size: 16px; padding: 10px 22px; }
-  .bubble.big { font-size: 26px; padding: 16px 46px; animation: pulse 1.6s ease-in-out infinite; }
-  @keyframes pulse { 50% { box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 0 0 7px rgba(71,209,46,.25), 0 0 34px rgba(140,240,106,.7); } }
+  /* nav */
+  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; height: 64px; display: flex; align-items: center; gap: 28px; padding: 0 max(16px, calc((100% - 1160px) / 2));
+    transition: background .3s, border-color .3s; border-bottom: 1px solid transparent; }
+  .nav.solid { background: rgba(5,5,6,.82); backdrop-filter: blur(14px); border-color: var(--line); }
+  .nav .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 15px var(--display); letter-spacing: .32em; }
+  .nav .logo span { width: 30px; height: 30px; transition: transform .6s var(--ease); }
+  .nav .logo:hover span { transform: rotate(90deg); }
+  .nav .links { display: flex; gap: 24px; margin-left: auto; font: 600 13px var(--display); letter-spacing: .14em; }
+  .nav .links a { text-decoration: none; color: var(--dim); transition: color .2s; }
+  .nav .links a:hover { color: #fff; }
+  @media (max-width: 760px) { .nav .links { display: none; } }
 
-  /* top bar */
-  .top { position: sticky; top: 0; z-index: 10; height: 46px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
-    background: linear-gradient(#f4f7ff, #b9c4dc 48%, #8e9cbd 52%, #d7def0); border-bottom: 1px solid #5d6a8a; box-shadow: inset 0 1px 0 #fff, 0 2px 12px rgba(0,0,0,.4); }
-  .top a { color: #2a1856; text-decoration: none; font-weight: 700; font-style: italic; }
-  .top .logo { display: flex; align-items: center; gap: 8px; font-size: 19px; }
-  .top .logo img { width: 24px; height: 24px; }
-  .top nav { display: flex; gap: 18px; font-size: 14px; }
-  @media (max-width: 640px) { .top nav a:not(:first-child) { display: none; } }
+  /* buttons */
+  .dl { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 14px; padding: 0 34px 0 22px; height: 60px; border-radius: 8px; text-decoration: none;
+    font: 700 17px var(--display); letter-spacing: .14em; color: #000; background: linear-gradient(180deg, #fff, #d9dbe1 48%, #b9bcc5 52%, #f3f4f7);
+    box-shadow: 0 0 0 1px #fff4, 0 14px 40px rgba(255,255,255,.12); transition: transform .15s, box-shadow .3s; }
+  .dl::after { content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.95), transparent); transform: skewX(-20deg); animation: sweep 3.2s 1.6s var(--ease) infinite; }
+  @keyframes sweep { 0% { left: -60%; } 35%, 100% { left: 130%; } }
+  .dl:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px #fff, 0 0 50px rgba(255,255,255,.35); }
+  .dl i { width: 30px; height: 30px; border-radius: 50%; background: #000; display: grid; place-items: center; }
+  .dl i svg { width: 12px; height: 12px; stroke: #fff; stroke-width: 2; fill: none; }
+  .dl.sm { height: 40px; padding: 0 18px 0 12px; font-size: 12.5px; gap: 10px; }
+  .dl.sm i { width: 22px; height: 22px; } .dl.sm i svg { width: 9px; height: 9px; }
 
   /* hero */
-  .hero { padding: 64px 0 40px; display: grid; grid-template-columns: 1fr 1.25fr; gap: 40px; align-items: center; }
-  .hero h1 { margin: 0; font-size: clamp(48px, 7vw, 86px); line-height: .95; }
-  .hero .tag { font-size: 19px; font-style: italic; color: #ece6ff; margin: 16px 0 26px; }
-  .meta { margin-top: 14px; font-size: 13.5px; color: var(--dim); }
-  .orbimg { width: 92px; margin-bottom: 12px; filter: drop-shadow(0 0 24px var(--a)); animation: bob 4s ease-in-out infinite; }
-  @keyframes bob { 50% { transform: translateY(-8px) rotate(6deg); } }
-  .shot { border-radius: 14px; padding: 4px; background: conic-gradient(from 120deg, var(--a), var(--b), var(--c), var(--a)); box-shadow: 0 20px 50px rgba(0,0,0,.55); transform: rotate(1.2deg); }
-  .shot img { border-radius: 11px; }
-  @media (max-width: 860px) { .hero { grid-template-columns: 1fr; text-align: center; } .orbimg { margin: 0 auto 12px; } .shot { transform: none; } }
+  .hero { position: relative; min-height: 100vh; display: grid; place-items: center; text-align: center; padding: 120px 0 60px; overflow: hidden; }
+  .hero-sigil { position: absolute; left: 50%; top: 44%; width: min(760px, 120vw); height: min(760px, 120vw); transform: translate(-50%, -50%); opacity: .14; pointer-events: none; }
+  .hero-sigil > div { width: 100%; height: 100%; animation: spin 120s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hero-in { position: relative; }
+  .hero .mini { width: 120px; height: 120px; margin: 0 auto 14px; filter: drop-shadow(0 0 22px rgba(255,255,255,.55)); animation: float 6s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-12px) rotate(5deg); } }
+  .hero h1 { margin: 0; font: 900 clamp(56px, 11vw, 150px)/.9 var(--display); letter-spacing: .12em; padding-left: .12em; }
+  .hero h1 span { display: inline-block; opacity: 0; transform: translateY(30px); filter: blur(8px); animation: up .9s var(--ease) forwards; }
+  @keyframes up { to { opacity: 1; transform: none; filter: none; } }
+  .hero .sub { margin: 10px 0 0; font: 600 clamp(14px, 1.6vw, 18px) var(--display); letter-spacing: .6em; color: var(--dim); padding-left: .6em; }
+  .hero .tag { max-width: 560px; margin: 24px auto 32px; color: #c9cad0; font-size: 18px; }
+  .meta { margin-top: 14px; font-size: 13px; color: var(--dim); letter-spacing: .04em; }
+  .shot3d { margin: 64px auto 0; width: min(1000px, 100%); perspective: 1600px; }
+  .shot3d .frame { border-radius: 12px; overflow: hidden; border: 1px solid #ffffff2a; box-shadow: 0 40px 120px rgba(0,0,0,.8), 0 0 80px rgba(255,255,255,.07); transform: rotateX(14deg) scale(.96); transition: transform .25s ease-out; }
+  .scroll-hint { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); font: 600 11px var(--display); letter-spacing: .3em; color: var(--dim); animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translate(-50%, 6px); } }
 
-  /* features */
-  h2 { font-size: clamp(30px, 4vw, 44px); margin: 0 0 18px; }
-  section { padding: 40px 0; }
-  .feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .feat { padding: 20px; border-radius: 20px; background: linear-gradient(rgba(255,255,255,.2), rgba(255,255,255,.05)); border: 1px solid rgba(255,255,255,.3); box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
-  .feat .ic { font-size: 28px; color: var(--b); text-shadow: 0 0 10px var(--b); }
-  .feat b { display: block; font-size: 19px; font-style: italic; margin: 6px 0 4px; }
-  .feat p { margin: 0; color: var(--dim); font-size: 14.5px; }
-  @media (max-width: 860px) { .feats { grid-template-columns: 1fr; } }
+  /* marquee */
+  .marq { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; padding: 16px 0; background: #08080a; }
+  .marq-in { display: flex; gap: 40px; width: max-content; animation: marq 30s linear infinite; font: 800 30px var(--display); letter-spacing: .2em; }
+  .marq-in > * { display: flex; align-items: center; gap: 40px; white-space: nowrap; }
+  .marq-in .ms { width: 34px; height: 34px; }
+  .marq-in b:nth-child(4n+1) { -webkit-text-stroke: 1px #fff; color: transparent; }
+  @keyframes marq { to { transform: translateX(-50%); } }
 
-  .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .gallery figure { margin: 0; }
-  .gallery figcaption { margin-top: 8px; font-style: italic; color: var(--dim); text-align: center; }
-  @media (max-width: 760px) { .gallery { grid-template-columns: 1fr; } }
+  /* sections */
+  section { padding: 110px 0; }
+  .kick { font: 600 12px var(--display); letter-spacing: .3em; color: var(--dim); }
+  h2 { margin: 10px 0 40px; font: 800 clamp(34px, 5vw, 62px)/1.02 var(--display); letter-spacing: .02em; }
+  .feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; perspective: 1200px; }
+  .feat { position: relative; padding: 26px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); overflow: hidden; transition: transform .2s ease-out, border-color .3s; }
+  .feat::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgba(255,255,255,.12), transparent 50%); opacity: 0; transition: opacity .3s; }
+  .feat:hover { border-color: #ffffff40; }
+  .feat:hover::before { opacity: 1; }
+  .feat .fs { width: 58px; height: 58px; margin-bottom: 14px; filter: drop-shadow(0 0 10px rgba(255,255,255,.35)); transition: transform .6s var(--ease); }
+  .feat:hover .fs { transform: rotate(45deg) scale(1.1); }
+  .feat b { display: block; font: 700 19px var(--display); margin-bottom: 4px; }
+  .feat p { margin: 0; color: var(--dim); font-size: 15px; }
+  @media (max-width: 900px) { .feats { grid-template-columns: 1fr; } }
 
-  /* XP window for the how-to */
-  .xpwin { max-width: 760px; margin: 0 auto; border-radius: 9px 9px 4px 4px; overflow: hidden; border: 1px solid #0831d9; box-shadow: 0 14px 40px rgba(0,0,0,.5); background: #ece9d8; color: #111; }
-  .xptitle { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; color: #fff; font: bold 14px Tahoma, sans-serif; text-shadow: 1px 1px 1px #0008;
-    background: linear-gradient(#0997ff, #0053ee 8%, #0050ee 40%, #06f 88%, #0b5ee8 93%, #0033d1); }
-  .xpx { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 3px; border: 1px solid #fff; background: linear-gradient(#e47b5b, #c43c18); font-size: 12px; }
-  .xpbody { padding: 18px 22px; font: 14.5px/1.6 Tahoma, Verdana, sans-serif; }
-  .xpbody ol { margin: 0; padding-left: 22px; }
-  .xpbody li { margin: 6px 0; }
-  .xpbody .warn { margin-top: 14px; padding: 10px 12px; background: #fff8c4; border: 1px solid #c9b23c; }
-  .xpbody code { background: #fff; border: 1px solid #ccc; padding: 0 4px; }
+  .show { display: grid; grid-template-columns: 1.3fr 1fr; gap: 60px; align-items: center; margin-bottom: 110px; }
+  .show.rev { grid-template-columns: 1fr 1.3fr; }
+  .show.rev .show-img { order: 2; }
+  .show-img { position: relative; perspective: 1400px; }
+  .show-img .frame { border-radius: 12px; overflow: hidden; border: 1px solid #ffffff22; box-shadow: 0 30px 80px rgba(0,0,0,.7); transition: transform .25s ease-out; }
+  .show-img .ss { position: absolute; width: 150px; height: 150px; right: -50px; top: -60px; z-index: 2; filter: drop-shadow(0 0 18px rgba(255,255,255,.5)); animation: float 7s ease-in-out infinite; }
+  .show.rev .show-img .ss { left: -50px; right: auto; }
+  .show h3 { margin: 10px 0 14px; font: 800 38px/1.05 var(--display); }
+  .show p { color: #c4c5cc; font-size: 17px; margin: 0 0 12px; }
+  .show ul { list-style: none; margin: 18px 0 0; padding: 0; }
+  .show li { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); color: #d6d7dc; }
+  .show li::before { content: ""; width: 6px; height: 6px; background: #fff; transform: rotate(45deg); box-shadow: 0 0 8px #fff; flex: none; }
+  @media (max-width: 900px) { .show, .show.rev { grid-template-columns: 1fr; gap: 30px; } .show.rev .show-img { order: 0; } .show-img .ss { width: 100px; height: 100px; right: -10px; } }
 
-  footer { padding: 40px 0 60px; text-align: center; color: var(--dim); font-size: 14px; }
-  @media (prefers-reduced-motion: reduce) { .blob, .stars i, .grid, .bubble.big, .orbimg { animation: none; } }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; position: relative; }
+  .steps::before { content: ""; position: absolute; top: 27px; left: 6%; right: 6%; height: 1px; background: linear-gradient(90deg, transparent, #fff, transparent); transform: scaleX(var(--p, 0)); transition: transform 1.4s var(--ease); }
+  .steps.in { --p: 1; }
+  .step { text-align: center; padding: 0 8px; }
+  .step .n { width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); border: 1px solid #fff; font: 800 20px var(--display); box-shadow: 0 0 20px rgba(255,255,255,.2); position: relative; }
+  .step b { display: block; font: 700 17px var(--display); }
+  .step p { margin: 6px 0 0; color: var(--dim); font-size: 14.5px; }
+  .warn { margin: 46px auto 0; max-width: 720px; padding: 16px 20px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: #c4c5cc; font-size: 14.5px; display: flex; gap: 14px; align-items: center; }
+  .warn .ws { width: 40px; height: 40px; flex: none; }
+  @media (max-width: 800px) { .steps { grid-template-columns: 1fr 1fr; row-gap: 36px; } .steps::before { display: none; } }
+
+  .cta { position: relative; text-align: center; padding: 140px 0 120px; overflow: hidden; border-top: 1px solid var(--line); }
+  .cta .big { width: 360px; height: 360px; margin: -60px auto -40px; filter: drop-shadow(0 0 30px rgba(255,255,255,.45)); }
+  .cta .big > div { width: 100%; height: 100%; animation: spin 60s linear infinite; }
+  .cta h2 { margin-bottom: 30px; }
+  footer { padding: 30px 0 50px; text-align: center; color: var(--dim); font-size: 13.5px; border-top: 1px solid var(--line); }
+  footer a { text-decoration: none; } footer a:hover { color: #fff; }
+
+  /* reveal on scroll */
+  .rv { opacity: 0; transform: translateY(40px); transition: opacity 1s var(--ease), transform 1s var(--ease); }
+  .rv.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .rv { opacity: 1; transform: none; } .hero h1 span { opacity: 1; transform: none; filter: none; } }
 </style>
 </head>
 <body>
-<div class="sky" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><div class="stars" id="stars"></div><div class="grid"></div></div>
+<div class="intro" id="intro"><div id="introSig"></div></div>
+<canvas class="dust" id="dust" aria-hidden="true"></canvas>
 
-<header class="top">
-  <a class="logo" href="../"><img src="../images/launcher/icon.png" alt=""> mentoxs.github.io</a>
-  <nav><a href="#get">download</a><a href="#features">features</a><a href="#pics">pics</a><a href="../chata/">CHATA</a></nav>
+<header class="nav" id="nav">
+  <a class="logo" href="../"><span id="navSig"></span>MENTOXS</a>
+  <nav class="links"><a href="#features">FEATURES</a><a href="#look">LOOK</a><a href="#install">INSTALL</a><a href="../chata/">CHATA</a></nav>
+  <a class="dl sm dlbtn" href="https://github.com/Mentoxs/Mentoxs.github.io/releases/download/launcher-v2/MentoxsLauncher-Setup.exe"><i><svg viewBox="0 0 12 12"><path d="M6 1v8M2.5 6 6 9.5 9.5 6"/></svg></i>DOWNLOAD</a>
 </header>
 
-<main class="wrap">
-  <section class="hero" id="get">
-    <div>
-      <img class="orbimg" src="../images/launcher/icon.png" alt="">
-      <h1 class="chrome">Mentoxs<br>Launcher</h1>
-      <p class="tag">My own game launcher ~ like Steam, but y2k. Install my games with one click, get every update the second it drops, and make your own profile. &#10022;</p>
-      <a class="bubble big" id="dl" href="https://github.com/Mentoxs/Mentoxs.github.io/releases/download/launcher-v1/MentoxsLauncher-Setup.exe">&#8595; Download</a>
-      <div class="meta" id="dlMeta">free &middot; Windows 10 / 11 &middot; 64-bit</div>
+<main>
+  <section class="hero" id="top">
+    <div class="hero-sigil" id="heroSig" aria-hidden="true"><div></div></div>
+    <div class="wrap hero-in">
+      <div class="mini" id="heroMini"></div>
+      <h1 class="chrome" id="heroWord">MENTOXS</h1>
+      <p class="sub">LAUNCHER</p>
+      <p class="tag">Install my games with one click, get every update the second it drops, and make the profile yours. Free, for Windows.</p>
+      <a class="dl dlbtn" href="https://github.com/Mentoxs/Mentoxs.github.io/releases/download/launcher-v2/MentoxsLauncher-Setup.exe"><i><svg viewBox="0 0 12 12"><path d="M6 1v8M2.5 6 6 9.5 9.5 6"/></svg></i>DOWNLOAD FOR WINDOWS</a>
+      <div class="meta" id="dlMeta">Windows 10 / 11 &middot; 64-bit</div>
+      <div class="shot3d"><div class="frame" id="heroFrame"><img src="../images/launcher/library.jpg" alt="Mentoxs Launcher library"></div></div>
     </div>
-    <div class="shot"><img src="../images/launcher/library.jpg" alt="Mentoxs Launcher showing the game library with CHATA"></div>
+    <div class="scroll-hint">SCROLL</div>
   </section>
+
+  <div class="marq" aria-hidden="true"><div class="marq-in" id="marq"></div></div>
 
   <section id="features">
-    <h2 class="chrome">what it does</h2>
-    <div class="feats">
-      <div class="feat"><span class="ic">&#9733;</span><b>One-click install</b><p>Pick a game, press INSTALL, done. No zip files, no folders to find.</p></div>
-      <div class="feat"><span class="ic">&#8635;</span><b>Auto updates</b><p>Checks for new versions every 10 minutes. When I release one, a pop-up tells you and UPDATE does the rest.</p></div>
-      <div class="feat"><span class="ic">&#9786;</span><b>Your profile</b><p>Your own name, mood message and profile pic, MSN-style. Five themes: bubblegum, cyber lime, aqua frost, sunset and chrome.</p></div>
-      <div class="feat"><span class="ic">&#9201;</span><b>Playtime</b><p>Counts how long you played each game and when you last played.</p></div>
-      <div class="feat"><span class="ic">&#9734;</span><b>Achievements</b><p>Find all 7 photos of Kiko, reach every chapter of CHATA, play for an hour...</p></div>
-      <div class="feat"><span class="ic">&#128196;</span><b>What's new</b><p>Every update comes with notes, so you know what changed before you play.</p></div>
+    <div class="wrap">
+      <div class="kick rv">// WHAT IT DOES</div>
+      <h2 class="rv chrome">Everything in<br>one place.</h2>
+      <div class="feats" id="feats"></div>
     </div>
   </section>
 
-  <section id="pics">
-    <h2 class="chrome">pics</h2>
-    <div class="gallery">
-      <figure><div class="shot" style="transform:rotate(-.8deg)"><img src="../images/launcher/game.jpg" alt="The CHATA page in the launcher with the install button and release notes" loading="lazy"></div><figcaption>a game page: install, play, update, what's new</figcaption></figure>
-      <figure><div class="shot"><img src="../images/launcher/profile.jpg" alt="The profile page with name, mood message, themes and stats" loading="lazy"></div><figcaption>your profile, themes and stats</figcaption></figure>
-    </div>
-  </section>
-
-  <section>
-    <div class="xpwin">
-      <div class="xptitle"><span>&#128196; how_to_install.txt</span><span class="xpx">&#10005;</span></div>
-      <div class="xpbody">
-        <ol>
-          <li>Click <b>Download</b> and run <code>MentoxsLauncher-Setup.exe</code>.</li>
-          <li>Pick where to install it and click <b>Install</b>. It puts a shortcut on your desktop.</li>
-          <li>Open the launcher, click <b>CHATA</b>, then <b>INSTALL</b> (about 250 MB).</li>
-          <li>Press <b>PLAY</b>. That's it. Updates show up by themselves.</li>
-        </ol>
-        <div class="warn">&#9888; Windows may say <i>"Windows protected your PC"</i> because the launcher isn't signed by a big company. Click <b>More info</b> &rarr; <b>Run anyway</b>. It's safe, I made it.</div>
+  <section id="look" style="padding-top:0">
+    <div class="wrap">
+      <div class="show rv">
+        <div class="show-img"><div class="ss" data-sig="11"></div><div class="frame tiltable"><img src="../images/launcher/game.jpg" alt="The CHATA page in the launcher" loading="lazy"></div></div>
+        <div>
+          <div class="kick">// GAME PAGE</div>
+          <h3 class="chrome">Press play.<br>That's it.</h3>
+          <p>Every game gets its own page with the art, your play time, the latest version and what changed in every update.</p>
+          <ul><li>One button: install, update or play</li><li>Live download speed and progress</li><li>Release notes for every version</li></ul>
+        </div>
+      </div>
+      <div class="show rev rv">
+        <div class="show-img"><div class="ss" data-sig="7"></div><div class="frame tiltable"><img src="../images/launcher/profile.jpg" alt="Your profile in the launcher" loading="lazy"></div></div>
+        <div>
+          <div class="kick">// PROFILE</div>
+          <h3 class="chrome">Make it<br>yours.</h3>
+          <p>Your name, your status, your picture, and a sigil that follows you everywhere in the launcher.</p>
+          <ul><li>Six chrome sigils to pick from</li><li>Level up by playing and unlocking achievements</li><li>Find all 7 photos of Kiko in CHATA</li></ul>
+        </div>
       </div>
     </div>
   </section>
+
+  <section id="install" style="padding-top:0">
+    <div class="wrap">
+      <div class="kick rv">// INSTALL</div>
+      <h2 class="rv chrome">Four steps.</h2>
+      <div class="steps rv" id="steps">
+        <div class="step"><div class="n">1</div><b>Download</b><p>Get MentoxsLauncher-Setup.exe from this page.</p></div>
+        <div class="step"><div class="n">2</div><b>Install</b><p>Run it, pick a folder, done. It adds a desktop shortcut.</p></div>
+        <div class="step"><div class="n">3</div><b>Get a game</b><p>Click CHATA, then INSTALL (about 250 MB).</p></div>
+        <div class="step"><div class="n">4</div><b>Play</b><p>Updates arrive on their own from now on.</p></div>
+      </div>
+      <div class="warn rv"><div class="ws" id="warnSig"></div><div>Windows might say <b>"Windows protected your PC"</b> because the launcher isn't signed by a big company. Click <b>More info</b>, then <b>Run anyway</b>. It's safe, I made it.</div></div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="big" id="ctaSig"><div></div></div>
+    <h2 class="chrome rv">Ready?</h2>
+    <a class="dl dlbtn rv" href="https://github.com/Mentoxs/Mentoxs.github.io/releases/download/launcher-v2/MentoxsLauncher-Setup.exe"><i><svg viewBox="0 0 12 12"><path d="M6 1v8M2.5 6 6 9.5 9.5 6"/></svg></i>DOWNLOAD MENTOXS</a>
+  </section>
 </main>
 
-<footer>made by Mentoxs &middot; best viewed in 800x600 &middot; at 3am &middot; <a href="../">back to mentoxs.github.io</a></footer>
+<footer>made by Mentoxs &middot; <a href="../">mentoxs.github.io</a> &middot; <a href="../chata/">CHATA</a></footer>
 
+<script src="sigils.js"></script>
 <script>
 (function () {
-  var box = document.getElementById("stars"), ch = ["✦", "✧", "⋆", "✶", "·"];
-  for (var i = 0; i < 46; i++) {
-    var s = document.createElement("i"); s.textContent = ch[i % ch.length];
-    s.style.left = Math.random() * 100 + "%"; s.style.top = Math.random() * 75 + "%";
-    s.style.fontSize = (8 + Math.random() * 16) + "px"; s.style.animationDelay = (-Math.random() * 3) + "s";
-    box.appendChild(s);
-  }
-  // the download button always gets the newest launcher build
+  var SG = function (seed, o) { var x = { seed: seed }; for (var k in o) x[k] = o[k]; return Sigils.svg(x); };
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // intro
+  document.getElementById("introSig").innerHTML = SG(3, { glow: true });
+  setTimeout(function () { document.getElementById("intro").classList.add("gone"); }, reduce ? 0 : 1300);
+
+  // sigils
+  document.getElementById("navSig").innerHTML = SG(3);
+  document.getElementById("heroMini").innerHTML = SG(3, { glow: true });
+  document.querySelector("#heroSig > div").innerHTML = SG(5, { chrome: false });
+  document.querySelector("#ctaSig > div").innerHTML = SG(9, { glow: true });
+  document.getElementById("warnSig").innerHTML = SG(2);
+  Array.prototype.forEach.call(document.querySelectorAll("[data-sig]"), function (e) { e.innerHTML = SG(+e.getAttribute("data-sig"), { glow: true }); });
+
+  // the big word comes in letter by letter
+  var w = document.getElementById("heroWord");
+  w.innerHTML = w.textContent.split("").map(function (c, i) { return '<span class="chrome" style="animation-delay:' + (1.3 + i * .08) + 's">' + c + "</span>"; }).join("");
+
+  // marquee
+  var words = ["INSTALL", "PLAY", "UPDATE", "CHATA", "PROFILE", "ACHIEVEMENTS", "FREE"], half = "";
+  words.forEach(function (t, i) { half += "<b>" + t + "</b>" + '<span class="ms">' + SG(i + 2) + "</span>"; });
+  document.getElementById("marq").innerHTML = "<div>" + half + "</div><div>" + half + "</div>";
+
+  // features
+  var F = [[2, "One-click install", "Pick a game, press INSTALL. No zip files, no hunting for folders."],
+           [7, "Instant updates", "Checks every 10 minutes. A new version shows up, one click and you have it."],
+           [11, "Your profile", "Name, status, picture and your own chrome sigil."],
+           [9, "Play time", "Tracks how long you play each game and when you last played."],
+           [5, "Achievements", "Unlock them in my games and level up your profile."],
+           [3, "What's new", "Every update comes with notes, right inside the launcher."]];
+  document.getElementById("feats").innerHTML = F.map(function (f, i) { return '<div class="feat rv tiltable" style="transition-delay:' + (i * .07) + 's"><div class="fs">' + SG(f[0], { glow: true }) + "</div><b>" + f[1] + "</b><p>" + f[2] + "</p></div>"; }).join("");
+
+  // reveal on scroll
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: .15 }) : null;
+  Array.prototype.forEach.call(document.querySelectorAll(".rv"), function (e) { io ? io.observe(e) : e.classList.add("in"); });
+
+  // 3D tilt + light follow
+  Array.prototype.forEach.call(document.querySelectorAll(".tiltable"), function (el) {
+    el.addEventListener("mousemove", function (e) {
+      var r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      el.style.transform = "rotateY(" + (x - .5) * 10 + "deg) rotateX(" + (.5 - y) * 10 + "deg)";
+      el.style.setProperty("--mx", x * 100 + "%"); el.style.setProperty("--my", y * 100 + "%");
+    });
+    el.addEventListener("mouseleave", function () { el.style.transform = ""; });
+  });
+
+  // hero: the screenshot leans with the mouse, the big sigil drifts
+  var frame = document.getElementById("heroFrame"), hs = document.getElementById("heroSig");
+  addEventListener("mousemove", function (e) {
+    if (reduce) return;
+    var x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
+    frame.style.transform = "rotateX(" + (14 - y * 10) + "deg) rotateY(" + x * 10 + "deg) scale(.96)";
+    hs.style.transform = "translate(calc(-50% + " + x * -40 + "px), calc(-50% + " + y * -30 + "px))";
+  });
+  // nav turns solid after the hero; the screenshot straightens as you scroll
+  addEventListener("scroll", function () {
+    document.getElementById("nav").classList.toggle("solid", scrollY > 40);
+    if (!reduce) { var k = Math.min(1, scrollY / 500); frame.style.transform = "rotateX(" + 14 * (1 - k) + "deg) scale(" + (.96 + .04 * k) + ")"; }
+  }, { passive: true });
+
+  // dust
+  (function () {
+    var c = document.getElementById("dust"), x = c.getContext("2d"), W, H, P = [];
+    function size() { W = c.width = innerWidth; H = c.height = innerHeight; }
+    size(); addEventListener("resize", size);
+    for (var i = 0; i < 80; i++) P.push({ x: Math.random(), y: Math.random(), r: .4 + Math.random() * 1.4, s: .02 + Math.random() * .06, a: Math.random() * 6.28, o: .12 + Math.random() * .4 });
+    (function frameF() {
+      x.clearRect(0, 0, W, H);
+      P.forEach(function (p) {
+        p.y -= p.s / H * 16; p.a += .01; if (p.y < -.02) { p.y = 1.02; p.x = Math.random(); }
+        x.globalAlpha = p.o * (.6 + .4 * Math.sin(p.a * 2)); x.fillStyle = "#fff";
+        x.beginPath(); x.arc((p.x + Math.sin(p.a) * .004) * W, p.y * H, p.r, 0, 6.283); x.fill();
+      });
+      if (!reduce) requestAnimationFrame(frameF);
+    })();
+  })();
+
+  // every download button points at the newest launcher build
   fetch("https://api.github.com/repos/Mentoxs/Mentoxs.github.io/releases?per_page=100").then(function (r) { return r.json(); }).then(function (list) {
     var best = (list || []).filter(function (x) { return /^launcher-v\d+$/.test(x.tag_name) && x.assets && x.assets.length; })
       .sort(function (a, b) { return parseInt(b.tag_name.slice(10), 10) - parseInt(a.tag_name.slice(10), 10); })[0];
     if (!best) return;
     var a = best.assets.filter(function (x) { return /\.exe$/i.test(x.name); })[0] || best.assets[0];
-    document.getElementById("dl").href = a.browser_download_url;
-    document.getElementById("dlMeta").textContent = "free · Windows 10 / 11 · build " + best.tag_name.slice(10) + " · " + Math.round(a.size / 1048576) + " MB";
+    Array.prototype.forEach.call(document.querySelectorAll(".dlbtn"), function (b) { b.href = a.browser_download_url; });
+    document.getElementById("dlMeta").textContent = "Windows 10 / 11 · build " + best.tag_name.slice(10) + " · " + Math.round(a.size / 1048576) + " MB";
   }).catch(function () {});
 })();
 </script>
