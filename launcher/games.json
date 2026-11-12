@@ -18,5 +18,25 @@
       "https://mentoxs.github.io/images/chata/knock.jpg",
       "https://mentoxs.github.io/images/chata/fog.jpg"
     ]
+  },
+  {
+    "id": "kikomorphosys",
+    "name": "KIKOMORPHOSYS",
+    "subtitle": "Everything Was Normal",
+    "genre": "First-person horror",
+    "repo": "Mentoxs/Mentoxs.github.io",
+    "tagPrefix": "kikomorphosys-v",
+    "exe": "Kikomorphosys.exe",
+    "cover": "https://mentoxs.github.io/images/kikomorphosys/title.jpg",
+    "hero": "https://mentoxs.github.io/images/kikomorphosys/station.jpg",
+    "page": "https://mentoxs.github.io/launcher/",
+    "description": "Mentos drives Kiko to a gas station at 19:07. Smile, you ugly bastard. The photo shows a face in the sky that nobody saw, and the next morning the deleted photo is back on Kiko's phone. Prologue + 4 chapters. English + Slovak.",
+    "screenshots": [
+      "https://mentoxs.github.io/images/kikomorphosys/drive.jpg",
+      "https://mentoxs.github.io/images/kikomorphosys/photo.jpg",
+      "https://mentoxs.github.io/images/kikomorphosys/kitchen.jpg",
+      "https://mentoxs.github.io/images/kikomorphosys/forest.jpg",
+      "https://mentoxs.github.io/images/kikomorphosys/eyes.jpg"
+    ]
   }
 ]
