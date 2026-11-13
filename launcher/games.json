@@ -38,5 +38,25 @@
       "https://mentoxs.github.io/images/kikomorphosys/forest.jpg",
       "https://mentoxs.github.io/images/kikomorphosys/eyes.jpg"
     ]
+  },
+  {
+    "id": "drifty",
+    "name": "DRIFTY",
+    "subtitle": "Sideways Through the Night Garage",
+    "genre": "Drift racing · Multiplayer",
+    "repo": "Mentoxs/Mentoxs.github.io",
+    "tagPrefix": "drifty-v",
+    "exe": "Drifty.exe",
+    "cover": "https://mentoxs.github.io/images/drifty/garage.jpg",
+    "hero": "https://mentoxs.github.io/images/drifty/rotunda.jpg",
+    "page": "https://mentoxs.github.io/launcher/",
+    "description": "A wet underground garage, a round concrete rotunda and a loop over the city at night. Pick Mentos, Kiko, Veronica or Christian, take one of their ten cars (M5 E60, E36, M3 CSL, CLS 63, M4, a Sprinter...), tune it and hold the slide for points. Multiplayer: host a lobby or invite a friend straight from their profile in the launcher.",
+    "screenshots": [
+      "https://mentoxs.github.io/images/drifty/slide.jpg",
+      "https://mentoxs.github.io/images/drifty/grid.jpg",
+      "https://mentoxs.github.io/images/drifty/lap.jpg",
+      "https://mentoxs.github.io/images/drifty/menu.jpg",
+      "https://mentoxs.github.io/images/drifty/garage.jpg"
+    ]
   }
 ]
